@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  --radius: .5rem;
+  
+  /* Nền chính */
+  --color-background: #fff8ec;
+  --color-foreground: #546b41; /* Chữ màu rêu đậm */
+  
+  /* Màu nhấn chính */
+  --color-primary: #546b41;
+  --color-primary-foreground: #fff8ec;
+  
+  /* Thẻ sản phẩm */
+  --color-secondary: #dcccac;
+  --color-secondary-foreground: #546b41;
+  
+  /* Nút Add */
+  --color-cta: #99ad7a;
+  --color-cta-foreground: #fff8ec;
+  
+  --color-muted: #dcccac;
+  --color-muted-foreground: #546b41;
+  
+  --color-border: #99ad7a;
+
+  /* Custom Box Shadows - Earth tone soft shadow */
+  --shadow-glow: #dcccac 0px 4px 14px 0px, #99ad7a 0px 2px 5px 0px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --radius: .5rem;
+    --background: #fff8ec;
+    --foreground: #546b41;
+  }
+  
+  .dark {
+    --background: #546b41;
+    --foreground: #fff8ec;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  button, input, optgroup, select, textarea {
+    padding: 0;
+    font-size: 100%;
+  }
+
+  .file\:bg-transparent::file-selector-button {
+    background-color: transparent;
+    color: transparent;
+  }
+  .file\:text-sm::file-selector-button {
+    font-size: .875rem;
+  }
+  .file\:font-medium::file-selector-button {
+    font-weight: 500;
+  }
+}
+
+@layer utilities {
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
 }
