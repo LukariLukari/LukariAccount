@@ -1,46 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui;
   
-  --radius: .5rem;
+  --radius: 1.5rem;
   
-  /* Nền chính */
-  --color-background: #fff8ec;
-  --color-foreground: #546b41; /* Chữ màu rêu đậm */
+  --color-background: #f6f6f4;
+  --color-foreground: #111111;
   
-  /* Màu nhấn chính */
-  --color-primary: #546b41;
-  --color-primary-foreground: #fff8ec;
+  /* Bento Box Backgrounds */
+  --color-bento: #e1dfda;
   
-  /* Thẻ sản phẩm */
-  --color-secondary: #dcccac;
-  --color-secondary-foreground: #546b41;
+  /* Primary & CTA: Solid Black */
+  --color-primary: #111111;
+  --color-primary-foreground: #ffffff;
   
-  /* Nút Add */
-  --color-cta: #99ad7a;
-  --color-cta-foreground: #fff8ec;
-  
-  --color-muted: #dcccac;
-  --color-muted-foreground: #546b41;
-  
-  --color-border: #99ad7a;
-
-  /* Custom Box Shadows - Earth tone soft shadow */
-  --shadow-glow: #dcccac 0px 4px 14px 0px, #99ad7a 0px 2px 5px 0px;
+  --color-border: #d1cfc8;
 }
 
 @layer base {
   :root {
-    --radius: .5rem;
-    --background: #fff8ec;
-    --foreground: #546b41;
-  }
-  
-  .dark {
-    --background: #546b41;
-    --foreground: #fff8ec;
+    --radius: 1.5rem;
+    --background: #f6f6f4;
+    --foreground: #111111;
   }
 }
 
@@ -56,20 +39,16 @@
     font-size: 100%;
   }
 
-  .file\:bg-transparent::file-selector-button {
-    background-color: transparent;
-    color: transparent;
-  }
-  .file\:text-sm::file-selector-button {
-    font-size: .875rem;
-  }
-  .file\:font-medium::file-selector-button {
-    font-weight: 500;
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
   }
 }
 
-@layer utilities {
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
+/* Custom scrollbar hiding for clean UI */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
