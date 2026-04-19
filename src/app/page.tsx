@@ -188,13 +188,15 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Bottom Navigation Group (Arrows + Dots) */}
-          <div className="absolute bottom-12 right-12 z-30 flex items-center gap-8 bg-white/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-sm">
-            <button 
+          <div className="absolute bottom-12 right-12 z-30 flex items-center gap-6 bg-white/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-sm">
+            <motion.button 
+              whileHover={{ scale: 1.2, backgroundColor: "rgba(0,0,0,0.05)" }}
+              whileTap={{ scale: 0.9 }}
               onClick={prevSlide}
-              className="group/btn text-black/40 hover:text-black transition-all duration-500"
+              className="p-2 rounded-full text-black/40 hover:text-black transition-colors duration-300"
             >
-              <ArrowLeft className="w-5 h-5 stroke-[2px]" />
-            </button>
+              <ArrowLeft className="w-5 h-5 stroke-[2.5px]" />
+            </motion.button>
 
             <div className="flex gap-2">
               {featuredProducts.map((_, i) => (
@@ -206,12 +208,14 @@ export default function Home() {
               ))}
             </div>
 
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.2, backgroundColor: "rgba(0,0,0,0.05)" }}
+              whileTap={{ scale: 0.9 }}
               onClick={nextSlide}
-              className="group/btn text-black/40 hover:text-black transition-all duration-500"
+              className="p-2 rounded-full text-black/40 hover:text-black transition-colors duration-300"
             >
-              <ArrowRight className="w-5 h-5 stroke-[2px]" />
-            </button>
+              <ArrowRight className="w-5 h-5 stroke-[2.5px]" />
+            </motion.button>
           </div>
         </section>
 
