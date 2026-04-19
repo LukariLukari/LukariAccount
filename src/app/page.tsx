@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ShoppingBag, Search } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShoppingBag, Search, Menu as MenuIcon, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { products } from "@/lib/data";
 import { useState, useMemo } from "react";
@@ -45,57 +45,89 @@ export default function Home() {
         MOBILE-OPTIMIZED FLOATING NAVBAR (Bottom on Mobile, Top on Desktop)
         ========================================================================
       */}
-      <nav className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-[100] backdrop-blur-2xl bg-white/70 border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-500">
-        <div className="px-5 sm:px-10 h-16 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
-          <Link href="/" className="flex items-center gap-2 shrink-0 group">
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-akina font-black text-xl shadow-xl group-hover:scale-110 transition-transform duration-500">
-              L
-            </div>
-            <span className="font-akina font-black tracking-tighter text-xl hidden lg:block">LukariAccount</span>
-          </Link>
-
-          {/* Search Section - Responsive */}
-          <div className="flex-1 flex justify-center md:justify-start max-w-sm relative group">
-            {/* Desktop Search Input */}
-            <div className="hidden md:block w-full relative">
-              <input 
-                type="text" 
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/[0.03] border border-black/5 rounded-full px-10 py-2.5 text-[11px] font-akina font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-black/5 transition-all placeholder:text-black/20"
-              />
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-black/20 group-focus-within:text-black transition-colors" />
-            </div>
-
-            {/* Mobile Search Icon Button */}
-            <button className="md:hidden p-3 hover:bg-black/5 rounded-full transition-colors">
-              <Search className="w-5 h-5 text-black/60" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-8 shrink-0">
-            <div className="hidden sm:flex items-center gap-6">
-              {['Products', 'Prices'].map((item) => (
+      <nav className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-[100]">
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="absolute bottom-20 left-0 right-0 bg-white/90 backdrop-blur-3xl rounded-[2.5rem] border border-white/20 p-8 shadow-2xl z-[101] flex flex-col gap-6 items-center"
+            >
+              {['Products', 'Prices', 'Contact', 'FAQ'].map((item) => (
                 <Link 
                   key={item} 
                   href={`/${item.toLowerCase()}`} 
-                  className="text-[9px] font-akina font-bold uppercase tracking-widest text-black/40 hover:text-black transition-all relative group"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-akina font-black uppercase tracking-[0.2em] text-black/80 hover:text-black transition-colors"
                 >
                   {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-black transition-all group-hover:w-full" />
                 </Link>
               ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="backdrop-blur-2xl bg-white/70 border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-500">
+          <div className="px-5 sm:px-10 h-16 flex items-center justify-between gap-2">
+            <Link href="/" className="flex items-center gap-2 shrink-0 group">
+              <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-akina font-black text-xl shadow-xl group-hover:scale-110 transition-transform duration-500">
+                L
+              </div>
+              <span className="font-akina font-black tracking-tighter text-xl hidden lg:block">LukariAccount</span>
+            </Link>
+
+            {/* Search Section - Responsive */}
+            <div className="flex-1 flex justify-center md:justify-start max-w-sm relative group">
+              <div className="hidden md:block w-full relative">
+                <input 
+                  type="text" 
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-black/[0.03] border border-black/5 rounded-full px-10 py-2.5 text-[11px] font-akina font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-black/5 transition-all placeholder:text-black/20"
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-black/20 group-focus-within:text-black transition-colors" />
+              </div>
+              <button className="md:hidden p-3 hover:bg-black/5 rounded-full transition-colors">
+                <Search className="w-5 h-5 text-black/60" />
+              </button>
             </div>
 
-            <Link href="/cart" className="relative group shrink-0 p-3 hover:bg-black/5 rounded-full transition-colors">
-              <ShoppingBag className="w-5 h-5 text-black/60 group-hover:text-black transition-colors" />
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-black text-white text-[8px] flex items-center justify-center rounded-full font-akina font-bold ring-2 ring-white">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+            <div className="flex items-center gap-1 sm:gap-8 shrink-0">
+              <div className="hidden sm:flex items-center gap-6">
+                {['Products', 'Prices'].map((item) => (
+                  <Link 
+                    key={item} 
+                    href={`/${item.toLowerCase()}`} 
+                    className="text-[9px] font-akina font-bold uppercase tracking-widest text-black/40 hover:text-black transition-all relative group"
+                  >
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-black transition-all group-hover:w-full" />
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Link href="/cart" className="relative group shrink-0 p-3 hover:bg-black/5 rounded-full transition-colors">
+                  <ShoppingBag className="w-5 h-5 text-black/60 group-hover:text-black transition-colors" />
+                  {cartCount > 0 && (
+                    <span className="absolute top-2 right-2 w-4 h-4 bg-black text-white text-[8px] flex items-center justify-center rounded-full font-akina font-black ring-2 ring-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Mobile Hamburger Menu Toggle */}
+                <button 
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="md:hidden p-3 hover:bg-black/5 rounded-full transition-colors relative z-[102]"
+                >
+                  {isMenuOpen ? <X className="w-6 h-6 text-black" /> : <MenuIcon className="w-6 h-6 text-black/60" />}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </nav>
