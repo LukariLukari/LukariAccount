@@ -42,50 +42,53 @@ export default function Home() {
     <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans">
       {/* 
         ========================================================================
-        MINIMALIST NAVBAR
+        FLOATING GLASS NAVBAR
         ========================================================================
       */}
-      <nav className="fixed top-0 w-full z-[100] backdrop-blur-md bg-white/50 border-b border-black/5">
-        <div className="max-w-[1440px] mx-auto px-12 h-16 flex items-center justify-between gap-8">
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-9 h-9 bg-black rounded-xl flex items-center justify-center text-white font-akina font-black text-xl shadow-lg">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-[100] backdrop-blur-2xl bg-white/60 border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+        <div className="px-6 sm:px-10 h-16 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 shrink-0 group">
+            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-akina font-black text-xl shadow-xl group-hover:scale-110 transition-transform duration-500">
               L
             </div>
             <span className="font-akina font-black tracking-tighter text-2xl hidden sm:block">LukariAccount</span>
           </Link>
 
-          {/* Search Bar in Header */}
-          <div className="flex-1 max-w-md relative group">
+          {/* Search Bar in Header - More Integrated */}
+          <div className="flex-1 max-w-sm relative group hidden md:block">
             <input 
               type="text" 
-              placeholder="Search software, accounts..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/[0.03] border border-black/5 rounded-full px-10 py-2.5 text-[11px] font-akina font-bold focus:outline-none focus:bg-white focus:shadow-sm transition-all placeholder:text-black/20"
+              className="w-full bg-black/[0.03] border border-black/5 rounded-full px-10 py-2.5 text-[11px] font-akina font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-black/5 transition-all placeholder:text-black/20"
             />
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-black/20 group-focus-within:text-black transition-colors" />
           </div>
 
-          <div className="hidden md:flex items-center gap-8 shrink-0">
-            {['Products', 'Prices'].map((item) => (
-              <Link 
-                key={item} 
-                href={`/${item.toLowerCase()}`} 
-                className="text-[10px] font-akina font-bold uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity"
-              >
-                {item}
-              </Link>
-            ))}
-          </div>
+          <div className="flex items-center gap-6 sm:gap-10 shrink-0">
+            <div className="hidden sm:flex items-center gap-8">
+              {['Products', 'Prices'].map((item) => (
+                <Link 
+                  key={item} 
+                  href={`/${item.toLowerCase()}`} 
+                  className="text-[10px] font-akina font-bold uppercase tracking-widest text-black/40 hover:text-black transition-all relative group"
+                >
+                  {item}
+                  <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-black transition-all group-hover:w-full" />
+                </Link>
+              ))}
+            </div>
 
-          <Link href="/cart" className="relative group shrink-0">
-            <ShoppingBag className="w-5 h-5 opacity-40 group-hover:opacity-100 transition-opacity" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-akina font-bold">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+            <Link href="/cart" className="relative group shrink-0 p-2 hover:bg-black/5 rounded-full transition-colors">
+              <ShoppingBag className="w-5 h-5 text-black/60 group-hover:text-black transition-colors" />
+              {cartCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-black text-white text-[9px] flex items-center justify-center rounded-full font-akina font-bold ring-2 ring-white">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -95,61 +98,87 @@ export default function Home() {
         ========================================================================
       */}
       <main className="pt-16">
-        <section className="relative h-[70vh] min-h-[550px] w-full overflow-hidden bg-black group">
+        <section className="relative h-[45vh] min-h-[380px] w-full overflow-hidden bg-white group">
+          {/* Liquid Glass Background Elements */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                rotate: [0, 90, 0],
+                x: [0, 50, 0],
+                y: [0, -30, 0]
+              }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-black/[0.02] rounded-full blur-[120px]"
+            />
+            <motion.div 
+              animate={{ 
+                scale: [1.2, 1, 1.2],
+                rotate: [90, 0, 90],
+                x: [0, -50, 0],
+                y: [0, 30, 0]
+              }}
+              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+              className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-[#FF8C00]/[0.03] rounded-full blur-[100px]"
+            />
+          </div>
+
           <AnimatePresence mode="wait">
             <motion.div 
               key={currentSlide}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0 w-full h-full"
             >
-              {/* Full Background Image */}
+              {/* Full Background Image with Chromatic Aberration feel */}
               <div className="absolute inset-0 w-full h-full">
                 <img 
                   src={featuredProducts[currentSlide].image} 
                   alt={featuredProducts[currentSlide].name}
-                  className="w-full h-full object-cover opacity-80 transition-transform duration-[10000ms] ease-linear group-hover:scale-110"
+                  className="w-full h-full object-cover opacity-90 transition-transform duration-[15000ms] ease-out group-hover:scale-110"
                 />
-                {/* Gradient Overlays for Readability */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
+                {/* Refined Glass Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 to-transparent z-10" />
+                <div className="absolute inset-0 backdrop-blur-[2px] z-5 opacity-40" />
+                <div className="absolute inset-0 bg-white/10 z-10" />
               </div>
 
-              {/* Centered Content Overlay */}
-              <div className="relative z-20 h-full flex items-center px-8 lg:px-24">
-                <div className="max-w-3xl">
+              {/* Content Overlay - Shifted to Left for Premium Feel */}
+              <div className="relative z-20 h-full flex items-center px-8 lg:px-32">
+                <div className="max-w-4xl">
                   <motion.div
-                    initial={{ y: 30, opacity: 0 }}
+                    initial={{ y: 40, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3, duration: 0.8 }}
+                    transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <div className="flex items-center gap-3 mb-6">
-                      <span className="text-[10px] font-akina font-black uppercase tracking-[0.4em] text-white/60">
+                    <div className="flex items-center gap-4 mb-10">
+                      <div className="px-3 py-1 bg-black text-white text-[8px] font-akina font-black uppercase tracking-[0.2em] rounded-sm">New</div>
+                      <span className="text-[10px] font-akina font-bold uppercase tracking-[0.5em] text-black/30">
                         Featured {featuredProducts[currentSlide].category}
                       </span>
-                      <div className="h-[1px] w-10 bg-white/20" />
                     </div>
                     
-                    <h2 className="text-[clamp(2.5rem,8vw,5.5rem)] font-akina font-black leading-[0.9] tracking-tighter mb-8 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+                    <h2 className="text-[clamp(2.5rem,7vw,4.5rem)] font-akina font-black leading-[0.85] tracking-tighter mb-6 text-black">
                       {featuredProducts[currentSlide].name}
                     </h2>
                     
-                    <p className="text-base lg:text-lg text-white/70 mb-12 leading-relaxed font-akina font-medium max-w-xl drop-shadow-md">
+                    <p className="text-base lg:text-lg text-black/50 mb-10 leading-relaxed font-akina font-medium max-w-xl">
                       {featuredProducts[currentSlide].description}
                     </p>
                     
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-10">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-12">
                       <Link 
                         href={`/products/${featuredProducts[currentSlide].id}`}
-                        className="px-12 py-5 bg-white text-black rounded-full shadow-[0_15px_30px_rgba(255,255,255,0.2)] font-akina font-bold text-[11px] uppercase tracking-widest hover:bg-[#FF8C00] hover:text-white hover:-translate-y-1 transition-all duration-500"
+                        className="group/btn relative px-14 py-6 bg-black text-white rounded-full overflow-hidden font-akina font-bold text-[11px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all duration-500"
                       >
-                        Get Started
+                        <span className="relative z-10">Experience Now</span>
+                        <div className="absolute inset-0 bg-[#FF8C00] translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />
                       </Link>
                       <div className="flex flex-col">
-                        <span className="text-white/40 text-[9px] font-akina font-bold uppercase tracking-widest mb-1">Price Start From</span>
-                        <span className="text-3xl font-akina font-black text-white drop-shadow-lg">{featuredProducts[currentSlide].price.toLocaleString('vi-VN')}₫</span>
+                        <span className="text-black/20 text-[10px] font-akina font-bold uppercase tracking-widest mb-2">Price Starting At</span>
+                        <span className="text-4xl font-akina font-black text-black tracking-tight">{featuredProducts[currentSlide].price.toLocaleString('vi-VN')}₫</span>
                       </div>
                     </div>
                   </motion.div>
