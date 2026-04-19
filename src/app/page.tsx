@@ -95,102 +95,84 @@ export default function Home() {
         ========================================================================
       */}
       <main className="pt-16">
-        <section className="relative h-[65vh] min-h-[500px] w-full overflow-hidden flex items-center bg-white group">
+        <section className="relative h-[70vh] min-h-[550px] w-full overflow-hidden bg-black group">
           <AnimatePresence mode="wait">
             <motion.div 
               key={currentSlide}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: "circOut" }}
-              className="absolute inset-0 w-full h-full flex flex-col lg:flex-row"
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="absolute inset-0 w-full h-full"
             >
-              {/* Left Content Area - Clean & Minimal */}
-              <div className="w-full lg:w-[50%] h-full flex items-center px-12 lg:pl-24 bg-white relative z-20">
-                <div className="max-w-xl">
+              {/* Full Background Image */}
+              <div className="absolute inset-0 w-full h-full">
+                <img 
+                  src={featuredProducts[currentSlide].image} 
+                  alt={featuredProducts[currentSlide].name}
+                  className="w-full h-full object-cover opacity-80 transition-transform duration-[10000ms] ease-linear group-hover:scale-110"
+                />
+                {/* Gradient Overlays for Readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10" />
+              </div>
+
+              {/* Centered Content Overlay */}
+              <div className="relative z-20 h-full flex items-center px-8 lg:px-24">
+                <div className="max-w-3xl">
                   <motion.div
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.8 }}
                   >
-                    <div className="flex items-center gap-3 mb-8">
-                      <span className="text-[10px] font-akina font-black uppercase tracking-[0.3em] text-black/30">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="text-[10px] font-akina font-black uppercase tracking-[0.4em] text-white/60">
                         Featured {featuredProducts[currentSlide].category}
                       </span>
-                      <div className="h-[1px] w-8 bg-black/10" />
+                      <div className="h-[1px] w-10 bg-white/20" />
                     </div>
                     
-                    <h2 className="text-[clamp(3rem,5vw,5rem)] font-akina font-black leading-[0.9] tracking-tighter mb-8 text-black">
+                    <h2 className="text-[clamp(2.5rem,8vw,5.5rem)] font-akina font-black leading-[0.9] tracking-tighter mb-8 text-white drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
                       {featuredProducts[currentSlide].name}
                     </h2>
                     
-                    <p className="text-lg text-black/40 mb-12 leading-relaxed font-akina font-medium max-w-lg">
+                    <p className="text-base lg:text-lg text-white/70 mb-12 leading-relaxed font-akina font-medium max-w-xl drop-shadow-md">
                       {featuredProducts[currentSlide].description}
                     </p>
                     
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-10">
                       <Link 
                         href={`/products/${featuredProducts[currentSlide].id}`}
-                        className="px-10 py-4 bg-black text-white rounded-full shadow-2xl shadow-black/20 font-akina font-bold text-[10px] uppercase tracking-widest hover:bg-[#FF8C00] hover:-translate-y-1 transition-all duration-500"
+                        className="px-12 py-5 bg-white text-black rounded-full shadow-[0_15px_30px_rgba(255,255,255,0.2)] font-akina font-bold text-[11px] uppercase tracking-widest hover:bg-[#FF8C00] hover:text-white hover:-translate-y-1 transition-all duration-500"
                       >
                         Get Started
                       </Link>
                       <div className="flex flex-col">
-                        <span className="text-black/20 text-[9px] font-akina font-bold uppercase tracking-widest mb-1">Pricing</span>
-                        <span className="text-xl font-akina font-black text-black">{featuredProducts[currentSlide].price.toLocaleString('vi-VN')}₫</span>
+                        <span className="text-white/40 text-[9px] font-akina font-bold uppercase tracking-widest mb-1">Price Start From</span>
+                        <span className="text-3xl font-akina font-black text-white drop-shadow-lg">{featuredProducts[currentSlide].price.toLocaleString('vi-VN')}₫</span>
                       </div>
                     </div>
                   </motion.div>
                 </div>
               </div>
-
-              {/* Right Visual Area - Immersive Image */}
-              <div className="w-full lg:w-[50%] h-full relative overflow-hidden bg-white">
-                {/* Background Pattern/Blur - Subtle Glow Only */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-[80%] h-[80%] bg-black/[0.02] blur-[120px] rounded-full" />
-                </div>
-                
-                <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <motion.div
-                    initial={{ scale: 0.8, x: 50, opacity: 0 }}
-                    animate={{ scale: 1, x: 0, opacity: 1 }}
-                    transition={{ delay: 0.4, duration: 1, type: "spring", bounce: 0.3 }}
-                    className="relative w-full h-full flex items-center justify-center"
-                  >
-                    <img 
-                      src={featuredProducts[currentSlide].image} 
-                      alt={featuredProducts[currentSlide].name}
-                      className="relative z-10 w-full max-w-[750px] h-auto max-h-[85%] object-contain rounded-[2.5rem] drop-shadow-[0_40px_70px_rgba(0,0,0,0.12)] group-hover:scale-[1.03] transition-transform duration-1000"
-                    />
-                  </motion.div>
-                </div>
-
-                {/* Background Large Category Text */}
-                <div className="absolute bottom-12 right-12 opacity-[0.02] pointer-events-none select-none">
-                  <span className="text-[10vw] font-akina font-black italic uppercase leading-none">
-                    {featuredProducts[currentSlide].category}
-                  </span>
-                </div>
-              </div>
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Arrows - Minimalist Style */}
+          {/* Navigation Arrows - High Contrast */}
           <button 
             onClick={prevSlide}
-            className="absolute left-10 z-30 group/btn flex items-center gap-2 text-black/20 hover:text-black transition-all duration-500"
+            className="absolute left-8 z-30 group/btn text-white/30 hover:text-white transition-all duration-500"
           >
             <motion.div whileHover={{ x: -5 }}>
-              <ArrowLeft className="w-8 h-8 stroke-[1px]" />
+              <ArrowLeft className="w-10 h-10 stroke-[1px]" />
             </motion.div>
           </button>
           <button 
             onClick={nextSlide}
-            className="absolute right-10 z-30 group/btn flex items-center gap-2 text-black/20 hover:text-black transition-all duration-500"
+            className="absolute right-8 z-30 group/btn text-white/30 hover:text-white transition-all duration-500"
           >
             <motion.div whileHover={{ x: 5 }}>
-              <ArrowRight className="w-8 h-8 stroke-[1px]" />
+              <ArrowRight className="w-10 h-10 stroke-[1px]" />
             </motion.div>
           </button>
 
