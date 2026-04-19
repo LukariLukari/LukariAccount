@@ -140,20 +140,20 @@ export default function Home() {
                   className="w-full h-full object-cover opacity-90 transition-transform duration-[15000ms] ease-out group-hover:scale-110"
                 />
                 {/* Refined Glass Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 to-transparent z-10" />
-                <div className="absolute inset-0 backdrop-blur-[2px] z-5 opacity-40" />
-                <div className="absolute inset-0 bg-white/10 z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/20 to-transparent z-10" />
+                <div className="absolute inset-0 backdrop-blur-[1px] z-5 opacity-30" />
+                <div className="absolute inset-0 bg-white/5 z-10" />
               </div>
 
               {/* Content Overlay - Shifted to Left for Premium Feel */}
-              <div className="relative z-20 h-full flex items-center px-8 lg:px-32">
+              <div className="relative z-20 h-full flex items-center px-8 lg:px-40">
                 <div className="max-w-4xl">
                   <motion.div
                     initial={{ y: 40, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <div className="flex items-center gap-4 mb-10">
+                    <div className="flex items-center gap-4 mb-6">
                       <div className="px-3 py-1 bg-black text-white text-[8px] font-akina font-black uppercase tracking-[0.2em] rounded-sm">New</div>
                       <span className="text-[10px] font-akina font-bold uppercase tracking-[0.5em] text-black/30">
                         Featured {featuredProducts[currentSlide].category}
@@ -190,7 +190,7 @@ export default function Home() {
           {/* Navigation Arrows - High Contrast */}
           <button 
             onClick={prevSlide}
-            className="absolute left-8 z-30 group/btn text-white/30 hover:text-white transition-all duration-500"
+            className="absolute left-[5%] lg:left-[10%] z-30 group/btn text-black/40 hover:text-black transition-all duration-500"
           >
             <motion.div whileHover={{ x: -5 }}>
               <ArrowLeft className="w-10 h-10 stroke-[1px]" />
@@ -198,7 +198,7 @@ export default function Home() {
           </button>
           <button 
             onClick={nextSlide}
-            className="absolute right-8 z-30 group/btn text-white/30 hover:text-white transition-all duration-500"
+            className="absolute right-[5%] lg:right-[10%] z-30 group/btn text-black/40 hover:text-black transition-all duration-500"
           >
             <motion.div whileHover={{ x: 5 }}>
               <ArrowRight className="w-10 h-10 stroke-[1px]" />
