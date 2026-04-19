@@ -14,11 +14,16 @@ export default function ProductDetail() {
   const id = params.id as string;
   const product = products.find(p => p.id === id);
   
+  if (!product) {
+    notFound();
+    return null;
+  }
+
   const [quantity, setQuantity] = React.useState(1);
   const [selectedPlan, setSelectedPlan] = React.useState(product.billingCycle);
 
   const plans = [
-    { label: "1 Tháng", cycle: "tháng", price: product.price * 0.8 }, // Mocking variants
+    { label: "1 Tháng", cycle: "tháng", price: product.price * 0.8 },
     { label: "12 Tháng", cycle: "12 tháng", price: product.price },
     { label: "Vĩnh viễn", cycle: "vĩnh viễn", price: product.price * 5 }
   ];
