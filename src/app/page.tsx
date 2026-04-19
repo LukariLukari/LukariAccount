@@ -187,33 +187,31 @@ export default function Home() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Arrows - High Contrast */}
-          <button 
-            onClick={prevSlide}
-            className="absolute left-[5%] lg:left-[10%] z-30 group/btn text-black/40 hover:text-black transition-all duration-500"
-          >
-            <motion.div whileHover={{ x: -5 }}>
-              <ArrowLeft className="w-10 h-10 stroke-[1px]" />
-            </motion.div>
-          </button>
-          <button 
-            onClick={nextSlide}
-            className="absolute right-[5%] lg:right-[10%] z-30 group/btn text-black/40 hover:text-black transition-all duration-500"
-          >
-            <motion.div whileHover={{ x: 5 }}>
-              <ArrowRight className="w-10 h-10 stroke-[1px]" />
-            </motion.div>
-          </button>
+          {/* Bottom Navigation Group (Arrows + Dots) */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-8 bg-white/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-sm">
+            <button 
+              onClick={prevSlide}
+              className="group/btn text-black/40 hover:text-black transition-all duration-500"
+            >
+              <ArrowLeft className="w-5 h-5 stroke-[2px]" />
+            </button>
 
-          {/* Carousel Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {featuredProducts.map((_, i) => (
-              <button 
-                key={i} 
-                onClick={() => setCurrentSlide(i)}
-                className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'bg-black w-6' : 'bg-black/10'}`} 
-              />
-            ))}
+            <div className="flex gap-2">
+              {featuredProducts.map((_, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => setCurrentSlide(i)}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'bg-black w-6' : 'bg-black/10'}`} 
+                />
+              ))}
+            </div>
+
+            <button 
+              onClick={nextSlide}
+              className="group/btn text-black/40 hover:text-black transition-all duration-500"
+            >
+              <ArrowRight className="w-5 h-5 stroke-[2px]" />
+            </button>
           </div>
         </section>
 
