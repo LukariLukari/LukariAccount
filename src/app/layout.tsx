@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   description: "Cửa hàng cung cấp tài khoản và phần mềm bản quyền cao cấp.",
 };
 
+import AuthContext from "@/providers/AuthContext";
+import Navbar from "@/components/Navbar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,9 +34,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${syne.variable} ${montserrat.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground" suppressHydrationWarning>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <AuthContext>
+          <CartProvider>
+            <Navbar />
+            <div className="pt-32">
+              {children}
+            </div>
+          </CartProvider>
+        </AuthContext>
       </body>
     </html>
   );

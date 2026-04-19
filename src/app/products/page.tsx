@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import { products } from "@/lib/data";
 import { useSearchParams } from "next/navigation";
@@ -44,7 +43,6 @@ function ProductList() {
 export default function ProductsPage() {
   return (
     <>
-      <Navbar />
       <main className="flex-1 min-h-screen pt-8 pb-24">
         <div className="max-w-7xl mx-auto px-6 w-full">
           {/* Breadcrumb */}

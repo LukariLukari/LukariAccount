@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Check, Menu } from "lucide-react";
+import { ShoppingCart, Check, Menu, Plus, Minus } from "lucide-react";
 import { Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
@@ -13,20 +13,26 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
+  const { cart, addToCart, updateQuantity } = useCart();
+  
+  const cartItem = cart.find(item => item.id === product.id);
+  const isInCart = !!cartItem;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleUpdateQuantity = (e: React.MouseEvent, newQty: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateQuantity(product.id, newQty);
   };
 
   return (
     <Link href={`/products/${product.id}`} className="block h-full group">
-      <div className="bg-[#EAEAEA] rounded-[1.25rem] flex flex-col h-[230px] relative overflow-hidden transition-all duration-500 shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98]">
+      <div className="bg-[#EAEAEA] rounded-[1.25rem] flex flex-col h-[230px] relative overflow-hidden transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98]">
         
         {/* Full Card Background Image */}
         <div className="absolute inset-0 w-full h-full">
@@ -39,7 +45,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               <img 
                 src={product.image} 
                 alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-black/5 text-black/10 font-akina text-2xl font-bold">
@@ -59,8 +65,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           <Menu className="w-3 h-3" />
         </button>
 
-        {/* Content Section - Absolute Bottom Overlay - No Blur, with Shadows */}
-        <div className="absolute inset-x-0 bottom-0 p-4 pt-10 z-10 bg-gradient-to-t from-black/60 to-transparent">
+        {/* Content Section - Clear Overlay with Text Shadows */}
+        <div className="absolute inset-x-0 bottom-0 p-4 pt-10 z-10 bg-transparent">
           <div className="flex justify-between items-end gap-2">
             <div className="flex flex-col flex-1 min-w-0">
               <h3 className="text-base font-akina font-bold leading-tight text-white tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -76,25 +82,51 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               </div>
             </div>
 
-            {/* Action Button - Prominent Shadow */}
-            <motion.button 
-              whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={handleAddToCart}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-[0_8px_16px_rgba(0,0,0,0.3)] bg-white text-black shrink-0 border border-black/5 hover:border-black/20"
+            {/* Action Button / Quantity Selector - Simplified Robust Animation */}
+            <div 
+              className={`z-20 shrink-0 bg-white rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-black/5 flex items-center h-10 transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[110px]' : 'w-10'}`}
             >
               <AnimatePresence mode="wait">
-                {added ? (
-                  <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                    <Check className="w-5 h-5" />
-                  </motion.div>
-                ) : (
-                  <motion.div key="cart" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                {!isInCart ? (
+                  <motion.button 
+                    key="add"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={handleAddToCart}
+                    className="w-10 h-10 flex items-center justify-center text-black hover:bg-black/[0.02]"
+                  >
                     <ShoppingCart className="w-4 h-4" />
+                  </motion.button>
+                ) : (
+                  <motion.div 
+                    key="qty"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center px-1 w-full justify-between"
+                  >
+                    <button
+                      onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5"
+                    >
+                      <Minus className="w-3 h-3 text-black" />
+                    </button>
+                    
+                    <span className="font-akina font-black text-[10px] text-black">
+                      {cartItem.quantity}
+                    </span>
+                    
+                    <button
+                      onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5"
+                    >
+                      <Plus className="w-3 h-3 text-black" />
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.button>
+            </div>
           </div>
         </div>
 

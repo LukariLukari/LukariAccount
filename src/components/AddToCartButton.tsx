@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, Check } from "lucide-react";
+import { ShoppingBag, Check, Plus, Minus } from "lucide-react";
 import { Product } from "@/lib/data";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
@@ -14,15 +14,20 @@ export default function AddToCartButton({
   product: Product; 
   quantity?: number;
 }) {
-  const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
+  const { cart, addToCart, updateQuantity } = useCart();
   const router = useRouter();
+
+  const cartItem = cart.find(item => item.id === product.id);
+  const isInCart = !!cartItem;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addToCart(product, quantity);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleUpdateQuantity = (e: React.MouseEvent, newQty: number) => {
+    e.preventDefault();
+    updateQuantity(product.id, newQty);
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -43,28 +48,51 @@ export default function AddToCartButton({
         Thanh toán ngay
       </motion.button>
 
-      {/* Cart Button */}
-      <motion.button 
-        whileTap={{ scale: 0.95 }}
-        onClick={handleAddToCart}
-        className={`w-14 h-14 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-          added 
-            ? "bg-white border-black text-black" 
-            : "bg-white border-black/5 text-black hover:border-black/20"
-        }`}
+      {/* Cart Button / Quantity Selector - Simplified Robust Animation */}
+      <div 
+        className={`h-14 bg-white shadow-xl border border-black/5 rounded-full flex items-center transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[140px]' : 'w-14'}`}
       >
         <AnimatePresence mode="wait">
-          {added ? (
-            <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-              <Check className="w-5 h-5" />
-            </motion.div>
-          ) : (
-            <motion.div key="cart" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+          {!isInCart ? (
+            <motion.button 
+              key="add"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleAddToCart}
+              className="w-14 h-14 flex items-center justify-center text-black hover:bg-black/[0.02]"
+            >
               <ShoppingBag className="w-5 h-5" />
+            </motion.button>
+          ) : (
+            <motion.div 
+              key="qty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-between px-4 w-full"
+            >
+              <button
+                onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+              >
+                <Minus className="w-4 h-4 text-black" />
+              </button>
+              
+              <span className="font-akina font-black text-base text-black">
+                {cartItem.quantity}
+              </span>
+              
+              <button
+                onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+              >
+                <Plus className="w-4 h-4 text-black" />
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.button>
+      </div>
     </div>
   );
 }
