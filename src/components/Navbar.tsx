@@ -23,11 +23,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group shrink-0">
-          <div className="w-8 h-8 bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg rounded-sm">
-            E
+          <div className="w-9 h-9 bg-black flex items-center justify-center text-white font-akina font-black text-xl rounded-xl shadow-lg">
+            L
           </div>
-          <span className="font-bold text-xl tracking-tight text-primary hidden sm:block">
-            EarthSaaS
+          <span className="font-akina font-black text-2xl tracking-tighter text-black hidden sm:block">
+            LukariAccount
           </span>
         </Link>
 

@@ -26,7 +26,7 @@ function ProductList() {
       )}
       
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredProducts.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -48,15 +48,15 @@ export default function ProductsPage() {
       <main className="flex-1 min-h-screen pt-8 pb-24">
         <div className="max-w-7xl mx-auto px-6 w-full">
           {/* Breadcrumb */}
-          <div className="text-sm text-muted-foreground mb-8 flex items-center gap-2">
-            <a href="/" className="hover:text-primary">Home</a>
-            <span>/</span>
-            <span className="text-foreground">Products</span>
+          <div className="text-[10px] font-akina font-bold uppercase tracking-widest text-black/30 mb-10 flex items-center gap-3">
+            <a href="/" className="hover:text-black transition-colors">LukariAccount</a>
+            <span className="opacity-20">/</span>
+            <span className="text-black">Products</span>
           </div>
 
-          <h1 className="text-3xl font-bold text-foreground mb-8">All Products</h1>
+          <h1 className="text-4xl font-akina font-black text-black mb-12 tracking-tighter">All Products</h1>
 
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-12">
             {/* Sidebar Filter */}
             <div className="w-full md:w-64 shrink-0">
               <div className="bg-secondary border border-border rounded-lg p-6 sticky top-24 shadow-sm">
