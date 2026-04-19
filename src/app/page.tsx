@@ -13,6 +13,7 @@ export default function Home() {
   const { cartCount, addToCart } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Featured products for carousel
   const featuredProducts = useMemo(() => products.slice(0, 4), []);
