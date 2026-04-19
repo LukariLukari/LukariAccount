@@ -146,11 +146,11 @@ export default function Home() {
               </div>
 
               {/* Content Overlay - Shifted to Left for Premium Feel */}
-              <div className="relative z-20 h-full flex items-center px-8 lg:px-40">
-                <div className="max-w-4xl">
+              <div className="relative z-20 h-full flex items-center px-6 lg:px-20">
+                <div className="max-w-4xl text-left">
                   <motion.div
-                    initial={{ y: 40, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
+                    initial={{ x: -40, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <div className="flex items-center gap-4 mb-6">
@@ -188,7 +188,7 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Bottom Navigation Group (Arrows + Dots) */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-8 bg-white/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-sm">
+          <div className="absolute bottom-12 right-12 z-30 flex items-center gap-8 bg-white/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-sm">
             <button 
               onClick={prevSlide}
               className="group/btn text-black/40 hover:text-black transition-all duration-500"
