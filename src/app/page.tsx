@@ -19,6 +19,9 @@ export default function Home() {
 
   // Featured products for carousel
   const featuredProducts = useMemo(() => dbProducts.slice(0, 4), [dbProducts]);
+  
+  // Best seller products for horizontal scroll
+  const bestSellers = useMemo(() => dbProducts.filter(p => p.isBestSeller), [dbProducts]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -126,40 +129,47 @@ export default function Home() {
                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-black/[0.02] rounded-full blur-[120px]"
                 />
-                <motion.div 
-                  animate={{ 
-                    scale: [1.2, 1, 1.2],
-                    rotate: [90, 0, 90],
-                    x: [0, -50, 0],
-                    y: [0, 30, 0]
-                  }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                  className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-[#FF8C00]/[0.03] rounded-full blur-[100px]"
-                />
               </div>
 
               <AnimatePresence mode="wait">
                 {featuredProducts.length > 0 ? (
                   <motion.div 
                     key={currentSlide}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={(_, info) => {
-                      if (info.offset.x > 100) prevSlide();
-                      else if (info.offset.x < -100) nextSlide();
-                    }}
-                    className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.6, ease: "circOut" }}
+                    className="absolute inset-0 w-full h-full"
                   >
                     <div className="absolute inset-0 w-full h-full">
                       <img 
                         src={featuredProducts[currentSlide]?.image || ""} 
                         alt={featuredProducts[currentSlide]?.name || ""}
-                        className="w-full h-full object-cover transition-transform duration-[15000ms] ease-out group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-[10000ms] ease-out scale-105 group-hover:scale-110"
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/20 to-transparent opacity-60" />
+                    </div>
+
+                    {/* Banner Content Overlay */}
+                    <div className="absolute inset-0 p-6 md:p-14 flex flex-col justify-end">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <span className="px-3 py-1 bg-[#FF8C00] text-asphalt text-[8px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-3 md:mb-4 inline-block">
+                          Featured
+                        </span>
+                        <h2 className="text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-3 md:mb-4 max-w-lg leading-none">
+                          {featuredProducts[currentSlide]?.name}
+                        </h2>
+                        <Link 
+                          href={`/products/${featuredProducts[currentSlide]?.slug}`}
+                          className="inline-flex items-center gap-3 px-5 md:px-6 py-2.5 md:py-3 bg-paper text-asphalt rounded-full font-bold text-[9px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                        >
+                          Xem chi tiết <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </motion.div>
                     </div>
                   </motion.div>
                 ) : (
@@ -203,15 +213,44 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Search Results / Product Grid Section */}
-        <div className="w-full max-w-[1440px] mx-auto px-4 md:px-6 mt-16 md:mt-24">
-          
-          {searchQuery && (
-            <div className="mb-6 md:mb-8 flex items-center justify-between border-b border-paper/10 pb-4">
-              <h2 className="text-xl md:text-2xl font-montserrat font-bold text-paper">Kết quả cho <span className="font-bold">"{searchQuery}"</span></h2>
-              <span className="text-[10px] md:text-sm font-bold border border-paper/20 px-3 md:px-4 py-1 rounded-full text-paper/60">{filteredProducts.length} sản phẩm</span>
+        {/* 
+          ========================================================================
+          BEST SELLERS SLIDER (LƯỚT)
+          ========================================================================
+        */}
+        {bestSellers.length > 0 && (
+          <div className="w-full mt-12 md:mt-24">
+            <div className="max-w-[1440px] mx-auto px-4 md:px-6 mb-6 flex items-end justify-between">
+              <div>
+                <h2 className="text-xl md:text-3xl font-montserrat font-bold text-paper uppercase tracking-tight">Sản phẩm bán chạy</h2>
+                <div className="h-1 w-12 bg-[#FF8C00] mt-2 rounded-full" />
+              </div>
+              <p className="text-[9px] font-bold uppercase tracking-widest text-paper/30 hidden sm:block">Vuốt để xem thêm</p>
             </div>
-          )}
+            
+            <div className="relative">
+              <div className="flex overflow-x-auto scrollbar-hide gap-4 px-4 md:px-6 pb-4 snap-x snap-mandatory">
+                {bestSellers.map((product, idx) => (
+                  <div key={product.id} className="min-w-[280px] sm:min-w-[320px] snap-start">
+                    <ProductCard product={product} index={idx} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search Results / Product Grid Section */}
+        <div className="w-full max-w-[1440px] mx-auto px-4 md:px-6 mt-12 md:mt-16">
+          
+          <div className="mb-6 md:mb-8 flex items-center justify-between border-b border-paper/10 pb-4">
+            <h2 className="text-lg md:text-2xl font-montserrat font-bold text-paper uppercase tracking-tight">
+              {searchQuery ? `Kết quả cho "${searchQuery}"` : "Tất cả sản phẩm"}
+            </h2>
+            <span className="text-[9px] md:text-sm font-bold border border-paper/20 px-3 md:px-4 py-1 rounded-full text-paper/60 uppercase tracking-widest">
+              {filteredProducts.length} sản phẩm
+            </span>
+          </div>
 
           <motion.div 
             layout
@@ -240,8 +279,8 @@ export default function Home() {
           {filteredProducts.length === 0 && (
             <div className="py-32 text-center flex flex-col items-center gap-4">
               <Search className="w-12 h-12 text-paper/20" />
-              <div className="font-display text-2xl text-paper/40 font-medium">
-                No products found.
+              <div className="font-display text-2xl text-paper/40 font-medium uppercase tracking-widest">
+                Không tìm thấy sản phẩm.
               </div>
             </div>
           )}
