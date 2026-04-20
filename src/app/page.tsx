@@ -64,9 +64,9 @@ export default function Home() {
         HERO SECTION: SIDEBAR + BANNER
         ========================================================================
       */}
-      <main className="pt-24 md:pt-32 pb-24">
-        <div className="max-w-[1440px] mx-auto px-0 md:px-6">
-          <div className="flex flex-col md:flex-row gap-8 items-stretch">
+      <main className="pt-20 md:pt-32 pb-24">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-6">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
             
             {/* Sidebar: Categories - Hidden on Mobile */}
             <aside className="hidden md:block w-[320px] shrink-0 h-[420px]">
@@ -113,7 +113,7 @@ export default function Home() {
             </aside>
 
             {/* Hero Banner */}
-            <section className="flex-1 relative h-[320px] md:h-[420px] rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
+            <section className="flex-1 relative h-[240px] sm:h-[320px] md:h-[420px] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
               {/* Liquid Glass Background Elements */}
               <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                 <motion.div 
@@ -170,7 +170,7 @@ export default function Home() {
               </AnimatePresence>
 
               {/* Navigation Control */}
-              <div className="absolute bottom-10 right-10 z-30 flex items-center gap-5 bg-paper/10 backdrop-blur-xl px-5 py-2.5 rounded-full border border-paper/20 shadow-2xl">
+              <div className="absolute bottom-6 md:bottom-10 right-6 md:right-10 z-30 flex items-center gap-3 md:gap-5 bg-paper/10 backdrop-blur-xl px-4 md:px-5 py-2 md:py-2.5 rounded-full border border-paper/20 shadow-2xl">
                 <motion.button 
                   whileHover={{ scale: 1.1, backgroundColor: "rgba(239,237,227,0.1)" }}
                   whileTap={{ scale: 0.9 }}
@@ -185,7 +185,7 @@ export default function Home() {
                     <button 
                       key={i} 
                       onClick={() => setCurrentSlide(i)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-paper w-6' : 'bg-paper/10'}`} 
+                      className={`w-1 h-1 md:w-1.5 md:h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-paper w-4 md:w-6' : 'bg-paper/10'}`} 
                     />
                   ))}
                 </div>
@@ -204,18 +204,18 @@ export default function Home() {
         </div>
 
         {/* Search Results / Product Grid Section */}
-        <div className="w-full max-w-[1440px] mx-auto px-6 mt-24">
+        <div className="w-full max-w-[1440px] mx-auto px-4 md:px-6 mt-16 md:mt-24">
           
           {searchQuery && (
-            <div className="mb-8 flex items-center justify-between border-b border-paper/10 pb-4">
-              <h2 className="text-2xl font-montserrat font-bold text-paper">Kết quả cho <span className="font-bold">"{searchQuery}"</span></h2>
-              <span className="text-sm font-bold border border-paper/20 px-4 py-1.5 rounded-full text-paper/60">{filteredProducts.length} sản phẩm</span>
+            <div className="mb-6 md:mb-8 flex items-center justify-between border-b border-paper/10 pb-4">
+              <h2 className="text-xl md:text-2xl font-montserrat font-bold text-paper">Kết quả cho <span className="font-bold">"{searchQuery}"</span></h2>
+              <span className="text-[10px] md:text-sm font-bold border border-paper/20 px-3 md:px-4 py-1 rounded-full text-paper/60">{filteredProducts.length} sản phẩm</span>
             </div>
           )}
 
           <motion.div 
             layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
           >
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((product, idx) => (
