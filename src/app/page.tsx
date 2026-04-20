@@ -53,9 +53,9 @@ export default function Home() {
             {/* Sidebar: Categories - Hidden on Mobile */}
             <aside className="hidden md:block w-[320px] shrink-0 h-[420px]">
               <div className="bg-paper/5 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-7 shadow-2xl border border-paper/10 h-full flex flex-col overflow-hidden">
-                <h2 className="font-akina font-black text-[9px] uppercase tracking-[0.4em] mb-6 text-paper/30 flex items-center gap-2.5 px-1">
+                <h2 className="font-montserrat font-bold text-[9px] uppercase tracking-[0.4em] mb-6 text-paper/30 flex items-center gap-2.5 px-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-paper/10" />
-                  Categories
+                  Danh mục
                 </h2>
                 
                 <nav className="flex flex-col gap-1.5 overflow-y-auto scrollbar-hide pr-1">
@@ -65,7 +65,7 @@ export default function Home() {
                       <button 
                         key={tag}
                         onClick={() => setSearchQuery(tag === 'all' ? '' : tag)}
-                        className="relative group flex items-center justify-between px-6 py-4 rounded-2xl transition-colors duration-300 font-akina font-bold text-[10px] uppercase tracking-[0.15em] outline-none"
+                        className="relative group flex items-center justify-between px-6 py-4 rounded-2xl transition-colors duration-300 font-montserrat font-bold text-[10px] uppercase tracking-[0.15em] outline-none"
                       >
                         {/* Gliding Background Indicator */}
                         {isActive && (
@@ -185,8 +185,8 @@ export default function Home() {
           
           {searchQuery && (
             <div className="mb-8 flex items-center justify-between border-b border-paper/10 pb-4">
-              <h2 className="text-2xl font-display text-paper">Results for <span className="font-bold">"{searchQuery}"</span></h2>
-              <span className="text-sm font-medium border border-paper/20 px-4 py-1.5 rounded-full text-paper/60">{filteredProducts.length} items</span>
+              <h2 className="text-2xl font-montserrat font-bold text-paper">Kết quả cho <span className="font-bold">"{searchQuery}"</span></h2>
+              <span className="text-sm font-bold border border-paper/20 px-4 py-1.5 rounded-full text-paper/60">{filteredProducts.length} sản phẩm</span>
             </div>
           )}
 

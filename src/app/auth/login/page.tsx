@@ -49,12 +49,8 @@ export default function LoginPage() {
       >
         <div className="bg-paper/5 backdrop-blur-3xl rounded-[2.5rem] p-10 shadow-2xl border border-paper/10">
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-akina font-black text-paper mb-3 tracking-tighter uppercase">
-              Chào mừng trở lại
-            </h1>
-            <p className="text-paper/40 font-akina text-[10px] uppercase tracking-[0.2em]">
-              Đăng nhập để tiếp tục mua sắm
-            </p>
+            <h1 className="text-4xl font-montserrat font-bold text-paper mb-2 uppercase tracking-tighter">Chào mừng trở lại</h1>
+            <p className="text-paper/30 text-[10px] font-montserrat font-bold uppercase tracking-[0.2em] mb-10">Đăng nhập để tiếp tục mua sắm</p>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-6">
@@ -69,7 +65,7 @@ export default function LoginPage() {
                   required
                   value={data.email}
                   onChange={(e) => setData({ ...data, email: e.target.value })}
-                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-paper/20 text-paper"
+                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-montserrat text-[11px] placeholder:text-paper/20 text-paper"
                 />
               </div>
             </div>
@@ -85,7 +81,7 @@ export default function LoginPage() {
                   required
                   value={data.password}
                   onChange={(e) => setData({ ...data, password: e.target.value })}
-                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-paper/20 text-paper"
+                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-montserrat text-[11px] placeholder:text-paper/20 text-paper"
                 />
               </div>
             </div>
@@ -93,7 +89,7 @@ export default function LoginPage() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full py-5 rounded-2xl !bg-[#efede3] !text-[#302f2c] font-akina font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full py-5 rounded-2xl !bg-[#efede3] !text-[#302f2c] font-montserrat font-bold uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
               style={{ backgroundColor: '#efede3', color: '#302f2c' }}
             >
               {isLoading ? "Đang xử lý..." : "Đăng nhập"}
@@ -102,9 +98,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-10 text-center">
-            <p className="text-paper/30 font-akina text-[10px] uppercase tracking-wider">
+            <p className="text-center text-[10px] font-montserrat font-bold text-paper/30 uppercase tracking-widest">
               Chưa có tài khoản?{" "}
-              <Link href="/auth/register" className="text-paper font-black hover:underline underline-offset-4 ml-1">
+              <Link href="/auth/register" className="text-paper hover:underline">
                 Đăng ký ngay
               </Link>
             </p>

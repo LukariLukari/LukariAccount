@@ -2,7 +2,9 @@
 
 @theme {
   --font-sans: "Montserrat", sans-serif;
-  --font-display: "Akina", sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-akina: "Montserrat", sans-serif; /* Fallback alias */
   
   --radius: 2rem;
   

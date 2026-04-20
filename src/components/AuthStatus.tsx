@@ -23,7 +23,7 @@ export default function AuthStatus() {
         className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-paper text-asphalt hover:scale-105 active:scale-95 transition-all shadow-2xl group"
       >
         <User className="w-3.5 h-3.5" />
-        <span className="text-[10px] font-akina font-black uppercase tracking-widest">Đăng nhập</span>
+        <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest">Đăng nhập</span>
       </Link>
     );
   }
@@ -46,7 +46,7 @@ export default function AuthStatus() {
           </div>
         )}
         <div className="flex flex-col items-start leading-none">
-          <span className="text-[10px] font-akina font-black text-paper uppercase tracking-tight">
+          <span className="text-[10px] font-montserrat font-bold text-paper uppercase tracking-tight">
             {session?.user?.name?.split(" ")[0]}
           </span>
         </div>
@@ -67,8 +67,8 @@ export default function AuthStatus() {
               className="absolute right-0 mt-3 w-56 bg-asphalt/95 backdrop-blur-3xl rounded-[2rem] shadow-2xl border border-paper/10 overflow-hidden z-40 p-2"
             >
               <div className="px-4 py-3 mb-2 border-b border-paper/5">
-                <p className="text-[8px] font-akina font-black text-paper/30 uppercase tracking-[0.2em] mb-1">Tài khoản</p>
-                <p className="text-[10px] font-akina font-black text-paper truncate">{session?.user?.email}</p>
+                <p className="text-[8px] font-montserrat font-bold text-paper/30 uppercase tracking-[0.2em] mb-1">Tài khoản</p>
+                <p className="text-[10px] font-montserrat font-bold text-paper truncate">{session?.user?.email}</p>
               </div>
 
               <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-paper/5 transition-colors group text-left">

@@ -69,11 +69,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="absolute inset-x-0 bottom-0 p-4 pt-10 z-10 bg-gradient-to-t from-asphalt/80 to-transparent">
           <div className="flex justify-between items-end gap-2">
             <div className="flex flex-col flex-1 min-w-0">
-              <h3 className="text-base font-akina font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              <h3 className="text-base font-montserrat font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase">
                 {product.name}
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-akina font-black text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.3)]">
+                <span className="text-lg font-montserrat font-bold text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.3)]">
                   {product.price.toLocaleString('vi-VN')}₫
                 </span>
               </div>
@@ -110,7 +110,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                       <Minus className="w-3.5 h-3.5 text-[#302f2c] stroke-[3px]" />
                     </button>
                     
-                    <span className="font-akina font-black text-[11px] text-[#302f2c]">
+                    <span className="font-montserrat font-bold text-[11px] text-[#302f2c]">
                       {cartItem.quantity}
                     </span>
                     
@@ -128,7 +128,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </div>
 
         {/* Background text decoration */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/[0.02] font-akina font-black text-4xl select-none pointer-events-none uppercase rotate-6">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/[0.02] font-montserrat font-bold text-4xl select-none pointer-events-none uppercase rotate-6">
           {product.category}
         </div>
       </div>

@@ -34,7 +34,7 @@ export default function ProductDetail() {
       
       <main className="max-w-[1440px] mx-auto px-6 pt-8 pb-12 min-h-[calc(100vh-80px)] flex flex-col justify-center">
         {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-akina font-black uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity mb-6 group">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-montserrat font-bold uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity mb-6 group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Quay lại cửa hàng
         </Link>
@@ -50,7 +50,7 @@ export default function ProductDetail() {
           >
             {/* Background Large Text */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-              <span className="text-[12vw] font-akina font-black tracking-tighter leading-none whitespace-nowrap uppercase italic text-paper opacity-[0.02]">
+              <span className="text-[12vw] font-montserrat font-bold tracking-tighter leading-none whitespace-nowrap uppercase italic text-paper opacity-[0.02]">
                 {product.name.replace(/\s+/g, '')}
               </span>
             </div>
@@ -70,7 +70,7 @@ export default function ProductDetail() {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 ) : (
-                  <div className="w-full h-full bg-paper/5 flex items-center justify-center text-paper/10 text-6xl font-black">AI</div>
+                  <div className="w-full h-full bg-paper/5 flex items-center justify-center text-paper/10 text-6xl font-bold">AI</div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-asphalt/40 to-transparent pointer-events-none" />
               </motion.div>
@@ -82,22 +82,22 @@ export default function ProductDetail() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-akina font-black uppercase tracking-[0.2em] rounded-full mb-4">
+                  <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full mb-4">
                     {product.category}
                   </span>
-                  <h1 className="text-5xl font-akina font-black tracking-tight mb-2 leading-tight text-paper uppercase">
+                  <h1 className="text-5xl font-montserrat font-bold tracking-tight mb-2 leading-tight text-paper uppercase">
                     {product.name}
                   </h1>
                   
                   {/* Variants / Plans Selector */}
                   <div className="mb-8">
-                    <p className="text-[9px] font-akina font-black uppercase tracking-[0.2em] text-paper/30 mb-4">Chọn gói sản phẩm</p>
+                    <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-4">Chọn gói sản phẩm</p>
                     <div className="flex flex-wrap gap-3">
                       {plans.map((plan) => (
                         <button
                           key={plan.label}
                           onClick={() => setSelectedPlan(plan.cycle)}
-                          className={`px-6 py-2.5 rounded-full text-[11px] font-akina font-black uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
+                          className={`px-6 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
                             selectedPlan === plan.cycle 
                               ? "!text-[#302f2c] !bg-[#efede3] shadow-xl" 
                               : "text-paper/40 bg-paper/5 border-paper/10 hover:border-paper/30"
@@ -110,17 +110,17 @@ export default function ProductDetail() {
                     </div>
                   </div>
 
-                  <div className="text-3xl font-akina font-black text-paper mb-8 flex items-baseline gap-2">
+                  <div className="text-3xl font-montserrat font-bold text-paper mb-8 flex items-baseline gap-2">
                     <span className="text-[#FF8C00] drop-shadow-[0_2px_10px_rgba(255,140,0,0.3)]">
                       {plans.find(p => p.cycle === selectedPlan)?.price.toLocaleString('vi-VN')}₫
                     </span>
-                    <span className="text-[10px] font-akina font-black uppercase tracking-widest text-paper/30">/ {selectedPlan}</span>
+                    <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">/ {selectedPlan}</span>
                   </div>
                   
                   {/* Quantity & Actions */}
                   <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-4">
-                      <p className="text-[9px] font-akina font-black uppercase tracking-[0.2em] text-paper/30">Số lượng</p>
+                      <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30">Số lượng</p>
                       <div className="flex items-center bg-paper/5 rounded-full p-1 border border-paper/10">
                         <button 
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -128,7 +128,7 @@ export default function ProductDetail() {
                         >
                           -
                         </button>
-                        <span className="w-10 text-center font-akina font-black text-sm text-paper">{quantity}</span>
+                        <span className="w-10 text-center font-montserrat font-bold text-sm text-paper">{quantity}</span>
                         <button 
                           onClick={() => setQuantity(quantity + 1)}
                           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-paper/10 transition-all font-bold text-paper"
@@ -159,14 +159,14 @@ export default function ProductDetail() {
           >
             {/* Background Large Text */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none overflow-hidden">
-              <span className="text-[8vw] font-akina font-black tracking-tighter leading-none whitespace-nowrap uppercase italic rotate-90 text-paper opacity-[0.02] block">
+              <span className="text-[8vw] font-montserrat font-bold tracking-tighter leading-none whitespace-nowrap uppercase italic rotate-90 text-paper opacity-[0.02] block">
                 PROTECTION
               </span>
             </div>
 
             <div className="relative z-10 flex flex-col h-full justify-between">
               <div>
-                <h2 className="text-xl font-akina font-black tracking-[0.2em] mb-10 flex items-center gap-3 uppercase text-paper/80">
+                <h2 className="text-xl font-montserrat font-bold tracking-[0.2em] mb-10 flex items-center gap-3 uppercase text-paper/80">
                   <Shield className="w-5 h-5 text-[#FF8C00]" />
                   Bảo hành
                 </h2>
@@ -189,15 +189,15 @@ export default function ProductDetail() {
                         <item.icon className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="font-akina font-black text-[11px] uppercase tracking-widest text-paper mb-1">{item.title}</h3>
-                        <p className="text-[10px] text-paper/40 font-medium leading-tight">{item.desc}</p>
+                        <h3 className="font-montserrat font-bold text-[11px] uppercase tracking-widest text-paper mb-1">{item.title}</h3>
+                        <p className="text-[10px] text-paper/40 font-bold leading-tight">{item.desc}</p>
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-8 p-5 bg-paper/5 rounded-2xl border border-paper/10 text-[9px] font-akina font-black uppercase tracking-[0.2em] text-paper/30">
+              <div className="mt-8 p-5 bg-paper/5 rounded-2xl border border-paper/10 text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30">
                 Giao dịch bảo mật & an toàn.
               </div>
             </div>
@@ -213,17 +213,17 @@ export default function ProductDetail() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-24 max-w-4xl mx-auto"
         >
-          <h2 className="text-2xl font-akina font-black mb-8 border-b border-paper/10 pb-6 uppercase tracking-[0.2em] text-paper">
+          <h2 className="text-2xl font-montserrat font-bold mb-8 border-b border-paper/10 pb-6 uppercase tracking-[0.2em] text-paper">
             Mô tả chi tiết
           </h2>
-          <div className="prose prose-invert max-w-none text-paper/60 font-medium leading-relaxed space-y-8">
+          <div className="prose prose-invert max-w-none text-paper/60 font-bold leading-relaxed space-y-8">
             <p className="text-lg">
               {product.description}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
               <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl">
-                <h3 className="font-akina font-black text-sm mb-6 uppercase tracking-widest text-paper">Tính năng nổi bật</h3>
-                <ul className="space-y-4 text-[11px] font-akina font-black uppercase tracking-wider text-paper/40">
+                <h3 className="font-montserrat font-bold text-sm mb-6 uppercase tracking-widest text-paper">Tính năng nổi bật</h3>
+                <ul className="space-y-4 text-[11px] font-montserrat font-bold uppercase tracking-wider text-paper/40">
                   <li className="flex items-center gap-3">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#FF8C00]" />
                     Sử dụng không giới hạn model mới
@@ -243,8 +243,8 @@ export default function ProductDetail() {
                 </ul>
               </div>
               <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl flex flex-col justify-center">
-                <h3 className="font-akina font-black text-sm mb-4 uppercase tracking-widest text-paper">Hướng dẫn sử dụng</h3>
-                <p className="text-xs text-paper/50 leading-relaxed">
+                <h3 className="font-montserrat font-bold text-sm mb-4 uppercase tracking-widest text-paper">Hướng dẫn sử dụng</h3>
+                <p className="text-xs text-paper/50 font-bold leading-relaxed">
                   Sau khi thanh toán, bạn sẽ nhận được thông tin kích hoạt qua email. Chỉ cần đăng nhập và bắt đầu trải nghiệm sức mạnh của AI ngay lập tức.
                 </p>
               </div>
