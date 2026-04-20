@@ -68,7 +68,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </button>
 
         {/* Content Section - Clear Overlay with Text Shadows */}
-        <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 pt-8 md:pt-10 z-10 bg-gradient-to-t from-asphalt/90 via-asphalt/40 to-transparent">
+        <div className="absolute inset-x-0 -bottom-[1px] p-3 md:p-4 pt-8 md:pt-10 z-10 bg-gradient-to-t from-asphalt via-asphalt/40 to-transparent">
           <div className="flex justify-between items-end gap-1.5 md:gap-2">
             <div className="flex flex-col flex-1 min-w-0">
               <h3 className="text-[10px] sm:text-base font-montserrat font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase">
