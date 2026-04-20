@@ -116,7 +116,7 @@ export default function Home() {
             </aside>
 
             {/* Hero Banner - Responsive Sliding Carousel */}
-            <section className="flex-1 relative h-[200px] sm:h-[320px] md:h-[420px] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
+            <section className="flex-1 relative h-[160px] sm:h-[220px] md:h-[420px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
               {featuredProducts.length > 0 ? (
                 <div className="relative w-full h-full">
                   {/* Slider Track */}
@@ -141,7 +141,7 @@ export default function Home() {
                         <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/20 to-transparent opacity-80" />
                         
                         {/* Banner Content Overlay */}
-                        <div className="absolute inset-0 p-6 md:p-14 flex flex-col justify-end">
+                        <div className="absolute inset-0 p-4 md:p-14 flex flex-col justify-end">
                           <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
