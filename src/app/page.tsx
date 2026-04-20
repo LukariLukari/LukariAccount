@@ -139,29 +139,34 @@ export default function Home() {
               </div>
 
               <AnimatePresence mode="wait">
-                <motion.div 
-                  key={currentSlide}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  onDragEnd={(_, info) => {
-                    if (info.offset.x > 100) prevSlide();
-                    else if (info.offset.x < -100) nextSlide();
-                  }}
-                  className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
-                >
-                  <div className="absolute inset-0 w-full h-full">
-                    <img 
-                      src={featuredProducts[currentSlide].image} 
-                      alt={featuredProducts[currentSlide].name}
-                      className="w-full h-full object-cover transition-transform duration-[15000ms] ease-out group-hover:scale-110"
-                    />
-                    {/* No overlays as requested */}
+                {featuredProducts.length > 0 ? (
+                  <motion.div 
+                    key={currentSlide}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x > 100) prevSlide();
+                      else if (info.offset.x < -100) nextSlide();
+                    }}
+                    className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                  >
+                    <div className="absolute inset-0 w-full h-full">
+                      <img 
+                        src={featuredProducts[currentSlide]?.image || ""} 
+                        alt={featuredProducts[currentSlide]?.name || ""}
+                        className="w-full h-full object-cover transition-transform duration-[15000ms] ease-out group-hover:scale-110"
+                      />
+                    </div>
+                  </motion.div>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-paper/5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-paper/20">Đang tải sản phẩm...</p>
                   </div>
-                </motion.div>
+                )}
               </AnimatePresence>
 
               {/* Navigation Control */}
