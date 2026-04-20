@@ -29,9 +29,12 @@ export default function AuthStatus() {
   }
 
   return (
-    <div className="relative">
+    <div 
+      className="relative group/auth"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       <button 
-        onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 pl-3 pr-4 py-1.5 rounded-full bg-paper/5 backdrop-blur-xl border border-paper/10 hover:border-paper/20 transition-all group"
       >
         {session?.user?.image ? (
@@ -55,17 +58,13 @@ export default function AuthStatus() {
 
       <AnimatePresence>
         {isOpen && (
-          <>
-            <div 
-              className="fixed inset-0 z-30" 
-              onClick={() => setIsOpen(false)} 
-            />
-            <motion.div 
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute right-0 mt-3 w-56 bg-asphalt/95 backdrop-blur-3xl rounded-[2rem] shadow-2xl border border-paper/10 overflow-hidden z-40 p-2"
-            >
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute right-0 top-full pt-3 w-56 z-50"
+          >
+            <div className="bg-asphalt/95 backdrop-blur-3xl rounded-[2rem] shadow-2xl border border-paper/10 overflow-hidden p-2">
               <div className="px-4 py-3 mb-2 border-b border-paper/5">
                 <p className="text-[8px] font-montserrat font-bold text-paper/30 uppercase tracking-[0.2em] mb-1">Tài khoản</p>
                 <p className="text-[10px] font-montserrat font-bold text-paper truncate">{session?.user?.email}</p>
@@ -95,8 +94,8 @@ export default function AuthStatus() {
                 <LogOut className="w-4 h-4 text-red-400/50 group-hover:text-red-400 transition-colors" />
                 <span className="text-[11px] font-akina font-bold text-red-400">Đăng xuất</span>
               </button>
-            </motion.div>
-          </>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
