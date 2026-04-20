@@ -91,9 +91,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={handleAddToCart}
-                    className="w-10 h-10 flex items-center justify-center text-asphalt hover:bg-asphalt/5"
+                    className="w-10 h-10 flex items-center justify-center text-[#302f2c] hover:bg-asphalt/5"
                   >
-                    <ShoppingCart className="w-4 h-4 text-asphalt stroke-[3px]" />
+                    <ShoppingCart className="w-4 h-4 text-[#302f2c] stroke-[3px]" />
                   </motion.button>
                 ) : (
                   <motion.div 
@@ -107,10 +107,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                       onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
                       className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
                     >
-                      <Minus className="w-3.5 h-3.5 text-asphalt stroke-[3px]" />
+                      <Minus className="w-3.5 h-3.5 text-[#302f2c] stroke-[3px]" />
                     </button>
                     
-                    <span className="font-akina font-black text-[11px] text-asphalt">
+                    <span className="font-akina font-black text-[11px] text-[#302f2c]">
                       {cartItem.quantity}
                     </span>
                     
@@ -118,7 +118,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                       onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
                       className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
                     >
-                      <Plus className="w-3.5 h-3.5 text-asphalt stroke-[3px]" />
+                      <Plus className="w-3.5 h-3.5 text-[#302f2c] stroke-[3px]" />
                     </button>
                   </motion.div>
                 )}

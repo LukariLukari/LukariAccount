@@ -22,7 +22,7 @@ export default function CartPage() {
               <p className="text-paper/40 mb-10 font-medium font-akina text-[10px] uppercase tracking-widest">Bạn chưa thêm bất kỳ sản phẩm nào vào giỏ.</p>
               <Link 
                 href="/products" 
-                className="px-10 py-4 bg-paper text-asphalt rounded-full font-akina font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all duration-500 shadow-2xl"
+                className="px-10 py-4 bg-paper text-[#302f2c] rounded-full font-akina font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all duration-500 shadow-2xl"
               >
                 Khám phá ngay
               </Link>
@@ -103,7 +103,7 @@ export default function CartPage() {
                     <span className="text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.2)]">{cartTotal.toLocaleString('vi-VN')}₫</span>
                   </div>
 
-                  <button className="w-full py-5 bg-paper text-asphalt rounded-full font-akina font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                  <button className="w-full py-5 bg-paper text-[#302f2c] rounded-full font-akina font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all">
                     Thanh toán ngay
                   </button>
                 </div>

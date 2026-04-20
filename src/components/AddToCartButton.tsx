@@ -42,7 +42,7 @@ export default function AddToCartButton({
       <motion.button 
         whileTap={{ scale: 0.95 }}
         onClick={handleBuyNow}
-        className="flex-1 px-8 py-4 rounded-full bg-paper text-asphalt font-akina font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
+        className="flex-1 px-8 py-4 rounded-full bg-paper text-[#302f2c] font-akina font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
       >
         Thanh toán ngay
       </motion.button>
