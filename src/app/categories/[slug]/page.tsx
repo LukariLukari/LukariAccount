@@ -17,9 +17,14 @@ export default function CategoryPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`/api/products?category=${slug}`);
+        const res = await fetch(`/api/products?category=${encodeURIComponent(slug)}`);
         const data = await res.json();
-        setProducts(data);
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+          console.error("API Error or invalid data format:", data);
+        }
       } catch (error) {
         console.error(error);
       } finally {
