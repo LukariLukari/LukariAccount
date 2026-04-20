@@ -8,7 +8,8 @@ import {
   Trash2, 
   ExternalLink,
   MoreVertical,
-  Star
+  Star,
+  ShoppingBag
 } from "lucide-react";
 import Link from "next/link";
 
