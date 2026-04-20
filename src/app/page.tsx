@@ -116,7 +116,7 @@ export default function Home() {
             </aside>
 
             {/* Hero Banner - Responsive Sliding Carousel */}
-            <section className="flex-1 relative h-[160px] sm:h-[220px] md:h-[420px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
+            <section className="flex-1 relative aspect-[16/8] sm:aspect-auto sm:h-[260px] md:h-[420px] rounded-[1.25rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
               {featuredProducts.length > 0 ? (
                 <div className="relative w-full h-full">
                   {/* Slider Track */}
@@ -141,23 +141,23 @@ export default function Home() {
                         <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/20 to-transparent opacity-80" />
                         
                         {/* Banner Content Overlay */}
-                        <div className="absolute inset-0 p-4 md:p-14 flex flex-col justify-end">
+                        <div className="absolute inset-0 p-5 md:p-14 flex flex-col justify-end">
                           <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 15 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
                           >
-                            <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#FF8C00] text-asphalt text-[7px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-2 md:mb-4 inline-block">
+                            <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#FF8C00] text-asphalt text-[7px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-1.5 md:mb-4 inline-block">
                               Hot Deal
                             </span>
-                            <h2 className="text-xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-2 md:mb-4 max-w-lg leading-none drop-shadow-2xl">
+                            <h2 className="text-base sm:text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-2 md:mb-6 max-w-xs md:max-w-lg leading-[1.1] drop-shadow-2xl">
                               {product.name}
                             </h2>
                             <Link 
                               href={`/products/${product.slug}`}
                               className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 bg-paper text-asphalt rounded-full font-bold text-[8px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
                             >
-                              Mua Ngay <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                              Mua Ngay <ArrowRight className="w-3 md:w-4 h-3 md:h-4" />
                             </Link>
                           </motion.div>
                         </div>
