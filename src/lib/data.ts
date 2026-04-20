@@ -1,177 +1,20 @@
 export interface Product {
   id: string;
+  slug: string;
   name: string;
   description: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   billingCycle: string;
   rating: number;
   downloads: string;
   image: string;
   category: string;
+  isBestSeller?: boolean;
+  plans?: any;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export const products: Product[] = [
-  {
-    id: "chatgpt-plus",
-    name: "ChatGPT Plus",
-    description: "Tài khoản ChatGPT Plus chính chủ, sử dụng model GPT-4 và các tính năng nâng cao mới nhất.",
-    price: 200000,
-    originalPrice: 530000,
-    billingCycle: "tháng",
-    rating: 4.9,
-    downloads: "10k+",
-    image: "/images/products/Chatgpt.png",
-    category: "AI",
-  },
-  {
-    id: "chatgpt-go",
-    name: "ChatGPT GO",
-    description: "Gói ChatGPT GO tiết kiệm, sử dụng 12 tháng với mức giá siêu ưu đãi.",
-    price: 450000,
-    originalPrice: 2550000,
-    billingCycle: "12 tháng",
-    rating: 4.8,
-    downloads: "5k+",
-    image: "/images/products/Chatgpt.png",
-    category: "AI",
-  },
-  {
-    id: "gemini-pro",
-    name: "Gemini AI Pro",
-    description: "Google Gemini Pro mang đến sức mạnh AI tuyệt đỉnh được tích hợp sâu vào hệ sinh thái Google.",
-    price: 249000,
-    originalPrice: 5868000,
-    billingCycle: "năm",
-    rating: 4.8,
-    downloads: "8k+",
-    image: "/images/products/gemini.jpg",
-    category: "AI",
-  },
-  {
-    id: "office-365-personal",
-    name: "Office 365 Cá nhân",
-    description: "Bản quyền Office 365 chính hãng dành cho 1 người dùng, đi kèm 1TB OneDrive.",
-    price: 249000,
-    originalPrice: 2500000,
-    billingCycle: "năm",
-    rating: 5.0,
-    downloads: "20k+",
-    image: "/images/products/microsoft.png",
-    category: "Office",
-  },
-  {
-    id: "office-365-family",
-    name: "Office 365 Family",
-    description: "Bản quyền Office 365 gia đình cho 6 người dùng, mỗi người 1TB lưu trữ.",
-    price: 599000,
-    originalPrice: 3100000,
-    billingCycle: "năm",
-    rating: 4.9,
-    downloads: "15k+",
-    image: "/images/products/microsoft.png",
-    category: "Office",
-  },
-  {
-    id: "win-11-pro",
-    name: "KEY WIN 11 PRO",
-    description: "Key cấp phép Windows 11 Pro trọn đời chính hãng, update tự do.",
-    price: 199000,
-    billingCycle: "vĩnh viễn",
-    rating: 4.9,
-    downloads: "50k+",
-    image: "/images/products/keywindow.png",
-    category: "OS",
-  },
-  {
-    id: "grok-super",
-    name: "GROK super",
-    description: "AI Grok không giới hạn với dữ liệu cập nhật theo thời gian thực từ mạng xã hội X.",
-    price: 349000,
-    originalPrice: 790000,
-    billingCycle: "tháng",
-    rating: 4.7,
-    downloads: "2k+",
-    image: "/images/products/GROK.png",
-    category: "AI",
-  },
-  {
-    id: "canva-pro",
-    name: "Canva Pro",
-    description: "Thiết kế mọi thứ với Canva Pro, mở khóa toàn bộ template, element và font chữ premium.",
-    price: 179000,
-    originalPrice: 1800000,
-    billingCycle: "năm",
-    rating: 5.0,
-    downloads: "100k+",
-    image: "/images/products/canva.png",
-    category: "Design",
-  },
-  {
-    id: "capcut-pro",
-    name: "Capcut Pro",
-    description: "Phần mềm chỉnh sửa video top 1, mở khóa toàn bộ hiệu ứng chuyển cảnh, bộ lọc.",
-    price: 69000,
-    originalPrice: 1800000,
-    billingCycle: "năm",
-    rating: 4.8,
-    downloads: "30k+",
-    image: "/images/products/capcut.jpg",
-    category: "Video",
-  },
-  {
-    id: "combo-cham-chi",
-    name: "Combo Chăm Chỉ",
-    description: "Bộ đôi ứng dụng ghi chú đỉnh cao: Goodnotes 6 & CollaNote. Giúp việc học tập và làm việc trở nên khoa học hơn.",
-    price: 179000,
-    billingCycle: "vĩnh viễn",
-    rating: 4.9,
-    downloads: "12k+",
-    image: "/images/products/179.png",
-    category: "Combo iOS",
-  },
-  {
-    id: "combo-cam-ky",
-    name: "Combo Cầm Kỳ Thi Họa",
-    description: "Bộ 3 quyền lực: Goodnotes 6 + Procreate + CollaNote. Sáng tạo không giới hạn trên thiết bị của bạn.",
-    price: 249000,
-    billingCycle: "vĩnh viễn",
-    rating: 5.0,
-    downloads: "8k+",
-    image: "/images/products/249.png",
-    category: "Combo iOS",
-  },
-  {
-    id: "combo-2-app-vinh-vien",
-    name: "Combo 2 App Vĩnh Viễn",
-    description: "Sự kết hợp hoàn hảo giữa Procreate (Vẽ) & Goodnotes 6. Bộ công cụ tối ưu cho nghệ thuật và ghi chú.",
-    price: 219000,
-    billingCycle: "vĩnh viễn",
-    rating: 4.8,
-    downloads: "9k+",
-    image: "/images/products/219.png",
-    category: "Combo iOS",
-  },
-  {
-    id: "combo-3-app-vinh-vien",
-    name: "Combo 3 App Vĩnh Viễn",
-    description: "Bộ 3 ứng dụng chuyên nghiệp bao gồm Procreate, Goodnotes 6 và Procreate Dreams bản quyền vĩnh viễn.",
-    price: 269000,
-    billingCycle: "vĩnh viễn",
-    rating: 4.9,
-    downloads: "5k+",
-    image: "/images/products/269.png",
-    category: "Combo iOS",
-  },
-  {
-    id: "combo-4-app-vinh-vien",
-    name: "Combo 4 App Vĩnh Viễn",
-    description: "Gói siêu cấp: Procreate + Goodnotes 6 + Procreate Dreams + CollaNote. Đầy đủ mọi công cụ sáng tạo.",
-    price: 299000,
-    billingCycle: "vĩnh viễn",
-    rating: 5.0,
-    downloads: "3k+",
-    image: "/images/products/299.png",
-    category: "Combo iOS",
-  },
-];
+// Hardcoded products removed. Use Database.
+export const products: Product[] = []; 

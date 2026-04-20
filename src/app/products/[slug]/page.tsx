@@ -7,26 +7,45 @@ import { Shield, Sparkles, Zap, RefreshCcw, ArrowLeft } from "lucide-react";
 import AddToCartButton from "@/components/AddToCartButton";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductDetail() {
   const params = useParams();
-  const id = params.id as string;
-  const product = products.find(p => p.id === id);
-  
-  if (!product) {
-    notFound();
-    return null;
-  }
-
+  const { addToCart } = useCart();
+  const [product, setProduct] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activePlan, setActivePlan] = useState(0);
   const [quantity, setQuantity] = React.useState(1);
-  const [selectedPlan, setSelectedPlan] = React.useState(product.billingCycle);
 
-  const plans = [
-    { label: "1 Tháng", cycle: "tháng", price: product.price * 0.8 },
-    { label: "12 Tháng", cycle: "12 tháng", price: product.price },
-    { label: "Vĩnh viễn", cycle: "vĩnh viễn", price: product.price * 5 }
-  ];
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`/api/products/${params.slug}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        setProduct(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (params.slug) fetchProduct();
+  }, [params.slug]);
+
+  if (isLoading) return <div className="min-h-screen bg-asphalt flex items-center justify-center text-paper/20 uppercase font-bold tracking-widest">Đang tải...</div>;
+  if (!product) return <div className="min-h-screen bg-asphalt flex items-center justify-center text-red-400 uppercase font-bold tracking-widest">Sản phẩm không tồn tại</div>;
+
+  const plans = product.plans && Array.isArray(product.plans) && product.plans.length > 0 
+    ? product.plans 
+    : [
+        { label: "1 Tháng", price: product.price, cycle: "tháng" },
+        { label: "6 Tháng", price: Math.floor(product.price * 5.2), cycle: "6 tháng" },
+        { label: "1 Năm", price: Math.floor(product.price * 9.5), cycle: "năm" },
+      ];
+
+  const selectedPlan = plans[activePlan];
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">

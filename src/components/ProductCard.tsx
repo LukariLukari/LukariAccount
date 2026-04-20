@@ -31,7 +31,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/products/${product.id}`} className="block h-full group">
+    <Link href={`/products/${product.slug}`} className="block h-full group">
       <div className="bg-paper/5 backdrop-blur-md rounded-[1.25rem] flex flex-col h-[230px] relative overflow-hidden transition-all duration-300 shadow-[0_10px_30px_rgba(239,237,227,0.1)] hover:shadow-[0_20px_40px_rgba(239,237,227,0.2)] hover:scale-[1.02] active:scale-[0.98] border border-paper/10">
         
         {/* Full Card Background Image */}

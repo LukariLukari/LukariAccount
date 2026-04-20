@@ -3,23 +3,41 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ShoppingBag, Search, Menu as MenuIcon, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { products } from "@/lib/data";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
+import { Product } from "@/lib/data";
 
 export default function Home() {
   const { cartCount, addToCart } = useCart();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Featured products for carousel
-  const featuredProducts = useMemo(() => products.slice(0, 4), []);
+  const featuredProducts = useMemo(() => dbProducts.slice(0, 4), [dbProducts]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        setDbProducts(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   // Auto-slide effect
   React.useEffect(() => {
+    if (featuredProducts.length === 0) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
     }, 5000);
@@ -31,13 +49,13 @@ export default function Home() {
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase();
-    if (!query) return products;
-    return products.filter(p => 
+    if (!query) return dbProducts;
+    return dbProducts.filter(p => 
       p.name.toLowerCase().includes(query) || 
       p.category.toLowerCase().includes(query) ||
       p.description.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, dbProducts]);
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">

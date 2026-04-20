@@ -11,11 +11,16 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      role: string;
     }
+  }
+
+  interface User {
+    role: string;
   }
 }
 
-const handler = NextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -60,13 +65,22 @@ const handler = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
     async session({ session, token }) {
       if (token?.sub && session.user) {
         session.user.id = token.sub;
+        session.user.role = token.role as string;
       }
       return session;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions as any);
 
 export { handler as GET, handler as POST };
