@@ -42,15 +42,14 @@ export default function AddToCartButton({
       <motion.button 
         whileTap={{ scale: 0.95 }}
         onClick={handleBuyNow}
-        className="flex-1 px-8 py-4 rounded-full bg-black text-white font-akina font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-black/10"
-        style={{ color: '#FFFFFF' }}
+        className="flex-1 px-8 py-4 rounded-full bg-paper text-asphalt font-akina font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
       >
         Thanh toán ngay
       </motion.button>
 
-      {/* Cart Button / Quantity Selector - Simplified Robust Animation */}
+      {/* Cart Button / Quantity Selector */}
       <div 
-        className={`h-14 bg-white shadow-xl border border-black/5 rounded-full flex items-center transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[140px]' : 'w-14'}`}
+        className={`h-14 bg-paper/5 backdrop-blur-xl border border-paper/10 rounded-full flex items-center transition-all duration-300 ease-out overflow-hidden shadow-xl ${isInCart ? 'w-[140px]' : 'w-14'}`}
       >
         <AnimatePresence mode="wait">
           {!isInCart ? (
@@ -60,7 +59,7 @@ export default function AddToCartButton({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleAddToCart}
-              className="w-14 h-14 flex items-center justify-center text-black hover:bg-black/[0.02]"
+              className="w-14 h-14 flex items-center justify-center text-paper hover:bg-paper/10"
             >
               <ShoppingBag className="w-5 h-5" />
             </motion.button>
@@ -74,20 +73,20 @@ export default function AddToCartButton({
             >
               <button
                 onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-paper/10 transition-colors"
               >
-                <Minus className="w-4 h-4 text-black" />
+                <Minus className="w-4 h-4 text-paper stroke-[3px]" />
               </button>
               
-              <span className="font-akina font-black text-base text-black">
+              <span className="font-akina font-black text-base text-paper">
                 {cartItem.quantity}
               </span>
               
               <button
                 onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors"
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-paper/10 transition-colors"
               >
-                <Plus className="w-4 h-4 text-black" />
+                <Plus className="w-4 h-4 text-paper stroke-[3px]" />
               </button>
             </motion.div>
           )}
