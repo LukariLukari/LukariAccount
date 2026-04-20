@@ -68,7 +68,7 @@ export default function Home() {
         ========================================================================
       */}
       <main className="pt-20 md:pt-32 pb-24">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-6">
+        <div className="max-w-[1440px] mx-auto px-0 md:px-6">
           <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
             
             {/* Sidebar: Categories - Hidden on Mobile */}
@@ -115,100 +115,82 @@ export default function Home() {
               </div>
             </aside>
 
-            {/* Hero Banner */}
-            <section className="flex-1 relative h-[240px] sm:h-[320px] md:h-[420px] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
-              {/* Liquid Glass Background Elements */}
-              <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                <motion.div 
-                  animate={{ 
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 90, 0],
-                    x: [0, 50, 0],
-                    y: [0, -30, 0]
-                  }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-black/[0.02] rounded-full blur-[120px]"
-                />
-              </div>
-
-              <AnimatePresence mode="wait">
-                {featuredProducts.length > 0 ? (
+            {/* Hero Banner - Responsive Sliding Carousel */}
+            <section className="flex-1 relative h-[280px] sm:h-[320px] md:h-[420px] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl md:border border-paper/10">
+              {featuredProducts.length > 0 ? (
+                <div className="relative w-full h-full">
+                  {/* Slider Track */}
                   <motion.div 
-                    key={currentSlide}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.6, ease: "circOut" }}
-                    className="absolute inset-0 w-full h-full"
+                    className="flex w-full h-full"
+                    animate={{ x: `-${currentSlide * 100}%` }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={(_, info) => {
+                      if (info.offset.x > 50) prevSlide();
+                      else if (info.offset.x < -50) nextSlide();
+                    }}
                   >
-                    <div className="absolute inset-0 w-full h-full">
-                      <img 
-                        src={featuredProducts[currentSlide]?.image || ""} 
-                        alt={featuredProducts[currentSlide]?.name || ""}
-                        className="w-full h-full object-cover transition-transform duration-[10000ms] ease-out scale-105 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/20 to-transparent opacity-60" />
-                    </div>
-
-                    {/* Banner Content Overlay */}
-                    <div className="absolute inset-0 p-6 md:p-14 flex flex-col justify-end">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <span className="px-3 py-1 bg-[#FF8C00] text-asphalt text-[8px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-3 md:mb-4 inline-block">
-                          Featured
-                        </span>
-                        <h2 className="text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-3 md:mb-4 max-w-lg leading-none">
-                          {featuredProducts[currentSlide]?.name}
-                        </h2>
-                        <Link 
-                          href={`/products/${featuredProducts[currentSlide]?.slug}`}
-                          className="inline-flex items-center gap-3 px-5 md:px-6 py-2.5 md:py-3 bg-paper text-asphalt rounded-full font-bold text-[9px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-                        >
-                          Xem chi tiết <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      </motion.div>
-                    </div>
+                    {featuredProducts.map((product, idx) => (
+                      <div key={product.id} className="min-w-full h-full relative flex-shrink-0">
+                        <img 
+                          src={product.image || ""} 
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/20 to-transparent opacity-80" />
+                        
+                        {/* Banner Content Overlay */}
+                        <div className="absolute inset-0 p-8 md:p-14 flex flex-col justify-end">
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            <span className="px-3 py-1 bg-[#FF8C00] text-asphalt text-[8px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-3 md:mb-4 inline-block">
+                              Hot Deal
+                            </span>
+                            <h2 className="text-3xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-4 max-w-lg leading-none drop-shadow-2xl">
+                              {product.name}
+                            </h2>
+                            <Link 
+                              href={`/products/${product.slug}`}
+                              className="inline-flex items-center gap-3 px-6 py-3 bg-paper text-asphalt rounded-full font-bold text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                            >
+                              Mua Ngay <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          </motion.div>
+                        </div>
+                      </div>
+                    ))}
                   </motion.div>
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-paper/5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-paper/20">Đang tải sản phẩm...</p>
+
+                  {/* Navigation Control */}
+                  <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 z-30 flex items-center gap-3 md:gap-5 bg-white/10 backdrop-blur-xl px-4 md:px-5 py-2 md:py-2.5 rounded-full border border-white/20 shadow-2xl">
+                    <div className="flex gap-2">
+                      {featuredProducts.map((_, i) => (
+                        <button 
+                          key={i} 
+                          onClick={() => setCurrentSlide(i)}
+                          className={`h-1 md:h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'bg-paper w-5 md:w-8' : 'bg-paper/20 w-1 md:w-1.5'}`} 
+                        />
+                      ))}
+                    </div>
                   </div>
-                )}
-              </AnimatePresence>
-
-              {/* Navigation Control */}
-              <div className="absolute bottom-6 md:bottom-10 right-6 md:right-10 z-30 flex items-center gap-3 md:gap-5 bg-paper/10 backdrop-blur-xl px-4 md:px-5 py-2 md:py-2.5 rounded-full border border-paper/20 shadow-2xl">
-                <motion.button 
-                  whileHover={{ scale: 1.1, backgroundColor: "rgba(239,237,227,0.1)" }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={prevSlide}
-                  className="hidden md:flex p-2 rounded-full text-paper/40 hover:text-paper transition-all duration-300"
-                >
-                  <ArrowLeft className="w-5 h-5 stroke-[2.5px]" />
-                </motion.button>
-
-                <div className="flex gap-2">
-                  {featuredProducts.map((_, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => setCurrentSlide(i)}
-                      className={`w-1 h-1 md:w-1.5 md:h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-paper w-4 md:w-6' : 'bg-paper/10'}`} 
-                    />
-                  ))}
+                  
+                  {/* Desktop Arrows */}
+                  <button onClick={prevSlide} className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-white/20 transition-all border border-white/10 opacity-0 group-hover:opacity-100">
+                    <ArrowLeft className="w-6 h-6" />
+                  </button>
+                  <button onClick={nextSlide} className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-white/20 transition-all border border-white/10 opacity-0 group-hover:opacity-100">
+                    <ArrowRight className="w-6 h-6" />
+                  </button>
                 </div>
-
-                <motion.button 
-                  whileHover={{ scale: 1.1, backgroundColor: "rgba(239,237,227,0.1)" }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={nextSlide}
-                  className="hidden md:flex p-2 rounded-full text-paper/40 hover:text-paper transition-all duration-300"
-                >
-                  <ArrowRight className="w-5 h-5 stroke-[2.5px]" />
-                </motion.button>
-              </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-paper/5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-paper/20">Đang tải banner...</p>
+                </div>
+              )}
             </section>
           </div>
         </div>
