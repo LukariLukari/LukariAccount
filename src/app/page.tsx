@@ -81,23 +81,17 @@ export default function Home() {
                 
                 <nav className="flex flex-col gap-1.5 overflow-y-auto scrollbar-hide pr-1">
                   {['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios'].map((tag) => {
-                    const isActive = tag === 'all'; // Home page is "all" by default
                     return (
                       <Link 
                         key={tag}
                         href={tag === 'all' ? '/' : `/categories/${tag}`}
-                        className="relative group flex items-center justify-between px-6 py-4 rounded-2xl transition-colors duration-300 font-montserrat font-bold text-[10px] uppercase tracking-[0.15em] outline-none"
+                        className="relative group flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 font-montserrat font-bold text-[10px] uppercase tracking-[0.15em] outline-none hover:bg-paper/10 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-transparent hover:border-paper/10"
                       >
-                        {/* Gliding Background Indicator */}
-                        {isActive && (
-                          <div className="absolute inset-0 bg-paper/10 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-paper/10 rounded-2xl z-0" />
-                        )}
-                        
-                        <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-paper' : 'text-paper/40 group-hover:text-paper/60'}`}>
+                        <span className="relative z-10 transition-colors duration-300 text-paper/40 group-hover:text-paper">
                           {tag}
                         </span>
                         
-                        <ArrowRight className={`relative z-10 w-3.5 h-3.5 transition-all duration-300 ${isActive ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'} ${isActive ? 'text-paper' : 'text-paper/20'}`} />
+                        <ArrowRight className="relative z-10 w-3.5 h-3.5 transition-all duration-300 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 text-paper/20 group-hover:text-paper" />
                       </Link>
                     );
                   })}
