@@ -9,7 +9,8 @@ import {
   ExternalLink,
   MoreVertical,
   Star,
-  ShoppingBag
+  ShoppingBag,
+  Upload
 } from "lucide-react";
 import Link from "next/link";
 
@@ -27,6 +28,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -44,6 +46,47 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
+      const rows = text.split("\n").slice(1); // Skip header
+      const productsData = rows.filter(row => row.trim()).map(row => {
+        const [name, slug, description, price, originalPrice, billingCycle, image, category] = row.split(",");
+        return {
+          name: name?.trim(),
+          slug: slug?.trim(),
+          description: description?.trim(),
+          price: price?.trim(),
+          originalPrice: originalPrice?.trim(),
+          billingCycle: billingCycle?.trim(),
+          image: image?.trim(),
+          category: category?.trim(),
+        };
+      });
+
+      try {
+        const res = await fetch("/api/admin/products/bulk", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productsData),
+        });
+        const result = await res.json();
+        alert(result.message || result.error);
+        fetchProducts();
+      } catch (error) {
+        alert("Lỗi khi nhập dữ liệu");
+      } finally {
+        setIsImporting(false);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,13 +101,20 @@ export default function AdminProductsPage() {
             {products.length} sản phẩm đang được bày bán
           </p>
         </div>
-        <Link 
-          href="/admin/products/new"
-          className="flex items-center gap-2 px-8 py-4 !bg-[#efede3] !text-[#302f2c] rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
-        >
-          <Plus className="w-4 h-4 !text-[#302f2c]" />
-          Thêm sản phẩm
-        </Link>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 px-8 py-4 bg-paper/10 text-paper border border-paper/10 rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:bg-paper/20 cursor-pointer transition-all shadow-xl">
+            <Upload className="w-4 h-4" />
+            {isImporting ? "Đang xử lý..." : "Nhập hàng loạt"}
+            <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" disabled={isImporting} />
+          </label>
+          <Link 
+            href="/admin/products/new"
+            className="flex items-center gap-2 px-8 py-4 bg-paper text-asphalt rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
+          >
+            <Plus className="w-4 h-4" />
+            Thêm sản phẩm
+          </Link>
+        </div>
       </div>
 
       {/* Toolbar */}

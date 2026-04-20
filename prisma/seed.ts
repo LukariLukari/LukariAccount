@@ -59,6 +59,18 @@ const productsToSeed = [
     category: "Office",
   },
   {
+    slug: "office-365-family",
+    name: "Office 365 Family",
+    description: "Bản quyền Office 365 gia đình cho 6 người dùng, mỗi người 1TB lưu trữ.",
+    price: 599000,
+    originalPrice: 3100000,
+    billingCycle: "năm",
+    rating: 4.9,
+    downloads: "15k+",
+    image: "/images/products/microsoft.png",
+    category: "Office",
+  },
+  {
     slug: "win-11-pro",
     name: "KEY WIN 11 PRO",
     description: "Key cấp phép Windows 11 Pro trọn đời chính hãng, update tự do.",
@@ -68,6 +80,18 @@ const productsToSeed = [
     downloads: "50k+",
     image: "/images/products/keywindow.png",
     category: "OS",
+  },
+  {
+    slug: "grok-super",
+    name: "GROK super",
+    description: "AI Grok không giới hạn với dữ liệu cập nhật theo thời gian thực từ mạng xã hội X.",
+    price: 349000,
+    originalPrice: 790000,
+    billingCycle: "tháng",
+    rating: 4.7,
+    downloads: "2k+",
+    image: "/images/products/GROK.png",
+    category: "AI",
   },
   {
     slug: "canva-pro",
@@ -94,20 +118,64 @@ const productsToSeed = [
     category: "Video",
   },
   {
-    slug: "combo-ios-4-app",
-    name: "Combo 4 App Vĩnh Viễn",
-    description: "Gói siêu cấp: Procreate + Goodnotes 6 + Procreate Dreams + CollaNote. Đầy đủ mọi công cụ sáng tạo.",
+    slug: "combo-179-app",
+    name: "Combo 179 App Vĩnh Viễn",
+    description: "Gói ứng dụng vĩnh viễn siêu tiết kiệm chỉ 179k.",
+    price: 179000,
+    billingCycle: "vĩnh viễn",
+    rating: 4.9,
+    downloads: "2k+",
+    image: "/images/products/179.png",
+    category: "Combo iOS",
+  },
+  {
+    slug: "combo-219-app",
+    name: "Combo 219 App Vĩnh Viễn",
+    description: "Gói ứng dụng vĩnh viễn nâng cao chỉ 219k.",
+    price: 219000,
+    billingCycle: "vĩnh viễn",
+    rating: 4.8,
+    downloads: "3k+",
+    image: "/images/products/219.png",
+    category: "Combo iOS",
+  },
+  {
+    slug: "combo-249-app",
+    name: "Combo 249 App Vĩnh Viễn",
+    description: "Gói ứng dụng vĩnh viễn phổ biến chỉ 249k.",
+    price: 249000,
+    billingCycle: "vĩnh viễn",
+    rating: 5.0,
+    downloads: "4k+",
+    image: "/images/products/249.png",
+    category: "Combo iOS",
+  },
+  {
+    slug: "combo-269-app",
+    name: "Combo 269 App Vĩnh Viễn",
+    description: "Gói ứng dụng vĩnh viễn chuyên nghiệp chỉ 269k.",
+    price: 269000,
+    billingCycle: "vĩnh viễn",
+    rating: 4.9,
+    downloads: "1k+",
+    image: "/images/products/269.png",
+    category: "Combo iOS",
+  },
+  {
+    slug: "combo-299-app",
+    name: "Combo 299 App Vĩnh Viễn",
+    description: "Gói ứng dụng vĩnh viễn đầy đủ nhất chỉ 299k.",
     price: 299000,
     billingCycle: "vĩnh viễn",
     rating: 5.0,
-    downloads: "3k+",
+    downloads: "1k+",
     image: "/images/products/299.png",
     category: "Combo iOS",
   }
 ];
 
 async function main() {
-  // 1. Admin
+  // Admin
   const hashedPassword = await bcrypt.hash("admin123", 10);
   await prisma.user.upsert({
     where: { email: "admin@lukari.com" },
@@ -120,7 +188,7 @@ async function main() {
     },
   });
 
-  // 2. Products
+  // Products
   for (const p of productsToSeed) {
     await prisma.product.upsert({
       where: { slug: p.slug },
@@ -129,7 +197,7 @@ async function main() {
     });
   }
 
-  console.log("Seeding complete!");
+  console.log("Full seeding complete!");
 }
 
 main()
