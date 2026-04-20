@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -63,7 +64,7 @@ export default function CartPage() {
                     </div>
 
                     <div className="font-montserrat font-bold text-xl w-32 text-right text-paper">
-                      {(item.price * item.quantity).toLocaleString('vi-VN')}₫
+                      {formatPrice(item.price * item.quantity)}₫
                     </div>
 
                     <button 
@@ -90,7 +91,7 @@ export default function CartPage() {
                   
                   <div className="flex justify-between mb-5 text-paper/40 font-montserrat font-bold text-[10px] uppercase tracking-widest">
                     <span>Tạm tính</span>
-                    <span>{cartTotal.toLocaleString('vi-VN')}₫</span>
+                    <span>{formatPrice(cartTotal)}₫</span>
                   </div>
                   
                   <div className="flex justify-between mb-8 text-paper/40 font-montserrat font-bold text-[10px] uppercase tracking-widest">
@@ -100,7 +101,7 @@ export default function CartPage() {
                   
                   <div className="flex justify-between font-montserrat font-bold text-2xl border-t border-paper/10 pt-6 mb-10 text-paper">
                     <span>Tổng cộng</span>
-                    <span className="text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.2)]">{cartTotal.toLocaleString('vi-VN')}₫</span>
+                    <span className="text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.2)]">{formatPrice(cartTotal)}₫</span>
                   </div>
 
                   <button 

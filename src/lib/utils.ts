@@ -4,3 +4,12 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('en-US').format(price);
+}
+
+export function parseFormattedPrice(value: string): number {
+  return Number(value.replace(/,/g, ""));
+}
+

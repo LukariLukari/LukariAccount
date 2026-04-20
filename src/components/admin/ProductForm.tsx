@@ -11,6 +11,7 @@ import {
   Sparkles
 } from "lucide-react";
 import Link from "next/link";
+import { formatPrice, parseFormattedPrice } from "@/lib/utils";
 
 interface Plan {
   label: string;
@@ -204,18 +205,18 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                   <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Giá hiển thị (₫)</label>
                   <input 
                     required
-                    type="number" 
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                    type="text" 
+                    value={formatPrice(formData.price)}
+                    onChange={(e) => setFormData({ ...formData, price: parseFormattedPrice(e.target.value) })}
                     className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-[#FF8C00]"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Giá gốc (₫)</label>
                   <input 
-                    type="number" 
-                    value={formData.originalPrice}
-                    onChange={(e) => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
+                    type="text" 
+                    value={formatPrice(formData.originalPrice || 0)}
+                    onChange={(e) => setFormData({ ...formData, originalPrice: parseFormattedPrice(e.target.value) })}
                     className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper/40"
                   />
                 </div>
@@ -266,9 +267,9 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold uppercase tracking-widest text-paper/20">Giá tiền (₫)</label>
                     <input 
-                      type="number" 
-                      value={plan.price}
-                      onChange={(e) => updatePlan(idx, "price", Number(e.target.value))}
+                      type="text" 
+                      value={formatPrice(plan.price)}
+                      onChange={(e) => updatePlan(idx, "price", parseFormattedPrice(e.target.value))}
                       className="w-full bg-asphalt/50 border border-transparent focus:border-paper/10 rounded-xl py-3 px-4 text-[10px] font-bold outline-none text-[#FF8C00]"
                     />
                   </div>

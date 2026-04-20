@@ -13,6 +13,8 @@ import {
   Upload
 } from "lucide-react";
 import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
+
 
 interface Product {
   id: string;
@@ -177,7 +179,7 @@ export default function AdminProductsPage() {
                 </td>
                 <td className="px-8 py-6">
                   <span className="font-bold text-sm text-[#FF8C00]">
-                    {product.price.toLocaleString('vi-VN')}₫
+                    {formatPrice(product.price)}₫
                   </span>
                 </td>
                 <td className="px-8 py-6">

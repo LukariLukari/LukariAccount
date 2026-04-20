@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
+import { formatPrice } from "@/lib/utils";
+
 
 export default function ProductDetail() {
   const params = useParams();
@@ -112,7 +114,7 @@ export default function ProductDetail() {
                   <div className="mb-8">
                     <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-4">Chọn gói sản phẩm</p>
                     <div className="flex flex-wrap gap-3">
-                      {plans.map((plan, idx) => (
+                      {plans.map((plan: any, idx: number) => (
                         <button
                           key={plan.label}
                           onClick={() => setActivePlan(idx)}
@@ -128,12 +130,20 @@ export default function ProductDetail() {
                     </div>
                   </div>
 
-                  <div className="text-3xl font-montserrat font-bold text-paper mb-8 flex items-baseline gap-2">
-                    <span className="text-[#FF8C00] drop-shadow-[0_2px_10px_rgba(255,140,0,0.3)]">
-                      {plans[activePlan]?.price.toLocaleString('vi-VN')}₫
-                    </span>
-                    <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">/ {plans[activePlan]?.cycle}</span>
+                  <div className="flex flex-col gap-1 mb-8">
+                    {activePlan === 0 && product.originalPrice && product.originalPrice > product.price && (
+                      <span className="text-sm font-montserrat font-medium text-paper/30 line-through decoration-red-500/50">
+                        {formatPrice(product.originalPrice)}₫
+                      </span>
+                    )}
+                    <div className="text-3xl font-montserrat font-bold text-paper flex items-baseline gap-2">
+                      <span className="text-[#FF8C00] drop-shadow-[0_2px_10px_rgba(255,140,0,0.3)]">
+                        {formatPrice(plans[activePlan]?.price)}₫
+                      </span>
+                      <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">/ {plans[activePlan]?.cycle}</span>
+                    </div>
                   </div>
+
                   
                   {/* Quantity & Actions */}
                   <div className="flex flex-col gap-6">

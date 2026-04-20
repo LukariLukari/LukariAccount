@@ -7,6 +7,8 @@ import { useCart } from "@/context/CartContext";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { formatPrice } from "@/lib/utils";
+
 interface ProductCardProps {
   product: Product;
   index?: number;
@@ -72,12 +74,18 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               <h3 className="text-base font-montserrat font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase">
                 {product.name}
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-0.5">
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-[10px] font-montserrat font-medium text-paper/40 line-through decoration-red-500/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                    {formatPrice(product.originalPrice)}₫
+                  </span>
+                )}
                 <span className="text-lg font-montserrat font-bold text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.3)]">
-                  {product.price.toLocaleString('vi-VN')}₫
+                  {formatPrice(product.price)}₫
                 </span>
               </div>
             </div>
+
 
             {/* Action Button / Quantity Selector */}
             <div 
