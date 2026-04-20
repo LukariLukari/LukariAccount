@@ -60,9 +60,9 @@ export default function AdminProductsPage() {
         </div>
         <Link 
           href="/admin/products/new"
-          className="flex items-center gap-2 px-8 py-4 bg-paper text-asphalt rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
+          className="flex items-center gap-2 px-8 py-4 !bg-[#efede3] !text-[#302f2c] rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 !text-[#302f2c]" />
           Thêm sản phẩm
         </Link>
       </div>

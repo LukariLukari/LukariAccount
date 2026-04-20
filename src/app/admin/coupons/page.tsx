@@ -76,9 +76,9 @@ export default function AdminCouponsPage() {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-paper text-asphalt px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-[0.95] transition-all flex items-center gap-3 shadow-2xl"
+          className="!bg-[#efede3] !text-[#302f2c] px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-[0.95] transition-all flex items-center gap-3 shadow-2xl"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 !text-[#302f2c]" />
           Tạo mã mới
         </button>
       </div>
@@ -190,7 +190,7 @@ export default function AdminCouponsPage() {
                   />
                </div>
 
-               <button className="w-full bg-paper text-asphalt py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] mt-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl">
+               <button className="w-full !bg-[#efede3] !text-[#302f2c] py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-[11px] mt-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl">
                  Xác nhận tạo mã
                </button>
             </form>

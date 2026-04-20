@@ -119,9 +119,9 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         <button 
           type="submit"
           disabled={isLoading}
-          className="flex items-center gap-3 px-10 py-4 bg-paper text-asphalt rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50"
+          className="flex items-center gap-3 px-10 py-4 !bg-[#efede3] !text-[#302f2c] rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50"
         >
-          <Save className="w-4 h-4" />
+          <Save className="w-4 h-4 !text-[#302f2c]" />
           {isLoading ? "Đang lưu..." : "Lưu sản phẩm"}
         </button>
       </div>
