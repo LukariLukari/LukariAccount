@@ -103,7 +103,10 @@ export default function CartPage() {
                     <span className="text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.2)]">{cartTotal.toLocaleString('vi-VN')}₫</span>
                   </div>
 
-                  <button className="w-full py-5 bg-paper text-[#302f2c] rounded-full font-akina font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                  <button 
+                    className="w-full py-5 !bg-[#efede3] !text-[#302f2c] rounded-full font-akina font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    style={{ backgroundColor: '#efede3', color: '#302f2c' }}
+                  >
                     Thanh toán ngay
                   </button>
                 </div>

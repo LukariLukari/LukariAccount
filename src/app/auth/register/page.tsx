@@ -100,10 +100,11 @@ export default function RegisterPage() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full py-5 rounded-2xl bg-paper text-[#302f2c] font-akina font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full py-5 rounded-2xl !bg-[#efede3] !text-[#302f2c] font-akina font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
+              style={{ backgroundColor: '#efede3', color: '#302f2c' }}
             >
               {isLoading ? "Đang tạo..." : "Tạo tài khoản"}
-              <ArrowRight className="w-4 h-4 text-[#302f2c]" />
+              <ArrowRight className="w-4 h-4 !text-[#302f2c]" style={{ color: '#302f2c' }} />
             </button>
           </form>
 

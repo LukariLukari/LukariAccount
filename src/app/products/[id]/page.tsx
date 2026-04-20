@@ -99,9 +99,10 @@ export default function ProductDetail() {
                           onClick={() => setSelectedPlan(plan.cycle)}
                           className={`px-6 py-2.5 rounded-full text-[11px] font-akina font-black uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
                             selectedPlan === plan.cycle 
-                              ? "text-[#302f2c] bg-paper shadow-xl" 
+                              ? "!text-[#302f2c] !bg-[#efede3] shadow-xl" 
                               : "text-paper/40 bg-paper/5 border-paper/10 hover:border-paper/30"
                           } border`}
+                          style={selectedPlan === plan.cycle ? { backgroundColor: '#efede3', color: '#302f2c' } : {}}
                         >
                           {plan.label}
                         </button>
