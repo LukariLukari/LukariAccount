@@ -40,7 +40,7 @@ export default function Home() {
   }, [searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans">
+    <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
       {/* 
         ========================================================================
         HERO SECTION: SIDEBAR + BANNER
@@ -52,9 +52,9 @@ export default function Home() {
             
             {/* Sidebar: Categories */}
             <aside className="w-full md:w-[320px] shrink-0 h-[320px] md:h-[420px]">
-              <div className="bg-white rounded-[2.5rem] p-6 md:p-7 shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-black/[0.03] h-full flex flex-col overflow-hidden">
-                <h2 className="font-akina font-black text-[9px] uppercase tracking-[0.4em] mb-6 text-black/30 flex items-center gap-2.5 px-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-black/10" />
+              <div className="bg-paper/5 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-7 shadow-2xl border border-paper/10 h-full flex flex-col overflow-hidden">
+                <h2 className="font-akina font-black text-[9px] uppercase tracking-[0.4em] mb-6 text-paper/30 flex items-center gap-2.5 px-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-paper/10" />
                   Categories
                 </h2>
                 
@@ -71,31 +71,31 @@ export default function Home() {
                         {isActive && (
                           <motion.div 
                             layoutId="activeCategory"
-                            className="absolute inset-0 bg-white shadow-[0_10px_30px_rgba(0,0,0,0.06)] border border-black/[0.03] rounded-2xl z-0"
+                            className="absolute inset-0 bg-paper/10 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-paper/10 rounded-2xl z-0"
                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
                           />
                         )}
                         
-                        <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-black' : 'text-black/40 group-hover:text-black/60'}`}>
+                        <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-paper' : 'text-paper/40 group-hover:text-paper/60'}`}>
                           {tag}
                         </span>
                         
-                        <ArrowRight className={`relative z-10 w-3.5 h-3.5 transition-all duration-300 ${isActive ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'} ${isActive ? 'text-black' : 'text-black/20'}`} />
+                        <ArrowRight className={`relative z-10 w-3.5 h-3.5 transition-all duration-300 ${isActive ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'} ${isActive ? 'text-paper' : 'text-paper/20'}`} />
                       </button>
                     );
                   })}
                 </nav>
                 
-                <div className="mt-auto pt-6 border-t border-black/5">
-                  <div className="bg-black/[0.02] rounded-[1.25rem] p-4 border border-black/[0.03]">
-                    <p className="text-[10px] font-akina font-black text-black leading-tight">Need help? Contact us.</p>
+                <div className="mt-auto pt-6 border-t border-paper/5">
+                  <div className="bg-paper/[0.02] rounded-[1.25rem] p-4 border border-paper/10">
+                    <p className="text-[10px] font-akina font-black text-paper leading-tight">Need help? Contact us.</p>
                   </div>
                 </div>
               </div>
             </aside>
 
             {/* Hero Banner */}
-            <section className="flex-1 relative h-[320px] md:h-[420px] rounded-[2.5rem] overflow-hidden bg-white group shadow-[0_30px_60px_rgba(0,0,0,0.12)] border border-black/5">
+            <section className="flex-1 relative h-[320px] md:h-[420px] rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
               {/* Liquid Glass Background Elements */}
               <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                 <motion.div 
@@ -147,12 +147,12 @@ export default function Home() {
               </AnimatePresence>
 
               {/* Navigation Control */}
-              <div className="absolute bottom-10 right-10 z-30 flex items-center gap-5 bg-white/60 backdrop-blur-xl px-5 py-2.5 rounded-full border border-white/40 shadow-xl">
+              <div className="absolute bottom-10 right-10 z-30 flex items-center gap-5 bg-paper/10 backdrop-blur-xl px-5 py-2.5 rounded-full border border-paper/20 shadow-2xl">
                 <motion.button 
-                  whileHover={{ scale: 1.2, backgroundColor: "rgba(255,255,255,1)" }}
+                  whileHover={{ scale: 1.1, backgroundColor: "rgba(239,237,227,0.1)" }}
                   whileTap={{ scale: 0.9 }}
                   onClick={prevSlide}
-                  className="hidden md:flex p-2 rounded-full text-black/40 hover:text-black transition-all duration-300"
+                  className="hidden md:flex p-2 rounded-full text-paper/40 hover:text-paper transition-all duration-300"
                 >
                   <ArrowLeft className="w-5 h-5 stroke-[2.5px]" />
                 </motion.button>
@@ -162,16 +162,16 @@ export default function Home() {
                     <button 
                       key={i} 
                       onClick={() => setCurrentSlide(i)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-black w-6' : 'bg-black/10'}`} 
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentSlide ? 'bg-paper w-6' : 'bg-paper/10'}`} 
                     />
                   ))}
                 </div>
 
                 <motion.button 
-                  whileHover={{ scale: 1.2, backgroundColor: "rgba(255,255,255,1)" }}
+                  whileHover={{ scale: 1.1, backgroundColor: "rgba(239,237,227,0.1)" }}
                   whileTap={{ scale: 0.9 }}
                   onClick={nextSlide}
-                  className="hidden md:flex p-2 rounded-full text-black/40 hover:text-black transition-all duration-300"
+                  className="hidden md:flex p-2 rounded-full text-paper/40 hover:text-paper transition-all duration-300"
                 >
                   <ArrowRight className="w-5 h-5 stroke-[2.5px]" />
                 </motion.button>
@@ -183,12 +183,10 @@ export default function Home() {
         {/* Search Results / Product Grid Section */}
         <div className="w-full max-w-[1440px] mx-auto px-6 mt-24">
           
-          {/* Old category section removed */}
-          
           {searchQuery && (
-            <div className="mb-8 flex items-center justify-between border-b border-primary/10 pb-4">
-              <h2 className="text-2xl font-display">Results for <span className="font-bold">"{searchQuery}"</span></h2>
-              <span className="text-sm font-medium border border-primary/20 px-4 py-1.5 rounded-full">{filteredProducts.length} items</span>
+            <div className="mb-8 flex items-center justify-between border-b border-paper/10 pb-4">
+              <h2 className="text-2xl font-display text-paper">Results for <span className="font-bold">"{searchQuery}"</span></h2>
+              <span className="text-sm font-medium border border-paper/20 px-4 py-1.5 rounded-full text-paper/60">{filteredProducts.length} items</span>
             </div>
           )}
 
@@ -218,8 +216,8 @@ export default function Home() {
 
           {filteredProducts.length === 0 && (
             <div className="py-32 text-center flex flex-col items-center gap-4">
-              <Search className="w-12 h-12 text-primary/20" />
-              <div className="font-display text-2xl text-primary/40 font-medium">
+              <Search className="w-12 h-12 text-paper/20" />
+              <div className="font-display text-2xl text-paper/40 font-medium">
                 No products found.
               </div>
             </div>

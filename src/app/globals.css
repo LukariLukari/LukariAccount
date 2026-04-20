@@ -1,29 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-montserrat), var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-syne), ui-sans-serif, system-ui;
+  --font-sans: "Montserrat", sans-serif;
+  --font-display: "Akina", sans-serif;
   
-  --radius: 1.5rem;
+  --radius: 2rem;
   
-  --color-background: #f6f6f4;
-  --color-foreground: #111111;
+  --color-asphalt: #302f2c;
+  --color-paper: #efede3;
   
-  /* Bento Box Backgrounds */
-  --color-bento: #e1dfda;
+  --color-background: var(--color-asphalt);
+  --color-foreground: var(--color-paper);
   
-  /* Primary & CTA: Solid Black */
-  --color-primary: #111111;
-  --color-primary-foreground: #ffffff;
+  /* Primary & CTA: High Contrast Paper on Asphalt */
+  --color-primary: var(--color-paper);
+  --color-primary-foreground: var(--color-asphalt);
   
-  --color-border: #d1cfc8;
+  --color-border: #efede320;
 }
 
 @layer base {
   :root {
-    --radius: 1.5rem;
-    --background: #f6f6f4;
-    --foreground: #111111;
+    --asphalt: #302f2c;
+    --paper: #efede3;
+    --background: var(--asphalt);
+    --foreground: var(--paper);
   }
 }
 

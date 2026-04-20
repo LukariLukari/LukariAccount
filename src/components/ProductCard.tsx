@@ -32,7 +32,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.id}`} className="block h-full group">
-      <div className="bg-[#EAEAEA] rounded-[1.25rem] flex flex-col h-[230px] relative overflow-hidden transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98]">
+      <div className="bg-paper/5 backdrop-blur-md rounded-[1.25rem] flex flex-col h-[230px] relative overflow-hidden transition-all duration-300 shadow-[0_10px_30px_rgba(239,237,227,0.1)] hover:shadow-[0_20px_40px_rgba(239,237,227,0.2)] hover:scale-[1.02] active:scale-[0.98] border border-paper/10">
         
         {/* Full Card Background Image */}
         <div className="absolute inset-0 w-full h-full">
@@ -57,11 +57,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Top Overlays - Category */}
         <div className="absolute top-3 left-4 z-20">
-          <span className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-md text-[7px] font-akina font-bold uppercase tracking-[0.2em] text-white border border-white/10 drop-shadow-md">
+          <span className="px-2 py-0.5 rounded-full bg-paper/10 backdrop-blur-md text-[7px] font-akina font-bold uppercase tracking-[0.2em] text-paper border border-paper/10 drop-shadow-md">
             {product.category}
           </span>
         </div>
-        <button className="absolute top-3 right-4 z-20 w-7 h-7 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white border border-white/10 opacity-60 hover:opacity-100 transition-opacity drop-shadow-md">
+        <button className="absolute top-3 right-4 z-20 w-7 h-7 rounded-full bg-paper/10 backdrop-blur-md flex items-center justify-center text-paper border border-paper/10 opacity-60 hover:opacity-100 transition-opacity drop-shadow-md">
           <Menu className="w-3 h-3" />
         </button>
 
@@ -69,7 +69,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="absolute inset-x-0 bottom-0 p-4 pt-10 z-10 bg-transparent">
           <div className="flex justify-between items-end gap-2">
             <div className="flex flex-col flex-1 min-w-0">
-              <h3 className="text-base font-akina font-bold leading-tight text-white tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              <h3 className="text-base font-akina font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 {product.name}
               </h3>
               <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
             {/* Action Button / Quantity Selector - Simplified Robust Animation */}
             <div 
-              className={`z-20 shrink-0 bg-white rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-black/5 flex items-center h-10 transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[110px]' : 'w-10'}`}
+              className={`z-20 shrink-0 bg-paper rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.4)] border border-paper/10 flex items-center h-10 transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[110px]' : 'w-10'}`}
             >
               <AnimatePresence mode="wait">
                 {!isInCart ? (
@@ -94,7 +94,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={handleAddToCart}
-                    className="w-10 h-10 flex items-center justify-center text-black hover:bg-black/[0.02]"
+                    className="w-10 h-10 flex items-center justify-center text-asphalt hover:bg-asphalt/5"
                   >
                     <ShoppingCart className="w-4 h-4" />
                   </motion.button>
@@ -108,20 +108,20 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                   >
                     <button
                       onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5"
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10"
                     >
-                      <Minus className="w-3 h-3 text-black" />
+                      <Minus className="w-3 h-3 text-asphalt" />
                     </button>
                     
-                    <span className="font-akina font-black text-[10px] text-black">
+                    <span className="font-akina font-black text-[10px] text-asphalt">
                       {cartItem.quantity}
                     </span>
                     
                     <button
                       onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5"
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10"
                     >
-                      <Plus className="w-3 h-3 text-black" />
+                      <Plus className="w-3 h-3 text-asphalt" />
                     </button>
                   </motion.div>
                 )}
