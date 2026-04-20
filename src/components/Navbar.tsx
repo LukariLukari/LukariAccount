@@ -167,7 +167,7 @@ export default function Navbar() {
                     {['AI', 'Office', 'Design', 'OS', 'Video', 'Combo iOS'].map((cat) => (
                       <Link 
                         key={cat}
-                        href={`/products?q=${encodeURIComponent(cat)}`}
+                        href={`/categories/${cat.toLowerCase()}`}
                         className="px-4 py-2 rounded-full bg-paper/5 border border-paper/5 text-[9px] font-montserrat font-bold uppercase tracking-widest text-paper/40 hover:bg-[#FF8C00] hover:text-asphalt hover:border-[#FF8C00] transition-all"
                       >
                         {cat}
