@@ -84,12 +84,13 @@ export default function Home() {
                     return (
                       <motion.div
                         key={tag}
-                        whileHover={{ scale: 1.05, x: 5 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                        whileHover={{ scale: 1.02, x: 4 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        className="px-2"
                       >
                         <Link 
                           href={tag === 'all' ? '/' : `/categories/${tag}`}
-                          className="relative group flex items-center justify-between px-6 py-4 rounded-2xl transition-all duration-300 font-montserrat font-bold text-[10px] uppercase tracking-[0.15em] outline-none hover:bg-paper/5 hover:text-paper"
+                          className="relative group flex items-center justify-between px-5 py-3.5 rounded-xl transition-all duration-300 font-montserrat font-bold text-[10px] uppercase tracking-[0.15em] outline-none hover:bg-paper/5 hover:text-paper"
                         >
                           <span className="relative z-10 transition-colors duration-300 text-paper/40 group-hover:text-paper">
                             {tag}
