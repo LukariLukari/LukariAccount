@@ -32,18 +32,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f6f4] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-asphalt flex items-center justify-center p-6 selection:bg-paper selection:text-asphalt">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white rounded-[2.5rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-black/[0.03]">
+        <div className="bg-paper/5 backdrop-blur-3xl rounded-[2.5rem] p-10 shadow-2xl border border-paper/10">
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-akina font-black text-black mb-3 tracking-tighter uppercase">
+            <h1 className="text-3xl font-akina font-black text-paper mb-3 tracking-tighter uppercase">
               Tạo tài khoản
             </h1>
-            <p className="text-black/40 font-akina text-[10px] uppercase tracking-[0.2em]">
+            <p className="text-paper/40 font-akina text-[10px] uppercase tracking-[0.2em]">
               Gia nhập cộng đồng LukariAccount
             </p>
           </div>
@@ -51,7 +51,7 @@ export default function RegisterPage() {
           <form onSubmit={onSubmit} className="space-y-5">
             <div className="space-y-2">
               <div className="relative group">
-                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-black/20 group-focus-within:text-black transition-colors">
+                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-paper/20 group-focus-within:text-paper transition-colors">
                   <User className="w-4 h-4" />
                 </div>
                 <input 
@@ -60,14 +60,14 @@ export default function RegisterPage() {
                   required
                   value={data.name}
                   onChange={(e) => setData({ ...data, name: e.target.value })}
-                  className="w-full pl-14 pr-6 py-4 bg-black/[0.02] border border-transparent focus:border-black/10 focus:bg-white rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-black/20 text-black"
+                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-paper/20 text-paper"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="relative group">
-                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-black/20 group-focus-within:text-black transition-colors">
+                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-paper/20 group-focus-within:text-paper transition-colors">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input 
@@ -76,14 +76,14 @@ export default function RegisterPage() {
                   required
                   value={data.email}
                   onChange={(e) => setData({ ...data, email: e.target.value })}
-                  className="w-full pl-14 pr-6 py-4 bg-black/[0.02] border border-transparent focus:border-black/10 focus:bg-white rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-black/20 text-black"
+                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-paper/20 text-paper"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="relative group">
-                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-black/20 group-focus-within:text-black transition-colors">
+                <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-paper/20 group-focus-within:text-paper transition-colors">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input 
@@ -92,7 +92,7 @@ export default function RegisterPage() {
                   required
                   value={data.password}
                   onChange={(e) => setData({ ...data, password: e.target.value })}
-                  className="w-full pl-14 pr-6 py-4 bg-black/[0.02] border border-transparent focus:border-black/10 focus:bg-white rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-black/20 text-black"
+                  className="w-full pl-14 pr-6 py-4 bg-paper/5 border border-transparent focus:border-paper/20 focus:bg-paper/10 rounded-2xl outline-none transition-all font-akina text-[11px] placeholder:text-paper/20 text-paper"
                 />
               </div>
             </div>
@@ -100,7 +100,7 @@ export default function RegisterPage() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full py-5 rounded-2xl bg-black text-white font-akina font-black uppercase tracking-[0.2em] text-[11px] hover:bg-black/80 transition-all duration-300 shadow-xl shadow-black/10 flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full py-5 rounded-2xl bg-paper text-asphalt font-akina font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isLoading ? "Đang tạo..." : "Tạo tài khoản"}
               <ArrowRight className="w-4 h-4" />
@@ -108,9 +108,9 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-10 text-center">
-            <p className="text-black/30 font-akina text-[10px] uppercase tracking-wider">
+            <p className="text-paper/30 font-akina text-[10px] uppercase tracking-wider">
               Đã có tài khoản?{" "}
-              <Link href="/auth/login" className="text-black font-black hover:underline underline-offset-4 ml-1">
+              <Link href="/auth/login" className="text-paper font-black hover:underline underline-offset-4 ml-1">
                 Đăng nhập ngay
               </Link>
             </p>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link href="/" className="text-black/20 font-akina text-[9px] uppercase tracking-[0.3em] hover:text-black transition-colors">
+          <Link href="/" className="text-paper/20 font-akina text-[9px] uppercase tracking-[0.3em] hover:text-paper transition-colors">
             ← Trở lại trang chủ
           </Link>
         </div>

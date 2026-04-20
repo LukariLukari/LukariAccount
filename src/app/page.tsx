@@ -47,11 +47,11 @@ export default function Home() {
         ========================================================================
       */}
       <main className="pt-24 md:pt-32 pb-24">
-        <div className="max-w-[1440px] mx-auto px-6">
+        <div className="max-w-[1440px] mx-auto px-0 md:px-6">
           <div className="flex flex-col md:flex-row gap-8 items-stretch">
             
-            {/* Sidebar: Categories */}
-            <aside className="w-full md:w-[320px] shrink-0 h-[320px] md:h-[420px]">
+            {/* Sidebar: Categories - Hidden on Mobile */}
+            <aside className="hidden md:block w-[320px] shrink-0 h-[420px]">
               <div className="bg-paper/5 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-7 shadow-2xl border border-paper/10 h-full flex flex-col overflow-hidden">
                 <h2 className="font-akina font-black text-[9px] uppercase tracking-[0.4em] mb-6 text-paper/30 flex items-center gap-2.5 px-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-paper/10" />

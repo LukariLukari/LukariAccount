@@ -66,25 +66,22 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </button>
 
         {/* Content Section - Clear Overlay with Text Shadows */}
-        <div className="absolute inset-x-0 bottom-0 p-4 pt-10 z-10 bg-transparent">
+        <div className="absolute inset-x-0 bottom-0 p-4 pt-10 z-10 bg-gradient-to-t from-asphalt/80 to-transparent">
           <div className="flex justify-between items-end gap-2">
             <div className="flex flex-col flex-1 min-w-0">
               <h3 className="text-base font-akina font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 {product.name}
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-lg font-akina font-black text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                <span className="text-lg font-akina font-black text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.3)]">
                   {product.price.toLocaleString('vi-VN')}₫
-                </span>
-                <span className="text-[8px] font-akina font-bold text-white/60 line-through decoration-white/40 drop-shadow-sm">
-                  {(product.price * 1.3).toLocaleString('vi-VN')}₫
                 </span>
               </div>
             </div>
 
-            {/* Action Button / Quantity Selector - Simplified Robust Animation */}
+            {/* Action Button / Quantity Selector */}
             <div 
-              className={`z-20 shrink-0 bg-paper rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.4)] border border-paper/10 flex items-center h-10 transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[110px]' : 'w-10'}`}
+              className={`z-20 shrink-0 bg-paper rounded-full shadow-2xl border border-paper/20 flex items-center h-10 transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[110px]' : 'w-10'}`}
             >
               <AnimatePresence mode="wait">
                 {!isInCart ? (
@@ -96,7 +93,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                     onClick={handleAddToCart}
                     className="w-10 h-10 flex items-center justify-center text-asphalt hover:bg-asphalt/5"
                   >
-                    <ShoppingCart className="w-4 h-4" />
+                    <ShoppingCart className="w-4 h-4 text-asphalt stroke-[3px]" />
                   </motion.button>
                 ) : (
                   <motion.div 
@@ -108,20 +105,20 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                   >
                     <button
                       onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10"
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
                     >
-                      <Minus className="w-3 h-3 text-asphalt" />
+                      <Minus className="w-3.5 h-3.5 text-asphalt stroke-[3px]" />
                     </button>
                     
-                    <span className="font-akina font-black text-[10px] text-asphalt">
+                    <span className="font-akina font-black text-[11px] text-asphalt">
                       {cartItem.quantity}
                     </span>
                     
                     <button
                       onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10"
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
                     >
-                      <Plus className="w-3 h-3 text-asphalt" />
+                      <Plus className="w-3.5 h-3.5 text-asphalt stroke-[3px]" />
                     </button>
                   </motion.div>
                 )}
