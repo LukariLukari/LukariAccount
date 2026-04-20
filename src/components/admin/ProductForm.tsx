@@ -44,6 +44,26 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     isBestSeller: initialData?.isBestSeller || false,
   });
 
+  // Sync state when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || "",
+        slug: initialData.slug || "",
+        description: initialData.description || "",
+        price: initialData.price || 0,
+        originalPrice: initialData.originalPrice || 0,
+        billingCycle: initialData.billingCycle || "tháng",
+        category: initialData.category || "AI",
+        image: initialData.image || "",
+        isBestSeller: initialData.isBestSeller || false,
+      });
+      if (initialData.plans) {
+        setPlans(initialData.plans);
+      }
+    }
+  }, [initialData]);
+
   const generateSlug = () => {
     const slug = formData.name
       .toLowerCase()

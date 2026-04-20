@@ -5,11 +5,17 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!product) {
@@ -24,7 +30,7 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,22 +38,12 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await req.json();
-    const { 
-      name, 
-      slug, 
-      description, 
-      price, 
-      originalPrice, 
-      billingCycle, 
-      image, 
-      category, 
-      isBestSeller,
-      plans 
-    } = body;
+    const { name, slug, description, price, originalPrice, billingCycle, image, category, isBestSeller, plans } = body;
 
     const product = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         slug,
@@ -57,7 +53,7 @@ export async function PUT(
         billingCycle,
         image,
         category,
-        isBestSeller: !!isBestSeller,
+        isBestSeller,
         plans,
       },
     });
@@ -65,25 +61,5 @@ export async function PUT(
     return NextResponse.json(product);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
-  }
-}
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (session?.user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    await prisma.product.delete({
-      where: { id: params.id },
-    });
-
-    return NextResponse.json({ message: "Product deleted" });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
   }
 }
