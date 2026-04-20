@@ -1,48 +1,67 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { 
   TrendingUp, 
   Users, 
   CreditCard, 
   Eye,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  ShoppingBag,
+  TicketPercent
 } from "lucide-react";
 
-const stats = [
-  { 
-    label: "Lượt tiếp cận", 
-    value: "24.5k", 
-    trend: "+12.5%", 
-    isUp: true, 
-    icon: Eye,
-    color: "text-blue-400"
-  },
-  { 
-    label: "Người dùng mới", 
-    value: "1,240", 
-    trend: "+5.2%", 
-    isUp: true, 
-    icon: Users,
-    color: "text-purple-400"
-  },
-  { 
-    label: "Doanh thu", 
-    value: "152.4M₫", 
-    trend: "+18.3%", 
-    isUp: true, 
-    icon: CreditCard,
-    color: "text-green-400"
-  },
-  { 
-    label: "Tỉ lệ chuyển đổi", 
-    value: "3.2%", 
-    trend: "-1.1%", 
-    isUp: false, 
-    icon: TrendingUp,
-    color: "text-[#FF8C00]"
-  },
-];
-
 export default function AdminDashboard() {
+  const [statsData, setStatsData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/admin/stats");
+        const data = await res.json();
+        setStatsData(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const stats = [
+    { 
+      label: "Sản phẩm", 
+      value: statsData?.productCount || "...", 
+      trend: "+2", 
+      isUp: true, 
+      icon: ShoppingBag,
+      color: "text-blue-400"
+    },
+    { 
+      label: "Người dùng", 
+      value: statsData?.userCount || "...", 
+      trend: "+1", 
+      isUp: true, 
+      icon: Users,
+      color: "text-purple-400"
+    },
+    { 
+      label: "Doanh thu", 
+      value: statsData?.revenue || "...", 
+      trend: "+18.3%", 
+      isUp: true, 
+      icon: CreditCard,
+      color: "text-green-400"
+    },
+    { 
+      label: "Mã giảm giá", 
+      value: statsData?.couponCount || "...", 
+      trend: "0", 
+      isUp: true, 
+      icon: TicketPercent,
+      color: "text-[#FF8C00]"
+    },
+  ];
   return (
     <div className="space-y-10">
       <div className="flex justify-between items-end">
