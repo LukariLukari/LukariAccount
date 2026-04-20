@@ -20,6 +20,15 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+#### 🚀 Quick Links
+- Storefront: `http://localhost:3000`
+- Admin Dashboard: `http://localhost:3000/admin` (Requires Admin Login)
+
+### 🔐 Admin Access
+- **Email**: `admin@lukari.com`
+- **Password**: `admin123`
+- **Note**: Ensure you run `npx prisma db seed` to initialize this account.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

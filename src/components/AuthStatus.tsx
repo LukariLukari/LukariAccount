@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { User, LogOut, Settings, ChevronDown } from "lucide-react";
+import { User, LogOut, Settings, ChevronDown, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -70,6 +70,18 @@ export default function AuthStatus() {
                 <p className="text-[8px] font-montserrat font-bold text-paper/30 uppercase tracking-[0.2em] mb-1">Tài khoản</p>
                 <p className="text-[10px] font-montserrat font-bold text-paper truncate">{session?.user?.email}</p>
               </div>
+
+              {session?.user?.role === "ADMIN" && (
+                <Link 
+                  href="/admin" 
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-paper/5 transition-colors group text-left border-b border-paper/5 mb-1"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-[#FF8C00]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <LayoutDashboard className="w-4 h-4 text-[#FF8C00]" />
+                  </div>
+                  <span className="text-[10px] font-montserrat font-bold text-paper uppercase tracking-widest">Trang quản trị</span>
+                </Link>
+              )}
 
               <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-paper/5 transition-colors group text-left">
                 <Settings className="w-4 h-4 text-paper/20 group-hover:text-paper transition-colors" />
