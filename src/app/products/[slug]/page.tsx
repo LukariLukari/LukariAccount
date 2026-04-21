@@ -12,6 +12,7 @@ import PaymentPopup from "@/components/PaymentPopup";
 import Image from "next/image";
 
 interface Plan {
+  type?: string;
   label: string;
   price: number;
   cycle: string;
@@ -48,12 +49,32 @@ export default function ProductDetail() {
   const plans: Plan[] = product.plans && Array.isArray(product.plans) && product.plans.length > 0 
     ? product.plans 
     : [
-        { label: "1 Tháng", price: product.price, cycle: "tháng" },
-        { label: "6 Tháng", price: Math.floor(product.price * 5.2), cycle: "6 tháng" },
-        { label: "1 Năm", price: Math.floor(product.price * 9.5), cycle: "năm" },
+        { type: "Mặc định", label: "1 Tháng", price: product.price, cycle: "tháng" },
+        { type: "Mặc định", label: "6 Tháng", price: Math.floor(product.price * 5.2), cycle: "6 tháng" },
+        { type: "Mặc định", label: "1 Năm", price: Math.floor(product.price * 9.5), cycle: "năm" },
       ];
 
-  const selectedPlan = plans[activePlan];
+  const types = Array.from(new Set(plans.map(p => p.type || "Mặc định")));
+  
+  // Use state with delayed initialization since plans depends on product
+  const [activeType, setActiveType] = useState(types[0] || "Mặc định");
+  const [activePlanIdx, setActivePlanIdx] = useState(0);
+
+  // Sync state once product loads
+  useEffect(() => {
+    if (product) {
+      setActiveType(types[0] || "Mặc định");
+      setActivePlanIdx(0);
+    }
+  }, [product]);
+
+  const handleTypeChange = (t: string) => {
+    setActiveType(t);
+    setActivePlanIdx(0);
+  };
+
+  const filteredPlans = plans.filter(p => (p.type || "Mặc định") === activeType);
+  const selectedPlan = filteredPlans[activePlanIdx] || filteredPlans[0] || plans[0];
 
   const handleBuyNow = () => {
     setShowPayment(true);
@@ -126,22 +147,45 @@ export default function ProductDetail() {
                   </h1>
                   
                   {/* Variants / Plans Selector */}
-                  <div className="mb-6">
-                    <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-4">Chọn gói sản phẩm</p>
-                    <div className="flex flex-wrap gap-3">
-                      {plans.map((plan: Plan, idx: number) => (
-                        <button
-                          key={plan.label}
-                          onClick={() => setActivePlan(idx)}
-                          className={`px-6 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
-                            activePlan === idx 
-                              ? "!text-[#302f2c] !bg-[#efede3] shadow-xl" 
-                              : "text-paper/40 bg-paper/5 border-paper/10 hover:border-paper/30"
-                          } border`}
-                        >
-                          {plan.label}
-                        </button>
-                      ))}
+                  <div className="mb-6 space-y-4">
+                    {types.length > 1 && (
+                      <div>
+                        <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-3">Phân loại gói</p>
+                        <div className="flex flex-wrap gap-3">
+                          {types.map((t: string) => (
+                            <button
+                              key={t}
+                              onClick={() => handleTypeChange(t)}
+                              className={`px-6 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
+                                activeType === t 
+                                  ? "!text-[#302f2c] !bg-[#efede3] shadow-xl" 
+                                  : "text-paper/40 bg-paper/5 border-paper/10 hover:border-paper/30"
+                              } border`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-3">Thời hạn sử dụng</p>
+                      <div className="flex flex-wrap gap-3">
+                        {filteredPlans.map((plan: Plan, idx: number) => (
+                          <button
+                            key={idx}
+                            onClick={() => setActivePlanIdx(idx)}
+                            className={`px-6 py-2.5 rounded-full text-[11px] font-montserrat font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
+                              activePlanIdx === idx 
+                                ? "!text-[#302f2c] !bg-[#efede3] shadow-xl" 
+                                : "text-paper/40 bg-paper/5 border-paper/10 hover:border-paper/30"
+                            } border`}
+                          >
+                            {plan.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

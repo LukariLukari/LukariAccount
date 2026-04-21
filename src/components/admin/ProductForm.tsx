@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice, parseFormattedPrice, compressImageToWebp } from "@/lib/utils";
 
 interface Plan {
+  type?: string;
   label: string;
   price: number;
   cycle: string;
@@ -31,9 +32,9 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [plans, setPlans] = useState<Plan[]>(initialData?.plans || [
-    { label: "1 Tháng", price: 0, cycle: "tháng" },
-    { label: "6 Tháng", price: 0, cycle: "6 tháng" },
-    { label: "1 Năm", price: 0, cycle: "năm" },
+    { type: "Mặc định", label: "1 Tháng", price: 0, cycle: "tháng" },
+    { type: "Mặc định", label: "6 Tháng", price: 0, cycle: "6 tháng" },
+    { type: "Mặc định", label: "1 Năm", price: 0, cycle: "năm" },
   ]);
   const [features, setFeatures] = useState<string[]>(initialData?.features || []);
   const [instructions, setInstructions] = useState<string[]>(initialData?.instructions || []);
@@ -124,7 +125,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
   };
 
   const addPlan = () => {
-    setPlans([...plans, { label: "Gói mới", price: 0, cycle: "kỳ hạn" }]);
+    setPlans([...plans, { type: "Mặc định", label: "Gói mới", price: 0, cycle: "kỳ hạn" }]);
   };
 
   const removePlan = (index: number) => {
@@ -279,9 +280,19 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
 
             <div className="space-y-4">
               {plans.map((plan, idx) => (
-                <div key={idx} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-paper/[0.03] border border-paper/5 rounded-2xl items-end relative group">
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-paper/[0.03] border border-paper/5 rounded-2xl items-end relative group">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-bold uppercase tracking-widest text-paper/20">Tên gói</label>
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-paper/20">Phân loại (Loại gói)</label>
+                    <input 
+                      type="text" 
+                      value={plan.type || ""}
+                      onChange={(e) => updatePlan(idx, "type", e.target.value)}
+                      className="w-full bg-asphalt/50 border border-transparent focus:border-paper/10 rounded-xl py-3 px-4 text-[10px] font-bold outline-none text-paper"
+                      placeholder="VD: Cấp sẵn, Nâng cấp"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-paper/20">Thời hạn / Tên gói</label>
                     <input 
                       type="text" 
                       value={plan.label}
