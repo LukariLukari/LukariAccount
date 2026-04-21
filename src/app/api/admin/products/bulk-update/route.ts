@@ -14,7 +14,6 @@ export async function POST(req: Request) {
     if (data.price !== undefined) updateData.price = parseFloat(data.price);
     if (data.category !== undefined) updateData.category = data.category;
     if (data.isBestSeller !== undefined) updateData.isBestSeller = data.isBestSeller;
-    if (data.description !== undefined) updateData.description = data.description;
 
     // Bulk update using updateMany
     const result = await prisma.product.updateMany({

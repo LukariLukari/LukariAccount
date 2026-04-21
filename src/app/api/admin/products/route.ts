@@ -34,7 +34,11 @@ export async function POST(req: Request) {
       category, 
       isBestSeller,
       isFeatured,
-      plans 
+      plans,
+      warranty,
+      features,
+      guide,
+      details
     } = body;
 
     const product = await prisma.product.create({
@@ -50,6 +54,10 @@ export async function POST(req: Request) {
         isBestSeller: !!isBestSeller,
         isFeatured: !!isFeatured,
         plans,
+        warranty,
+        features,
+        guide,
+        details,
       },
     });
 

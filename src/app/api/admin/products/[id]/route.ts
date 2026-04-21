@@ -54,6 +54,10 @@ export async function PUT(
     if (body.isBestSeller !== undefined) updateData.isBestSeller = body.isBestSeller;
     if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
     if (body.plans !== undefined) updateData.plans = body.plans;
+    if (body.warranty !== undefined) updateData.warranty = body.warranty;
+    if (body.features !== undefined) updateData.features = body.features;
+    if (body.guide !== undefined) updateData.guide = body.guide;
+    if (body.details !== undefined) updateData.details = body.details;
 
     const product = await prisma.product.update({
       where: { id },
