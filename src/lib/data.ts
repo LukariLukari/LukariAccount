@@ -13,6 +13,10 @@ export interface Product {
   isBestSeller?: boolean;
   isFeatured?: boolean;
   plans?: any;
+  details?: string | null;
+  features?: any;
+  instructions?: any;
+  warranty?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
