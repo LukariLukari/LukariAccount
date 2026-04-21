@@ -218,7 +218,6 @@ export default function AdminProductsPage() {
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Sản phẩm</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Danh mục</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Giá tiền</th>
-              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Nổi bật</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30 text-right">Thao tác</th>
             </tr>
           </thead>
@@ -226,7 +225,7 @@ export default function AdminProductsPage() {
             {isLoading ? (
               [1, 2, 3].map(i => (
                 <tr key={i} className="animate-pulse">
-                  <td colSpan={5} className="px-8 py-12 bg-paper/5" />
+                  <td colSpan={4} className="px-8 py-12 bg-paper/5" />
                 </tr>
               ))
             ) : filteredProducts.map((product) => (
@@ -261,28 +260,19 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
                 <td className="px-8 py-6">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={() => toggleFeatured(product.id, product.isFeatured)}
-                      className={`relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300 focus:outline-none ${
-                        product.isFeatured ? "bg-[#FF8C00]" : "bg-paper/10"
+                      title={product.isFeatured ? "Bỏ khỏi trang chủ" : "Đưa lên trang chủ"}
+                      className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 group/btn ${
+                        product.isFeatured 
+                        ? "bg-[#FF8C00] text-asphalt border-[#FF8C00] shadow-[0_0_15px_rgba(255,140,0,0.4)]" 
+                        : "bg-paper/5 text-paper/40 border-paper/5 hover:text-paper hover:bg-paper/10"
                       }`}
                     >
-                      <span 
-                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-paper transition-all duration-300 shadow-sm ${
-                          product.isFeatured ? "translate-x-5.5" : "translate-x-1"
-                        }`} 
-                      />
+                      <Star className={`w-4 h-4 ${product.isFeatured ? "fill-asphalt" : ""}`} />
+                      {product.isFeatured && <span className="text-[9px] font-bold uppercase tracking-widest">Nổi bật</span>}
                     </button>
-                    <span className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${
-                      product.isFeatured ? "text-[#FF8C00]" : "text-paper/20"
-                    }`}>
-                      {product.isFeatured ? "BẬT" : "TẮT"}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-8 py-6">
-                  <div className="flex items-center justify-end gap-2">
                     <Link 
                       href={`/admin/products/${product.id}`}
                       className="p-2.5 rounded-xl bg-paper/5 hover:bg-paper text-paper/40 hover:text-asphalt transition-all border border-paper/5"
