@@ -12,10 +12,27 @@ import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/utils";
 
 
+interface Plan {
+  label: string;
+  price: number;
+  cycle: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  image?: string;
+  price: number;
+  originalPrice?: number;
+  plans?: Plan[];
+}
+
 export default function ProductDetail() {
   const params = useParams();
   const { addToCart } = useCart();
-  const [product, setProduct] = useState<any | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activePlan, setActivePlan] = useState(0);
   const [quantity, setQuantity] = React.useState(1);
@@ -39,7 +56,7 @@ export default function ProductDetail() {
   if (isLoading) return <div className="min-h-screen bg-asphalt flex items-center justify-center text-paper/20 uppercase font-bold tracking-widest">Đang tải...</div>;
   if (!product) return <div className="min-h-screen bg-asphalt flex items-center justify-center text-red-400 uppercase font-bold tracking-widest">Sản phẩm không tồn tại</div>;
 
-  const plans = product.plans && Array.isArray(product.plans) && product.plans.length > 0 
+  const plans: Plan[] = product.plans && Array.isArray(product.plans) && product.plans.length > 0 
     ? product.plans 
     : [
         { label: "1 Tháng", price: product.price, cycle: "tháng" },
@@ -114,7 +131,7 @@ export default function ProductDetail() {
                   <div className="mb-8">
                     <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-4">Chọn gói sản phẩm</p>
                     <div className="flex flex-wrap gap-3">
-                      {plans.map((plan: any, idx: number) => (
+                      {plans.map((plan: Plan, idx: number) => (
                         <button
                           key={plan.label}
                           onClick={() => setActivePlan(idx)}
@@ -168,7 +185,7 @@ export default function ProductDetail() {
 
                     <div className="w-full">
                       <AddToCartButton 
-                        product={{...product, price: plans.find(p => p.cycle === selectedPlan)?.price || product.price}} 
+                        product={{...product, price: plans.find((p: Plan) => p.cycle === selectedPlan.cycle)?.price || product.price}} 
                         quantity={quantity}
                       />
                     </div>
