@@ -15,43 +15,43 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
+  const [banners, setBanners] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Featured products for carousel
-  const featuredProducts = useMemo(() => {
-    const featured = dbProducts.filter(p => p.isFeatured);
-    return featured.length > 0 ? featured : dbProducts.slice(0, 4);
-  }, [dbProducts]);
-  
   // Best seller products for horizontal scroll
   const bestSellers = useMemo(() => dbProducts.filter(p => p.isBestSeller), [dbProducts]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/products", { cache: 'no-store' });
-        const data = await res.json();
-        setDbProducts(data);
+        const [productsRes, bannersRes] = await Promise.all([
+          fetch("/api/products", { cache: 'no-store' }),
+          fetch("/api/banners", { cache: 'no-store' })
+        ]);
+        const productsData = await productsRes.json();
+        const bannersData = await bannersRes.json();
+        setDbProducts(productsData);
+        setBanners(bannersData);
       } catch (error) {
         console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Auto-slide effect
   React.useEffect(() => {
-    if (featuredProducts.length === 0) return;
+    if (banners.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [featuredProducts.length]);
+  }, [banners.length]);
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length);
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -116,73 +116,72 @@ export default function Home() {
 
             {/* Hero Banner - Responsive Sliding Carousel */}
             <section className="flex-1 relative aspect-[16/8] sm:aspect-auto sm:h-[260px] md:h-[420px] rounded-[1.25rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
-              {featuredProducts.length > 0 ? (
+              {banners.length > 0 ? (
                 <div className="relative w-full h-full">
-                  {/* Slider Track */}
-                  <motion.div 
-                    className="flex w-full h-full"
-                    animate={{ x: `-${currentSlide * 100}%` }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={(_, info) => {
-                      if (info.offset.x > 50) prevSlide();
-                      else if (info.offset.x < -50) nextSlide();
-                    }}
-                  >
-                    {featuredProducts.map((product, idx) => (
-                      <div key={product.id} className="min-w-full h-full relative flex-shrink-0">
-                        <img 
-                          src={product.image || ""} 
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-asphalt via-asphalt/20 to-transparent opacity-80" />
-                        
-                        {/* Banner Content Overlay */}
-                        <div className="absolute inset-0 p-5 md:p-14 flex flex-col justify-end">
-                          <motion.div
-                            initial={{ opacity: 0, y: 15 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentSlide}
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="absolute inset-0"
+                    >
+                      <img 
+                        src={banners[currentSlide].image} 
+                        className="w-full h-full object-cover"
+                        alt={banners[currentSlide].title || "Banner"}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-asphalt/90 via-asphalt/40 to-transparent" />
+                      
+                      {/* Banner Content Overlay */}
+                      <div className="absolute inset-0 p-8 md:p-14 flex flex-col justify-center">
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#FF8C00] text-asphalt text-[7px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-1.5 md:mb-4 inline-block shadow-lg">
+                            Hot Deal
+                          </span>
+                          <h2 className="text-base sm:text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-2 md:mb-6 max-w-xs md:max-w-lg leading-[1.1] drop-shadow-2xl">
+                            {banners[currentSlide].title}
+                          </h2>
+                          {banners[currentSlide].subtitle && (
+                            <p className="text-[8px] md:text-xs text-paper/60 font-bold uppercase tracking-widest mb-4 md:mb-8 max-w-xs md:max-w-md line-clamp-2">
+                              {banners[currentSlide].subtitle}
+                            </p>
+                          )}
+                          <Link 
+                            href={banners[currentSlide].link || "/products"}
+                            className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 bg-paper text-asphalt rounded-full font-bold text-[8px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
                           >
-                            <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#FF8C00] text-asphalt text-[7px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-1.5 md:mb-4 inline-block shadow-lg">
-                              {product.isBestSeller ? "Sản phẩm bán chạy" : "Hot Deal"}
-                            </span>
-                            <h2 className="text-base sm:text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-2 md:mb-6 max-w-xs md:max-w-lg leading-[1.1] drop-shadow-2xl">
-                              {product.name}
-                            </h2>
-                            <Link 
-                              href={`/products/${product.slug}`}
-                              className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 bg-paper text-asphalt rounded-full font-bold text-[8px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-                            >
-                              Mua Ngay <ArrowRight className="w-3 md:w-4 h-3 md:h-4" />
-                            </Link>
-                          </motion.div>
-                        </div>
+                            Khám phá ngay <ArrowRight className="w-3 md:w-4 h-3 md:h-4" />
+                          </Link>
+                        </motion.div>
                       </div>
-                    ))}
-                  </motion.div>
+                    </motion.div>
+                  </AnimatePresence>
 
                   {/* Navigation Control */}
-                  <div className="absolute bottom-4 md:bottom-10 left-1/2 -translate-x-1/2 md:left-auto md:right-10 md:translate-x-0 z-30 flex items-center gap-3 md:gap-5 bg-white/10 backdrop-blur-xl px-3 md:px-5 py-1.5 md:py-2.5 rounded-full border border-white/20 shadow-2xl">
+                  <div className="absolute bottom-4 md:bottom-10 left-8 md:left-14 z-30 flex items-center gap-3">
                     <div className="flex gap-1.5 md:gap-2">
-                      {featuredProducts.map((_, i) => (
+                      {banners.map((_, i) => (
                         <button 
                           key={i} 
                           onClick={() => setCurrentSlide(i)}
-                          className={`h-1 md:h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'bg-paper w-4 md:w-8' : 'bg-paper/20 w-1 md:w-1.5'}`} 
+                          className={`h-1 md:h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'bg-[#FF8C00] w-4 md:w-8 shadow-[0_0_10px_#FF8C00]' : 'bg-white/20 w-1 md:w-1.5'}`} 
                         />
                       ))}
                     </div>
                   </div>
                   
                   {/* Desktop Arrows */}
-                  <button onClick={prevSlide} className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-white/20 transition-all border border-white/10 opacity-0 group-hover:opacity-100">
-                    <ArrowLeft className="w-6 h-6" />
+                  <button onClick={prevSlide} className="hidden md:flex absolute right-24 bottom-10 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-white/20 transition-all border border-white/10 z-30">
+                    <ArrowLeft className="w-5 h-5" />
                   </button>
-                  <button onClick={nextSlide} className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-white/20 transition-all border border-white/10 opacity-0 group-hover:opacity-100">
-                    <ArrowRight className="w-6 h-6" />
+                  <button onClick={nextSlide} className="hidden md:flex absolute right-10 bottom-10 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-[#FF8C00] hover:text-asphalt transition-all border border-white/10 z-30">
+                    <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
               ) : (

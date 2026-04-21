@@ -9,13 +9,15 @@ import {
   Users, 
   Settings, 
   ArrowLeft,
-  LogOut
+  LogOut,
+  Image as ImageIcon
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Tổng quan", href: "/admin" },
   { icon: ShoppingBag, label: "Sản phẩm", href: "/admin/products" },
+  { icon: ImageIcon, label: "Banner", href: "/admin/banners" },
   { icon: TicketPercent, label: "Mã giảm giá", href: "/admin/coupons" },
   { icon: Users, label: "Người dùng", href: "/admin/users" },
   { icon: Settings, label: "Cài đặt", href: "/admin/settings" },
