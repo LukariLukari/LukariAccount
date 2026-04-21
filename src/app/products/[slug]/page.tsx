@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
-import { products } from "@/lib/data";
+import { products, Product } from "@/lib/data";
 import { notFound, useParams } from "next/navigation";
 import { Shield, Sparkles, Zap, RefreshCcw, ArrowLeft } from "lucide-react";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -11,23 +11,12 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/utils";
 
-
 interface Plan {
   label: string;
   price: number;
   cycle: string;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  image?: string;
-  price: number;
-  originalPrice?: number;
-  plans?: Plan[];
-}
 
 export default function ProductDetail() {
   const params = useParams();
