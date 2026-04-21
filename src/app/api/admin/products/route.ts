@@ -36,9 +36,9 @@ export async function POST(req: Request) {
       isFeatured,
       plans,
       warranty,
+      details,
       features,
-      guide,
-      details
+      instructions
     } = body;
 
     const product = await prisma.product.create({
@@ -55,9 +55,9 @@ export async function POST(req: Request) {
         isFeatured: !!isFeatured,
         plans,
         warranty,
-        features,
-        guide,
         details,
+        features,
+        instructions,
       },
     });
 

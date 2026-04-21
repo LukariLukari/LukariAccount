@@ -71,10 +71,10 @@ model Product {
   isBestSeller  Boolean  @default(false)
   isFeatured    Boolean  @default(false)
   plans         Json?    // Array of {label: string, price: number, cycle: string}
-  warranty      String?
-  features      Json?    // Array of {icon: string, text: string}
-  guide         Json?    // Array of {step: string, description: string}
-  details       String?
+  details       String?  // Detailed description (Long text/Markdown)
+  features      Json?    // Array of strings
+  instructions  Json?    // Array of steps
+  warranty      String?  // Warranty policy description
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

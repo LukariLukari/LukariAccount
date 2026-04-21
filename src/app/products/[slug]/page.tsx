@@ -265,41 +265,65 @@ export default function ProductDetail() {
           className="mt-16 max-w-4xl mx-auto"
         >
           <h2 className="text-2xl font-montserrat font-bold mb-8 border-b border-paper/10 pb-6 uppercase tracking-[0.2em] text-paper">
-            Mô tả chi tiết
+            Chi tiết sản phẩm
           </h2>
-          <div className="prose prose-invert max-w-none text-paper/60 font-bold leading-relaxed space-y-8">
-            <p className="text-lg">
-              {product.description}
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-              <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl">
-                <h3 className="font-montserrat font-bold text-sm mb-6 uppercase tracking-widest text-paper">Tính năng nổi bật</h3>
-                <ul className="space-y-4 text-[11px] font-montserrat font-bold uppercase tracking-wider text-paper/40">
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF8C00]" />
-                    Sử dụng không giới hạn model mới
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF8C00]" />
-                    Tốc độ xử lý ưu tiên
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF8C00]" />
-                    Truy cập sớm tính năng mới
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF8C00]" />
-                    Bảo mật dữ liệu tuyệt đối
-                  </li>
-                </ul>
+          <div className="prose prose-invert max-w-none text-paper/60 font-bold leading-relaxed space-y-12">
+            {product.details && (
+              <div className="whitespace-pre-wrap text-lg text-paper/80 bg-paper/[0.02] p-8 rounded-[2rem] border border-paper/5">
+                {product.details}
               </div>
-              <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl flex flex-col justify-center">
-                <h3 className="font-montserrat font-bold text-sm mb-4 uppercase tracking-widest text-paper">Hướng dẫn sử dụng</h3>
-                <p className="text-xs text-paper/50 font-bold leading-relaxed">
-                  Sau khi thanh toán, bạn sẽ nhận được thông tin kích hoạt qua email. Chỉ cần đăng nhập và bắt đầu trải nghiệm sức mạnh của AI ngay lập tức.
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+              {/* Features List */}
+              {product.features && Array.isArray(product.features) && product.features.length > 0 && (
+                <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl">
+                  <h3 className="font-montserrat font-bold text-sm mb-6 uppercase tracking-widest text-paper flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#FF8C00]" />
+                    Tính năng nổi bật
+                  </h3>
+                  <ul className="space-y-4 text-[11px] font-montserrat font-bold uppercase tracking-wider text-paper/40">
+                    {(product.features as string[]).map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FF8C00] shadow-[0_0_10px_#FF8C00]" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Usage Instructions */}
+              {product.instructions && Array.isArray(product.instructions) && product.instructions.length > 0 && (
+                <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl">
+                  <h3 className="font-montserrat font-bold text-sm mb-6 uppercase tracking-widest text-paper flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-[#FF8C00]" />
+                    Hướng dẫn sử dụng
+                  </h3>
+                  <div className="space-y-6">
+                    {(product.instructions as string[]).map((step, idx) => (
+                      <div key={idx} className="flex gap-4">
+                        <span className="text-[10px] font-black text-[#FF8C00] mt-0.5">{String(idx + 1).padStart(2, '0')}</span>
+                        <p className="text-[10px] text-paper/50 font-bold leading-relaxed uppercase tracking-wide">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Warranty Policy Display */}
+            {product.warranty && (
+              <div className="bg-paper/5 p-10 rounded-[2.5rem] border border-paper/10 shadow-xl">
+                <h3 className="font-montserrat font-bold text-sm mb-4 uppercase tracking-widest text-paper flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-[#FF8C00]" />
+                  Chính sách bảo hành
+                </h3>
+                <p className="text-xs text-paper/50 font-bold leading-relaxed whitespace-pre-wrap">
+                  {product.warranty}
                 </p>
               </div>
-            </div>
+            )}
           </div>
         </motion.div>
       </main>
