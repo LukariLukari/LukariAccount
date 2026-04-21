@@ -9,9 +9,11 @@ import {
   Plus, 
   Trash2,
   Sparkles,
-  Upload
+  Upload,
+  X
 } from "lucide-react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice, parseFormattedPrice, compressImageToWebp } from "@/lib/utils";
 
 interface Plan {
@@ -49,6 +51,11 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     warranty: initialData?.warranty || "",
     details: initialData?.details || "",
   });
+
+  const [alertModal, setAlertModal] = useState<{isOpen: boolean, title: string, message: string}>({
+    isOpen: false, title: "", message: ""
+  });
+  const showAlert = (title: string, message: string) => setAlertModal({ isOpen: true, title, message });
 
   // Sync state when initialData changes
   useEffect(() => {
@@ -106,11 +113,11 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         router.push("/admin/products");
         router.refresh();
       } else {
-        alert("Có lỗi xảy ra khi lưu sản phẩm");
+        showAlert("Lỗi", "Có lỗi xảy ra khi lưu sản phẩm");
       }
     } catch (error) {
       console.error(error);
-      alert("Lỗi kết nối");
+      showAlert("Lỗi", "Lỗi kết nối");
     } finally {
       setIsLoading(false);
     }
@@ -444,10 +451,10 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                       if (data.url) {
                         setFormData({ ...formData, image: data.url });
                       } else {
-                        alert("Lỗi upload: " + (data.error || "Không rõ nguyên nhân"));
+                        showAlert("Lỗi upload", data.error || "Không rõ nguyên nhân");
                       }
                     } catch (err: any) {
-                      alert(err.message || "Đã xảy ra lỗi khi tải ảnh lên!");
+                      showAlert("Lỗi", err.message || "Đã xảy ra lỗi khi tải ảnh lên!");
                     }
                   }}
                 />
@@ -493,6 +500,33 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
           </section>
         </div>
       </div>
+
+      <AnimatePresence>
+        {alertModal.isOpen && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAlertModal({ ...alertModal, isOpen: false })} />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="bg-[#1a1917] border border-[#FF8C00]/30 p-8 rounded-[2rem] shadow-[0_0_40px_rgba(255,140,0,0.1)] relative z-10 w-full max-w-md text-center"
+            >
+              <div className="w-12 h-12 rounded-full bg-[#FF8C00]/10 flex items-center justify-center mx-auto mb-4 text-[#FF8C00]">
+                <X className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold uppercase tracking-tight text-paper mb-2">{alertModal.title}</h3>
+              <p className="text-paper/60 text-sm font-medium mb-8 leading-relaxed">{alertModal.message}</p>
+              <button 
+                type="button"
+                onClick={() => setAlertModal({ ...alertModal, isOpen: false })}
+                className="w-full py-3 rounded-xl bg-paper/10 hover:bg-paper text-paper hover:text-asphalt font-bold text-[10px] uppercase tracking-widest transition-all"
+              >
+                Đã hiểu
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </form>
   );
 }

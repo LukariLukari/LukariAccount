@@ -14,7 +14,8 @@ import {
   HelpCircle,
   CheckCircle,
   FileDown,
-  Zap
+  Zap,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,6 +42,17 @@ export default function AdminProductsPage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showImportHelp, setShowImportHelp] = useState(false);
+
+  // Modal States
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void}>({
+    isOpen: false, title: "", message: "", onConfirm: () => {}
+  });
+  const [alertModal, setAlertModal] = useState<{isOpen: boolean, title: string, message: string}>({
+    isOpen: false, title: "", message: ""
+  });
+
+  const showAlert = (title: string, message: string) => setAlertModal({ isOpen: true, title, message });
+  const showConfirm = (title: string, message: string, onConfirm: () => void) => setConfirmModal({ isOpen: true, title, message, onConfirm });
 
   useEffect(() => {
     fetchProducts();
@@ -121,10 +133,10 @@ export default function AdminProductsPage() {
           body: JSON.stringify(productsData),
         });
         const result = await res.json();
-        alert(result.message || result.error);
+        showAlert("Thông báo", result.message || result.error);
         fetchProducts();
       } catch (error) {
-        alert("Lỗi khi nhập dữ liệu");
+        showAlert("Lỗi", "Lỗi khi nhập dữ liệu");
       } finally {
         setIsImporting(false);
       }
@@ -179,24 +191,42 @@ export default function AdminProductsPage() {
     );
   };
 
-  const handleBulkDelete = async () => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} sản phẩm?`)) return;
-    setIsBulkUpdating(true);
-    try {
-      const res = await fetch("/api/admin/products/bulk-update", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedIds }),
-      });
-      if (res.ok) {
-        setSelectedIds([]);
-        fetchProducts();
+  const handleBulkDelete = () => {
+    showConfirm("Xác nhận xóa hàng loạt", `Bạn có chắc chắn muốn xóa ${selectedIds.length} sản phẩm? Hành động này không thể hoàn tác.`, async () => {
+      setIsBulkUpdating(true);
+      try {
+        const res = await fetch("/api/admin/products/bulk-update", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: selectedIds }),
+        });
+        if (res.ok) {
+          setSelectedIds([]);
+          fetchProducts();
+        } else {
+          showAlert("Lỗi", "Không thể xóa hàng loạt.");
+        }
+      } catch (error) {
+        showAlert("Lỗi", "Đã xảy ra lỗi khi xóa.");
+      } finally {
+        setIsBulkUpdating(false);
       }
-    } catch (error) {
-      alert("Lỗi khi xóa hàng loạt");
-    } finally {
-      setIsBulkUpdating(false);
-    }
+    });
+  };
+
+  const handleDeleteSingle = (id: string, name: string) => {
+    showConfirm("Xác nhận xóa", `Bạn có chắc chắn muốn xóa sản phẩm "${name}"?`, async () => {
+      try {
+        const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          fetchProducts();
+        } else {
+          showAlert("Lỗi", "Không thể xóa sản phẩm.");
+        }
+      } catch (error) {
+        showAlert("Lỗi", "Đã xảy ra lỗi khi xóa.");
+      }
+    });
   };
 
   const handleBulkBestSeller = async (status: boolean) => {
@@ -210,9 +240,11 @@ export default function AdminProductsPage() {
       if (res.ok) {
         setSelectedIds([]);
         fetchProducts();
+      } else {
+        showAlert("Lỗi", "Không thể cập nhật trạng thái bán chạy.");
       }
     } catch (error) {
-      alert("Lỗi khi cập nhật hàng loạt");
+      showAlert("Lỗi", "Lỗi khi cập nhật hàng loạt");
     } finally {
       setIsBulkUpdating(false);
     }
@@ -449,7 +481,10 @@ export default function AdminProductsPage() {
                     >
                       <Edit2 className="w-4 h-4" />
                     </Link>
-                    <button className="p-2.5 rounded-xl bg-paper/5 hover:bg-red-500/10 text-paper/40 hover:text-red-500 transition-all border border-paper/5">
+                    <button 
+                      onClick={() => handleDeleteSingle(product.id, product.name)}
+                      className="p-2.5 rounded-xl bg-paper/5 hover:bg-red-500/10 text-paper/40 hover:text-red-500 transition-all border border-paper/5"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                     <Link 
@@ -472,6 +507,67 @@ export default function AdminProductsPage() {
           </div>
         )}
       </div>
+
+      {/* CUSTOM MODALS */}
+      <AnimatePresence>
+        {confirmModal.isOpen && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="bg-[#1a1917] border border-paper/10 p-8 rounded-[2rem] shadow-2xl relative z-10 w-full max-w-md"
+            >
+              <h3 className="text-xl font-bold uppercase tracking-tight text-paper mb-2">{confirmModal.title}</h3>
+              <p className="text-paper/60 text-sm font-medium mb-8 leading-relaxed">{confirmModal.message}</p>
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+                  className="px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest text-paper/40 hover:bg-paper/5 transition-all"
+                >
+                  Hủy
+                </button>
+                <button 
+                  onClick={() => {
+                    confirmModal.onConfirm();
+                    setConfirmModal({ ...confirmModal, isOpen: false });
+                  }}
+                  className="px-6 py-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all"
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {alertModal.isOpen && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAlertModal({ ...alertModal, isOpen: false })} />
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="bg-[#1a1917] border border-[#FF8C00]/30 p-8 rounded-[2rem] shadow-[0_0_40px_rgba(255,140,0,0.1)] relative z-10 w-full max-w-md text-center"
+            >
+              <div className="w-12 h-12 rounded-full bg-[#FF8C00]/10 flex items-center justify-center mx-auto mb-4 text-[#FF8C00]">
+                <X className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold uppercase tracking-tight text-paper mb-2">{alertModal.title}</h3>
+              <p className="text-paper/60 text-sm font-medium mb-8 leading-relaxed">{alertModal.message}</p>
+              <button 
+                onClick={() => setAlertModal({ ...alertModal, isOpen: false })}
+                className="w-full py-3 rounded-xl bg-paper/10 hover:bg-paper text-paper hover:text-asphalt font-bold text-[10px] uppercase tracking-widest transition-all"
+              >
+                Đã hiểu
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
