@@ -13,9 +13,11 @@ import {
   Upload,
   HelpCircle,
   CheckCircle,
-  FileDown
+  FileDown,
+  Zap
 } from "lucide-react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
 
 
@@ -35,6 +37,8 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showImportHelp, setShowImportHelp] = useState(false);
 
@@ -128,8 +132,117 @@ export default function AdminProductsPage() {
     document.body.removeChild(link);
   };
 
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredProducts.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredProducts.map(p => p.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} sản phẩm?`)) return;
+    setIsBulkUpdating(true);
+    try {
+      const res = await fetch("/api/admin/products/bulk-update", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+      if (res.ok) {
+        setSelectedIds([]);
+        fetchProducts();
+      }
+    } catch (error) {
+      alert("Lỗi khi xóa hàng loạt");
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
+  const handleBulkBestSeller = async (status: boolean) => {
+    setIsBulkUpdating(true);
+    try {
+      const res = await fetch("/api/admin/products/bulk-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds, data: { isBestSeller: status } }),
+      });
+      if (res.ok) {
+        setSelectedIds([]);
+        fetchProducts();
+      }
+    } catch (error) {
+      alert("Lỗi khi cập nhật hàng loạt");
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 relative">
+      {/* Floating Bulk Actions Bar */}
+      <AnimatePresence>
+        {selectedIds.length > 0 && (
+          <motion.div 
+            initial={{ y: 100, opacity: 0, x: "-50%" }}
+            animate={{ y: 0, opacity: 1, x: "-50%" }}
+            exit={{ y: 100, opacity: 0, x: "-50%" }}
+            className="fixed bottom-10 left-1/2 z-50 bg-paper text-asphalt px-8 py-4 rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-paper/20 flex items-center gap-8 backdrop-blur-2xl"
+          >
+            <div className="flex items-center gap-4 pr-8 border-r border-asphalt/10">
+              <div className="w-12 h-12 rounded-full bg-asphalt text-paper flex items-center justify-center font-akina font-black text-xl">
+                {selectedIds.length}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">Đã chọn</span>
+                <span className="text-[12px] font-bold uppercase tracking-widest">Sản phẩm</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => handleBulkBestSeller(true)}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-asphalt/5 hover:bg-asphalt/10 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <Star className="w-4 h-4 fill-asphalt" />
+                Đẩy Bán chạy
+              </button>
+              <button 
+                onClick={() => handleBulkBestSeller(false)}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-asphalt/5 hover:bg-asphalt/10 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <Zap className="w-4 h-4" />
+                Gỡ Bán chạy
+              </button>
+              <button 
+                onClick={handleBulkDelete}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <Trash2 className="w-4 h-4" />
+                Xóa mục đã chọn
+              </button>
+              <button 
+                onClick={() => setSelectedIds([])}
+                className="ml-6 p-2 rounded-full hover:bg-asphalt/5 transition-all"
+                title="Hủy chọn"
+              >
+                <CheckCircle className="w-5 h-5 opacity-20 hover:opacity-100" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-2 uppercase">Quản lý sản phẩm</h1>
@@ -181,7 +294,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Toolbar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-paper/5 backdrop-blur-3xl p-4 rounded-3xl border border-paper/10">
         <div className="relative flex-1 max-w-md w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-paper/20" />
@@ -210,11 +322,18 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-paper/5 backdrop-blur-3xl rounded-[3rem] border border-paper/10 overflow-hidden shadow-2xl">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-paper/10 bg-paper/5">
+              <th className="px-8 py-6 w-12">
+                <input 
+                  type="checkbox" 
+                  checked={selectedIds.length === filteredProducts.length && filteredProducts.length > 0}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-paper/20 bg-asphalt checked:bg-[#FF8C00] transition-all cursor-pointer"
+                />
+              </th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Sản phẩm</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Danh mục</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Giá tiền</th>
@@ -229,7 +348,18 @@ export default function AdminProductsPage() {
                 </tr>
               ))
             ) : filteredProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-paper/5 transition-colors group">
+              <tr 
+                key={product.id} 
+                className={`hover:bg-paper/5 transition-all group ${selectedIds.includes(product.id) ? 'bg-[#FF8C00]/5' : ''}`}
+              >
+                <td className="px-8 py-6">
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.includes(product.id)}
+                    onChange={() => toggleSelectOne(product.id)}
+                    className="w-4 h-4 rounded border-paper/20 bg-asphalt checked:bg-[#FF8C00] transition-all cursor-pointer"
+                  />
+                </td>
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-asphalt border border-paper/10 flex items-center justify-center shrink-0">
