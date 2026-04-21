@@ -13,7 +13,7 @@ import {
   Link as LinkIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { compressImageToWebp } from "@/lib/utils";
 interface Banner {
   id: string;
   title: string | null;
@@ -160,13 +160,48 @@ export default function AdminBannersPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-paper/30 ml-1">URL Hình ảnh</label>
-                      <input 
-                        type="text" 
-                        value={editData.image || ""}
-                        onChange={(e) => setEditData({ ...editData, image: e.target.value })}
-                        className="w-full bg-asphalt/50 border border-paper/10 rounded-xl py-3 px-4 text-[11px] font-bold outline-none text-paper/40 focus:border-[#FF8C00]/50 transition-all"
-                      />
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-paper/30 ml-1">Hình ảnh (Upload hoặc dán URL)</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={editData.image || ""}
+                          onChange={(e) => setEditData({ ...editData, image: e.target.value })}
+                          className="flex-1 bg-asphalt/50 border border-paper/10 rounded-xl py-3 px-4 text-[11px] font-bold outline-none text-paper/40 focus:border-[#FF8C00]/50 transition-all"
+                        />
+                        <label className="flex items-center justify-center bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-xl px-4 cursor-pointer transition-all">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-paper whitespace-nowrap">Tải ảnh lên</span>
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              
+                              try {
+                                // Compress and convert to webp (limits to 5MB max original size)
+                                const webpFile = await compressImageToWebp(file, 5);
+
+                                const uploadFormData = new FormData();
+                                uploadFormData.append("file", webpFile);
+                                
+                                const res = await fetch("/api/upload", {
+                                  method: "POST",
+                                  body: uploadFormData
+                                });
+                                const data = await res.json();
+                                if (data.url) {
+                                  setEditData({ ...editData, image: data.url });
+                                } else {
+                                  alert("Lỗi upload: " + (data.error || "Không rõ nguyên nhân"));
+                                }
+                              } catch (err: any) {
+                                alert(err.message || "Đã xảy ra lỗi khi tải ảnh lên!");
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold uppercase tracking-widest text-paper/30 ml-1">Link liên kết</label>

@@ -11,7 +11,7 @@ import {
   Sparkles
 } from "lucide-react";
 import Link from "next/link";
-import { formatPrice, parseFormattedPrice } from "@/lib/utils";
+import { formatPrice, parseFormattedPrice, compressImageToWebp } from "@/lib/utils";
 
 interface Plan {
   label: string;
@@ -414,15 +414,50 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                 )}
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Đường dẫn ảnh (URL)</label>
-                <input 
-                  required
-                  type="text" 
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper"
-                  placeholder="https://example.com/image.png"
-                />
+                <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Đường dẫn ảnh (URL) hoặc Upload</label>
+                <div className="flex gap-2">
+                  <input 
+                    required
+                    type="text" 
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    className="flex-1 bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper"
+                    placeholder="https://example.com/image.png"
+                  />
+                  <label className="flex items-center justify-center bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-2xl px-4 cursor-pointer transition-all">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-paper whitespace-nowrap">Tải ảnh lên</span>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        
+                        try {
+                          // Compress and convert to webp (limits to 5MB max original size)
+                          const webpFile = await compressImageToWebp(file, 5);
+                          
+                          const uploadFormData = new FormData();
+                          uploadFormData.append("file", webpFile);
+                          
+                          const res = await fetch("/api/upload", {
+                            method: "POST",
+                            body: uploadFormData
+                          });
+                          const data = await res.json();
+                          if (data.url) {
+                            setFormData({ ...formData, image: data.url });
+                          } else {
+                            alert("Lỗi upload: " + (data.error || "Không rõ nguyên nhân"));
+                          }
+                        } catch (err: any) {
+                          alert(err.message || "Đã xảy ra lỗi khi tải ảnh lên!");
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
           </section>
