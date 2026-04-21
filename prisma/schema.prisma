@@ -69,6 +69,7 @@ model Product {
   image         String
   category      String
   isBestSeller  Boolean  @default(false)
+  isFeatured    Boolean  @default(false)
   plans         Json?    // Array of {label: string, price: number, cycle: string}
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

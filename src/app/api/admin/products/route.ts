@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       image, 
       category, 
       isBestSeller,
+      isFeatured,
       plans 
     } = body;
 
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
         image,
         category,
         isBestSeller: !!isBestSeller,
+        isFeatured: !!isFeatured,
         plans,
       },
     });

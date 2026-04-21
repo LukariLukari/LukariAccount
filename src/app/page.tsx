@@ -18,7 +18,10 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Featured products for carousel
-  const featuredProducts = useMemo(() => dbProducts.slice(0, 4), [dbProducts]);
+  const featuredProducts = useMemo(() => {
+    const featured = dbProducts.filter(p => p.isFeatured);
+    return featured.length > 0 ? featured : dbProducts.slice(0, 4);
+  }, [dbProducts]);
   
   // Best seller products for horizontal scroll
   const bestSellers = useMemo(() => dbProducts.filter(p => p.isBestSeller), [dbProducts]);

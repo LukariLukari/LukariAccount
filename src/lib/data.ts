@@ -11,6 +11,7 @@ export interface Product {
   image: string;
   category: string;
   isBestSeller?: boolean;
+  isFeatured?: boolean;
   plans?: any;
   createdAt?: string;
   updatedAt?: string;

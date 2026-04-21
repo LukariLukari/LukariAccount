@@ -10,7 +10,10 @@ import {
   MoreVertical,
   Star,
   ShoppingBag,
-  Upload
+  Upload,
+  HelpCircle,
+  CheckCircle,
+  FileDown
 } from "lucide-react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
@@ -23,6 +26,7 @@ interface Product {
   price: number;
   category: string;
   isBestSeller: boolean;
+  isFeatured: boolean;
   createdAt: string;
 }
 
@@ -30,7 +34,9 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [isImporting, setIsImporting] = useState(false);
+  const [showImportHelp, setShowImportHelp] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -89,10 +95,38 @@ export default function AdminProductsPage() {
     reader.readAsText(file);
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         p.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "Tất cả" || p.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const toggleFeatured = async (id: string, current: boolean) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isFeatured: !current }),
+      });
+      if (res.ok) fetchProducts();
+    } catch (error) {
+      console.error("Failed to toggle featured status", error);
+    }
+  };
+
+  const downloadTemplate = () => {
+    const headers = "name,slug,description,price,originalPrice,billingCycle,image,category";
+    const example = "ChatGPT Plus,chatgpt-plus,Tài khoản ChatGPT Plus chính chủ,499000,599000,tháng,https://example.com/img.png,AI";
+    const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + example;
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "lukari_import_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="space-y-10">
@@ -103,12 +137,40 @@ export default function AdminProductsPage() {
             {products.length} sản phẩm đang được bày bán
           </p>
         </div>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 px-8 py-4 bg-paper/10 text-paper border border-paper/10 rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:bg-paper/20 cursor-pointer transition-all shadow-xl">
-            <Upload className="w-4 h-4" />
-            {isImporting ? "Đang xử lý..." : "Nhập hàng loạt"}
-            <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" disabled={isImporting} />
-          </label>
+        <div className="flex gap-4 items-center">
+          <div className="relative">
+            <label className="flex items-center gap-2 px-8 py-4 bg-paper/10 text-paper border border-paper/10 rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:bg-paper/20 cursor-pointer transition-all shadow-xl">
+              <Upload className="w-4 h-4" />
+              {isImporting ? "Đang xử lý..." : "Nhập hàng loạt"}
+              <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" disabled={isImporting} />
+            </label>
+            <button 
+              onClick={() => setShowImportHelp(!showImportHelp)}
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#FF8C00] text-asphalt flex items-center justify-center hover:scale-110 transition-all shadow-lg"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
+
+            {showImportHelp && (
+              <div className="absolute top-full mt-4 right-0 w-80 bg-[#1a1917] border border-paper/10 rounded-[2rem] p-6 shadow-2xl z-[100] animate-in fade-in zoom-in duration-200">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-paper mb-3">Hướng dẫn nhập CSV</h3>
+                <p className="text-[10px] text-paper/40 font-bold leading-relaxed mb-4">
+                  File CSV phải có cấu trúc các cột như sau (ngăn cách bởi dấu phẩy):
+                  <br /><br />
+                  <code className="text-[#FF8C00] bg-paper/5 p-2 rounded-lg block">
+                    name, slug, description, price, originalPrice, billingCycle, image, category
+                  </code>
+                </p>
+                <button 
+                  onClick={downloadTemplate}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-paper/5 hover:bg-paper/10 border border-paper/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-paper transition-all"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Tải file mẫu .csv
+                </button>
+              </div>
+            )}
+          </div>
           <Link 
             href="/admin/products/new"
             className="flex items-center gap-2 px-8 py-4 bg-paper text-asphalt rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
@@ -133,7 +195,15 @@ export default function AdminProductsPage() {
         </div>
         <div className="flex gap-2">
           {["Tất cả", "AI", "Office", "Design", "OS"].map(cat => (
-            <button key={cat} className="px-5 py-3 rounded-xl bg-paper/5 hover:bg-paper/10 border border-paper/5 text-[9px] font-bold uppercase tracking-widest transition-all">
+            <button 
+              key={cat} 
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-3 rounded-xl border transition-all text-[9px] font-bold uppercase tracking-widest ${
+                selectedCategory === cat 
+                ? "bg-paper text-asphalt border-paper shadow-lg" 
+                : "bg-paper/5 border-paper/5 text-paper/40 hover:bg-paper/10"
+              }`}
+            >
               {cat}
             </button>
           ))}
@@ -183,12 +253,25 @@ export default function AdminProductsPage() {
                   </span>
                 </td>
                 <td className="px-8 py-6">
-                  {product.isBestSeller && (
-                    <div className="flex items-center gap-1.5 text-yellow-500">
-                      <Star className="w-3 h-3 fill-yellow-500" />
-                      <span className="text-[9px] font-bold uppercase">Bán chạy</span>
-                    </div>
-                  )}
+                  <div className="flex flex-col gap-2">
+                    {product.isBestSeller && (
+                      <div className="flex items-center gap-1.5 text-yellow-500">
+                        <Star className="w-3 h-3 fill-yellow-500" />
+                        <span className="text-[9px] font-bold uppercase">Bán chạy</span>
+                      </div>
+                    )}
+                    <button 
+                      onClick={() => toggleFeatured(product.id, product.isFeatured)}
+                      className={`flex items-center gap-1.5 px-2 py-1 rounded-full border transition-all ${
+                        product.isFeatured 
+                        ? "bg-[#FF8C00]/20 border-[#FF8C00]/40 text-[#FF8C00]" 
+                        : "bg-paper/5 border-paper/10 text-paper/20 hover:text-paper/40"
+                      }`}
+                    >
+                      <CheckCircle className={`w-3 h-3 ${product.isFeatured ? "fill-[#FF8C00]" : ""}`} />
+                      <span className="text-[8px] font-bold uppercase">Nổi bật</span>
+                    </button>
+                  </div>
                 </td>
                 <td className="px-8 py-6">
                   <div className="flex items-center justify-end gap-2">
