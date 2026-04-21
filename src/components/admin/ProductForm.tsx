@@ -92,7 +92,13 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, plans, features, instructions }),
+        body: JSON.stringify({ 
+          ...formData, 
+          description: formData.details.slice(0, 160), // Use first 160 chars of details as description
+          plans, 
+          features, 
+          instructions 
+        }),
       });
 
       if (res.ok) {
@@ -210,17 +216,6 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Mô tả sản phẩm</label>
-                <textarea 
-                  required
-                  rows={6}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper resize-none"
-                  placeholder="Nhập mô tả chi tiết về sản phẩm..."
-                />
-              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
