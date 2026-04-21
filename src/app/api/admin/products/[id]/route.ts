@@ -40,23 +40,24 @@ export async function PUT(
 
     const { id } = await params;
     const body = await req.json();
-    const { name, slug, description, price, originalPrice, billingCycle, image, category, isBestSeller, isFeatured, plans } = body;
+    
+    // Build update data object dynamically to support partial updates
+    const updateData: any = {};
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.slug !== undefined) updateData.slug = body.slug;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.price !== undefined) updateData.price = parseFloat(body.price);
+    if (body.originalPrice !== undefined) updateData.originalPrice = body.originalPrice ? parseFloat(body.originalPrice) : null;
+    if (body.billingCycle !== undefined) updateData.billingCycle = body.billingCycle;
+    if (body.image !== undefined) updateData.image = body.image;
+    if (body.category !== undefined) updateData.category = body.category;
+    if (body.isBestSeller !== undefined) updateData.isBestSeller = body.isBestSeller;
+    if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
+    if (body.plans !== undefined) updateData.plans = body.plans;
 
     const product = await prisma.product.update({
       where: { id },
-      data: {
-        name,
-        slug,
-        description,
-        price: parseFloat(price),
-        originalPrice: originalPrice ? parseFloat(originalPrice) : null,
-        billingCycle,
-        image,
-        category,
-        isBestSeller,
-        isFeatured,
-        plans,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(product);
