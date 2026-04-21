@@ -90,46 +90,34 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div 
               className={`z-20 shrink-0 bg-paper rounded-full shadow-2xl border border-paper/20 flex items-center h-8 md:h-10 transition-all duration-300 ease-out overflow-hidden ${isInCart ? 'w-[80px] md:w-[110px]' : 'w-8 md:w-10'}`}
             >
-              <AnimatePresence mode="wait">
-                {!isInCart ? (
-                  <motion.button 
-                    key="add"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={handleAddToCart}
-                    className="w-8 md:w-10 h-8 md:h-10 flex items-center justify-center text-[#302f2c] hover:bg-asphalt/5"
+              {!isInCart ? (
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-8 md:w-10 h-8 md:h-10 flex items-center justify-center text-[#302f2c] hover:bg-asphalt/5"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#302f2c] stroke-[3px]" />
+                </button>
+              ) : (
+                <div className="flex items-center px-1 w-full justify-between animate-in fade-in duration-300">
+                  <button
+                    onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
+                    className="w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
                   >
-                    <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#302f2c] stroke-[3px]" />
-                  </motion.button>
-                ) : (
-                  <motion.div 
-                    key="qty"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center px-1 w-full justify-between"
+                    <Minus className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-[#302f2c] stroke-[3px]" />
+                  </button>
+                  
+                  <span className="font-montserrat font-bold text-[9px] md:text-[11px] text-[#302f2c]">
+                    {cartItem.quantity}
+                  </span>
+                  
+                  <button
+                    onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
+                    className="w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
                   >
-                    <button
-                      onClick={(e) => handleUpdateQuantity(e, cartItem.quantity - 1)}
-                      className="w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
-                    >
-                      <Minus className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-[#302f2c] stroke-[3px]" />
-                    </button>
-                    
-                    <span className="font-montserrat font-bold text-[9px] md:text-[11px] text-[#302f2c]">
-                      {cartItem.quantity}
-                    </span>
-                    
-                    <button
-                      onClick={(e) => handleUpdateQuantity(e, cartItem.quantity + 1)}
-                      className="w-6 md:w-8 h-6 md:h-8 rounded-full flex items-center justify-center hover:bg-asphalt/10 transition-colors"
-                    >
-                      <Plus className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-[#302f2c] stroke-[3px]" />
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <Plus className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-[#302f2c] stroke-[3px]" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

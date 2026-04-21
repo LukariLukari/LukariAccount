@@ -117,12 +117,7 @@ export default function ProductsPage() {
         </motion.div>
 
         {/* Toolbar */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-col md:flex-row gap-4 mb-8"
-        >
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-paper/20" />
@@ -178,7 +173,7 @@ export default function ProductsPage() {
               )}
             </button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Filters Panel */}
         <AnimatePresence>
@@ -283,22 +278,11 @@ export default function ProductsPage() {
             layout
             className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
           >
-            <AnimatePresence mode="popLayout">
-              {filteredProducts.map((product, idx) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{
-                    duration: 0.2,
-                    ease: "easeOut",
-                  }}
-                >
-                  <ProductCard product={product} index={idx} />
-                </motion.div>
+              {filteredProducts.map((product) => (
+                <div key={product.id}>
+                  <ProductCard product={product} />
+                </div>
               ))}
-            </AnimatePresence>
           </motion.div>
         ) : (
           <div className="py-32 text-center flex flex-col items-center gap-4">
