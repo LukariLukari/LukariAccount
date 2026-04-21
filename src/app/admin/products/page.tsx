@@ -102,16 +102,16 @@ export default function AdminProductsPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const toggleFeatured = async (id: string, current: boolean) => {
+  const toggleBestSeller = async (id: string, current: boolean) => {
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isFeatured: !current }),
+        body: JSON.stringify({ isBestSeller: !current }),
       });
       if (res.ok) fetchProducts();
     } catch (error) {
-      console.error("Failed to toggle featured status", error);
+      console.error("Failed to toggle best seller status", error);
     }
   };
 
@@ -262,16 +262,16 @@ export default function AdminProductsPage() {
                 <td className="px-8 py-6">
                   <div className="flex items-center justify-end gap-2">
                     <button 
-                      onClick={() => toggleFeatured(product.id, product.isFeatured)}
-                      title={product.isFeatured ? "Bỏ khỏi trang chủ" : "Đưa lên trang chủ"}
+                      onClick={() => toggleBestSeller(product.id, product.isBestSeller)}
+                      title={product.isBestSeller ? "Bỏ khỏi mục bán chạy" : "Đưa vào mục bán chạy"}
                       className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 group/btn ${
-                        product.isFeatured 
-                        ? "bg-[#FF8C00] text-asphalt border-[#FF8C00] shadow-[0_0_15px_rgba(255,140,0,0.4)]" 
+                        product.isBestSeller 
+                        ? "bg-yellow-500 text-asphalt border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)]" 
                         : "bg-paper/5 text-paper/40 border-paper/5 hover:text-paper hover:bg-paper/10"
                       }`}
                     >
-                      <Star className={`w-4 h-4 ${product.isFeatured ? "fill-asphalt" : ""}`} />
-                      {product.isFeatured && <span className="text-[9px] font-bold uppercase tracking-widest">Nổi bật</span>}
+                      <Star className={`w-4 h-4 ${product.isBestSeller ? "fill-asphalt" : ""}`} />
+                      {product.isBestSeller && <span className="text-[9px] font-bold uppercase tracking-widest">Bán chạy</span>}
                     </button>
                     <Link 
                       href={`/admin/products/${product.id}`}

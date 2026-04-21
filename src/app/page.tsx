@@ -147,7 +147,7 @@ export default function Home() {
                             transition={{ delay: 0.2 }}
                           >
                             <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#FF8C00] text-asphalt text-[7px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-1.5 md:mb-4 inline-block shadow-lg">
-                              {product.isFeatured ? "Sản phẩm nổi bật" : "Hot Deal"}
+                              {product.isBestSeller ? "Sản phẩm bán chạy" : "Hot Deal"}
                             </span>
                             <h2 className="text-base sm:text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-2 md:mb-6 max-w-xs md:max-w-lg leading-[1.1] drop-shadow-2xl">
                               {product.name}
@@ -193,30 +193,6 @@ export default function Home() {
             </section>
           </div>
 
-          {/* 
-            ========================================================================
-            FEATURED PRODUCTS GRID (NEW DEDICATED SECTION)
-            ========================================================================
-          */}
-          {dbProducts.filter(p => p.isFeatured).length > 0 && (
-            <div className="w-full mt-12 md:mt-24">
-              <div className="mb-6 flex items-end justify-between px-1">
-                <div>
-                  <h2 className="text-xl md:text-3xl font-montserrat font-bold text-paper uppercase tracking-tight">Sản phẩm nổi bật</h2>
-                  <div className="h-1 w-12 bg-[#FF8C00] mt-2 rounded-full shadow-[0_0_10px_#FF8C00]" />
-                </div>
-                <Link href="/products" className="text-[10px] font-bold uppercase tracking-[0.2em] text-paper/40 hover:text-[#FF8C00] transition-colors">
-                  Xem tất cả
-                </Link>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-                {dbProducts.filter(p => p.isFeatured).slice(0, 8).map((product, idx) => (
-                  <ProductCard key={product.id} product={product} index={idx} />
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* 
             ========================================================================
