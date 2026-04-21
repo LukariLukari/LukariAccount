@@ -403,61 +403,65 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
             <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30 border-b border-paper/5 pb-6">Hình ảnh</h2>
             
             <div className="space-y-6">
-              <div className="aspect-square bg-asphalt/50 border border-paper/10 rounded-[2rem] overflow-hidden flex flex-col items-center justify-center group relative">
+              <label className="aspect-square bg-asphalt/50 border-2 border-dashed border-paper/10 hover:border-paper/30 rounded-[2rem] overflow-hidden flex flex-col items-center justify-center group relative cursor-pointer transition-all shadow-inner">
                 {formData.image ? (
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                  <>
+                    <img src={formData.image} alt="Preview" className="w-full h-full object-cover transition-all group-hover:opacity-40 group-hover:scale-105" />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                      <span className="bg-paper text-asphalt px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-2xl flex items-center gap-2">
+                        <Upload className="w-4 h-4" /> Đổi ảnh
+                      </span>
+                    </div>
+                  </>
                 ) : (
                   <>
-                    <ImageIcon className="w-12 h-12 text-paper/5 mb-4" />
-                    <p className="text-[9px] font-bold uppercase text-paper/20 tracking-widest">Chưa có ảnh</p>
+                    <ImageIcon className="w-12 h-12 text-paper/20 mb-4 group-hover:scale-110 group-hover:text-paper/40 transition-all" />
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-paper/40 group-hover:text-paper/60 transition-colors">Nhấn để tải ảnh lên</p>
+                    <p className="text-[8px] font-bold uppercase tracking-widest text-paper/20 mt-2">Tự động nén WebP • Tối đa 5MB</p>
                   </>
                 )}
-              </div>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    try {
+                      // Compress and convert to webp (limits to 5MB max original size)
+                      const webpFile = await compressImageToWebp(file, 5);
+                      
+                      const uploadFormData = new FormData();
+                      uploadFormData.append("file", webpFile);
+                      
+                      const res = await fetch("/api/upload", {
+                        method: "POST",
+                        body: uploadFormData
+                      });
+                      const data = await res.json();
+                      if (data.url) {
+                        setFormData({ ...formData, image: data.url });
+                      } else {
+                        alert("Lỗi upload: " + (data.error || "Không rõ nguyên nhân"));
+                      }
+                    } catch (err: any) {
+                      alert(err.message || "Đã xảy ra lỗi khi tải ảnh lên!");
+                    }
+                  }}
+                />
+              </label>
+              
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Đường dẫn ảnh (URL) hoặc Upload</label>
-                <div className="flex gap-2">
-                  <input 
-                    required
-                    type="text" 
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="flex-1 bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper"
-                    placeholder="https://example.com/image.png"
-                  />
-                  <label className="flex items-center justify-center bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-2xl px-4 cursor-pointer transition-all">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-paper whitespace-nowrap">Tải ảnh lên</span>
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        
-                        try {
-                          // Compress and convert to webp (limits to 5MB max original size)
-                          const webpFile = await compressImageToWebp(file, 5);
-                          
-                          const uploadFormData = new FormData();
-                          uploadFormData.append("file", webpFile);
-                          
-                          const res = await fetch("/api/upload", {
-                            method: "POST",
-                            body: uploadFormData
-                          });
-                          const data = await res.json();
-                          if (data.url) {
-                            setFormData({ ...formData, image: data.url });
-                          } else {
-                            alert("Lỗi upload: " + (data.error || "Không rõ nguyên nhân"));
-                          }
-                        } catch (err: any) {
-                          alert(err.message || "Đã xảy ra lỗi khi tải ảnh lên!");
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Hoặc dán đường dẫn ảnh (URL)</label>
+                <input 
+                  required
+                  type="text" 
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper"
+                  placeholder="https://example.com/image.png"
+                />
               </div>
             </div>
           </section>

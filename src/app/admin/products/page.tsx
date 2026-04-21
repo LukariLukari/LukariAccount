@@ -57,6 +57,27 @@ export default function AdminProductsPage() {
       setIsLoading(false);
     }
   };
+  const parseCSVRow = (row: string) => {
+    const result = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < row.length; i++) {
+      const char = row[i];
+      if (char === '"' && row[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current);
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    result.push(current);
+    return result;
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,16 +89,28 @@ export default function AdminProductsPage() {
       const text = event.target?.result as string;
       const rows = text.split("\n").slice(1); // Skip header
       const productsData = rows.filter(row => row.trim()).map(row => {
-        const [name, slug, description, price, originalPrice, billingCycle, image, category] = row.split(",");
+        const [
+          name, slug, description, price, originalPrice, billingCycle, image, category, 
+          details, features, instructions, warranty, plansStr
+        ] = parseCSVRow(row.trim());
+        
         return {
           name: name?.trim(),
           slug: slug?.trim(),
           description: description?.trim(),
           price: price?.trim(),
-          originalPrice: originalPrice?.trim(),
-          billingCycle: billingCycle?.trim(),
+          originalPrice: originalPrice?.trim() || "0",
+          billingCycle: billingCycle?.trim() || "tháng",
           image: image?.trim(),
-          category: category?.trim(),
+          category: category?.trim() || "AI",
+          details: details?.trim() || "",
+          features: features ? features.split("|").map(f => f.trim()) : [],
+          instructions: instructions ? instructions.split("|").map(i => i.trim()) : [],
+          warranty: warranty?.trim() || "",
+          plans: plansStr ? plansStr.split("|").map(plan => {
+            const [label, p, cycle] = plan.split(":");
+            return { label: label?.trim() || "Gói", price: Number(p) || 0, cycle: cycle?.trim() || "tháng" };
+          }) : []
         };
       });
 
@@ -120,8 +153,8 @@ export default function AdminProductsPage() {
   };
 
   const downloadTemplate = () => {
-    const headers = "name,slug,description,price,originalPrice,billingCycle,image,category";
-    const example = "ChatGPT Plus,chatgpt-plus,Tài khoản ChatGPT Plus chính chủ,499000,599000,tháng,https://example.com/img.png,AI";
+    const headers = "name,slug,description,price,originalPrice,billingCycle,image,category,details,features,instructions,warranty,plans";
+    const example = '"ChatGPT Plus","chatgpt-plus","Tài khoản ChatGPT Plus chính chủ","499000","599000","tháng","https://example.com/img.png","AI","Chi tiết dài ở đây...","Tính năng 1|Tính năng 2","Bước 1|Bước 2","Bảo hành 1 đổi 1","1 Tháng:499000:tháng|6 Tháng:2500000:6 tháng"';
     const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + example;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -265,18 +298,25 @@ export default function AdminProductsPage() {
             </button>
 
             {showImportHelp && (
-              <div className="absolute top-full mt-4 right-0 w-80 bg-[#1a1917] border border-paper/10 rounded-[2rem] p-6 shadow-2xl z-[100] animate-in fade-in zoom-in duration-200">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-paper mb-3">Hướng dẫn nhập CSV</h3>
-                <p className="text-[10px] text-paper/40 font-bold leading-relaxed mb-4">
-                  File CSV phải có cấu trúc các cột như sau (ngăn cách bởi dấu phẩy):
-                  <br /><br />
-                  <code className="text-[#FF8C00] bg-paper/5 p-2 rounded-lg block">
-                    name, slug, description, price, originalPrice, billingCycle, image, category
+              <div className="absolute top-full mt-4 right-0 w-[400px] bg-[#1a1917] border border-paper/10 rounded-[2rem] p-6 shadow-2xl z-[100] animate-in fade-in zoom-in duration-200">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-paper mb-3">Hướng dẫn nhập CSV nâng cao</h3>
+                <div className="text-[10px] text-paper/60 font-medium leading-relaxed mb-4 space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                  <p>File CSV hỗ trợ các cột (ngăn cách bởi dấu phẩy):</p>
+                  <code className="text-[#FF8C00] bg-paper/5 p-2 rounded-lg block font-bold text-[9px] break-all">
+                    name, slug, description, price, originalPrice, billingCycle, image, category, details, features, instructions, warranty, plans
                   </code>
-                </p>
+                  <div className="bg-paper/5 p-3 rounded-xl mt-3 space-y-2">
+                    <p><strong className="text-paper">Lưu ý định dạng:</strong></p>
+                    <ul className="list-disc pl-4 space-y-1 text-paper/40">
+                      <li><strong>features / instructions:</strong> Dùng dấu gạch đứng <code className="text-[#FF8C00]">|</code> để ngăn cách các dòng. VD: <code className="bg-black/20 p-1">Tính năng 1 | Tính năng 2</code></li>
+                      <li><strong>plans:</strong> Format <code className="bg-black/20 p-1">Tên:Giá:Kỳ hạn</code> và ngăn cách bởi <code className="text-[#FF8C00]">|</code>. VD: <code className="bg-black/20 p-1">1 Tháng:499000:tháng | 6 Tháng:2500000:6 tháng</code></li>
+                      <li>Dùng dấu ngoặc kép <code className="text-[#FF8C00]">""</code> bao quanh nội dung nếu bên trong có chứa dấu phẩy <code className="text-[#FF8C00]">,</code> (VD: <code className="bg-black/20 p-1">"Chi tiết 1, Chi tiết 2"</code>).</li>
+                    </ul>
+                  </div>
+                </div>
                 <button 
                   onClick={downloadTemplate}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-paper/5 hover:bg-paper/10 border border-paper/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-paper transition-all"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-paper transition-all"
                 >
                   <FileDown className="w-4 h-4" />
                   Tải file mẫu .csv
