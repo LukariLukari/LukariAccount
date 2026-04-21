@@ -62,13 +62,13 @@ export default function Navbar() {
           {/* Actions */}
           <div className="flex items-center gap-1 sm:gap-6 shrink-0">
             <div className="hidden lg:flex items-center gap-6 mr-2">
-              {['Products', 'Prices'].map((item) => (
+              {[{label: 'Products', href: '/products'}, {label: 'Tài nguyên', href: '/resources'}].map((item) => (
                 <Link 
-                  key={item} 
-                  href={`/${item.toLowerCase()}`} 
+                  key={item.label} 
+                  href={item.href} 
                   className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30 hover:text-paper transition-all relative group"
                 >
-                  {item}
+                  {item.label}
                   <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-paper transition-all group-hover:w-full" />
                 </Link>
               ))}
@@ -148,13 +148,13 @@ export default function Navbar() {
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/20">Menu chính</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    {['Products', 'Prices', 'Cart', 'Profile'].map((item) => (
+                    {[{label: 'Products', href: '/products'}, {label: 'Tài nguyên', href: '/resources'}, {label: 'Cart', href: '/cart'}, {label: 'Profile', href: '/profile'}].map((item) => (
                       <Link 
-                        key={item}
-                        href={`/${item.toLowerCase()}`}
+                        key={item.label}
+                        href={item.href}
                         className="flex items-center justify-between p-5 rounded-2xl bg-paper/5 border border-paper/5 hover:bg-paper/10 transition-all group"
                       >
-                        <span className="text-[11px] font-montserrat font-bold uppercase tracking-widest text-paper/60 group-hover:text-paper">{item}</span>
+                        <span className="text-[11px] font-montserrat font-bold uppercase tracking-widest text-paper/60 group-hover:text-paper">{item.label}</span>
                         <ArrowRight className="w-3.5 h-3.5 text-paper/20 group-hover:text-paper group-hover:translate-x-1 transition-all" />
                       </Link>
                     ))}

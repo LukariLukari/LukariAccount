@@ -1,22 +1,20 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
 import { products, Product } from "@/lib/data";
-import { notFound, useParams } from "next/navigation";
-import { Shield, Sparkles, Zap, RefreshCcw, ArrowLeft } from "lucide-react";
-import AddToCartButton from "@/components/AddToCartButton";
-import { motion, AnimatePresence } from "framer-motion";
+import { useParams } from "next/navigation";
+import { Shield, Sparkles, Zap, RefreshCcw, ArrowLeft, ShoppingBag } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/utils";
+import PaymentPopup from "@/components/PaymentPopup";
 
 interface Plan {
   label: string;
   price: number;
   cycle: string;
 }
-
 
 export default function ProductDetail() {
   const params = useParams();
@@ -25,6 +23,7 @@ export default function ProductDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [activePlan, setActivePlan] = useState(0);
   const [quantity, setQuantity] = React.useState(1);
+  const [showPayment, setShowPayment] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -55,18 +54,24 @@ export default function ProductDetail() {
 
   const selectedPlan = plans[activePlan];
 
+  const handleBuyNow = () => {
+    setShowPayment(true);
+  };
+
+  const handleAddToCart = () => {
+    addToCart({...product, price: selectedPlan.price}, quantity);
+  };
+
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
-      <Navbar />
-      
-      <main className="max-w-[1440px] mx-auto px-6 pt-8 pb-12 min-h-[calc(100vh-80px)] flex flex-col justify-center">
+      <main className="max-w-[1440px] mx-auto px-6 py-8">
         {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-montserrat font-bold uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity mb-6 group">
+        <Link href="/products" className="inline-flex items-center gap-2 text-sm font-montserrat font-bold uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity mb-6 group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Quay lại cửa hàng
         </Link>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-stretch min-h-[550px]">
+        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
           
           {/* LEFT CARD: Product Info */}
           <motion.div 
@@ -112,12 +117,12 @@ export default function ProductDetail() {
                   <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full mb-4">
                     {product.category}
                   </span>
-                  <h1 className="text-5xl font-montserrat font-bold tracking-tight mb-2 leading-tight text-paper uppercase">
+                  <h1 className="text-4xl lg:text-5xl font-montserrat font-bold tracking-tight mb-2 leading-tight text-paper uppercase">
                     {product.name}
                   </h1>
                   
                   {/* Variants / Plans Selector */}
-                  <div className="mb-8">
+                  <div className="mb-6">
                     <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-4">Chọn gói sản phẩm</p>
                     <div className="flex flex-wrap gap-3">
                       {plans.map((plan: Plan, idx: number) => (
@@ -136,7 +141,7 @@ export default function ProductDetail() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1 mb-8">
+                  <div className="flex flex-col gap-1 mb-6">
                     {activePlan === 0 && product.originalPrice && product.originalPrice > product.price && (
                       <span className="text-sm font-montserrat font-medium text-paper/30 line-through decoration-red-500/50">
                         {formatPrice(product.originalPrice)}₫
@@ -144,15 +149,14 @@ export default function ProductDetail() {
                     )}
                     <div className="text-3xl font-montserrat font-bold text-paper flex items-baseline gap-2">
                       <span className="text-[#FF8C00] drop-shadow-[0_2px_10px_rgba(255,140,0,0.3)]">
-                        {formatPrice(plans[activePlan]?.price)}₫
+                        {formatPrice(selectedPlan.price)}₫
                       </span>
-                      <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">/ {plans[activePlan]?.cycle}</span>
+                      <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">/ {selectedPlan.cycle}</span>
                     </div>
                   </div>
 
-                  
                   {/* Quantity & Actions */}
-                  <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-4">
                       <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30">Số lượng</p>
                       <div className="flex items-center bg-paper/5 rounded-full p-1 border border-paper/10">
@@ -172,11 +176,24 @@ export default function ProductDetail() {
                       </div>
                     </div>
 
-                    <div className="w-full">
-                      <AddToCartButton 
-                        product={{...product, price: plans.find((p: Plan) => p.cycle === selectedPlan.cycle)?.price || product.price}} 
-                        quantity={quantity}
-                      />
+                    <div className="flex gap-3 w-full">
+                      {/* Buy Now */}
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleBuyNow}
+                        className="flex-1 px-8 py-4 rounded-full bg-[#efede3] text-[#302f2c] font-montserrat font-bold text-xs uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
+                      >
+                        Thanh toán ngay
+                      </motion.button>
+
+                      {/* Add to Cart */}
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleAddToCart}
+                        className="w-14 h-14 rounded-full bg-paper/5 border border-paper/10 flex items-center justify-center text-paper hover:bg-paper/10 transition-all shrink-0"
+                      >
+                        <ShoppingBag className="w-5 h-5" />
+                      </motion.button>
                     </div>
                   </div>
                 </motion.div>
@@ -189,7 +206,7 @@ export default function ProductDetail() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="flex-1 bg-paper/5 backdrop-blur-3xl rounded-[3rem] p-8 lg:p-10 relative overflow-hidden shadow-2xl border border-paper/10 flex flex-col min-h-[500px]"
+            className="flex-1 bg-paper/5 backdrop-blur-3xl rounded-[3rem] p-8 lg:p-10 relative overflow-hidden shadow-2xl border border-paper/10 flex flex-col"
           >
             {/* Background Large Text */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none overflow-hidden">
@@ -245,7 +262,7 @@ export default function ProductDetail() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-24 max-w-4xl mx-auto"
+          className="mt-16 max-w-4xl mx-auto"
         >
           <h2 className="text-2xl font-montserrat font-bold mb-8 border-b border-paper/10 pb-6 uppercase tracking-[0.2em] text-paper">
             Mô tả chi tiết
@@ -286,6 +303,15 @@ export default function ProductDetail() {
           </div>
         </motion.div>
       </main>
+
+      {/* Payment Popup */}
+      <PaymentPopup
+        isOpen={showPayment}
+        onClose={() => setShowPayment(false)}
+        product={product}
+        plan={selectedPlan}
+        quantity={quantity}
+      />
     </div>
   );
 }

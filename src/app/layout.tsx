@@ -25,6 +25,7 @@ export const metadata: Metadata = {
 
 import AuthContext from "@/providers/AuthContext";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({
   children,
@@ -37,9 +38,10 @@ export default function RootLayout({
         <AuthContext>
           <CartProvider>
             <Navbar />
-            <div className="pt-32">
+            <div className="pt-32 flex-1">
               {children}
             </div>
+            <Footer />
           </CartProvider>
         </AuthContext>
       </body>
