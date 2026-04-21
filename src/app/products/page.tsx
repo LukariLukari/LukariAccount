@@ -275,14 +275,21 @@ export default function ProductsPage() {
           </div>
         ) : filteredProducts.length > 0 ? (
           <motion.div
-            layout
             className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
           >
+            <AnimatePresence mode="popLayout" initial={false}>
               {filteredProducts.map((product) => (
-                <div key={product.id}>
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                >
                   <ProductCard product={product} />
-                </div>
+                </motion.div>
               ))}
+            </AnimatePresence>
           </motion.div>
         ) : (
           <div className="py-32 text-center flex flex-col items-center gap-4">
