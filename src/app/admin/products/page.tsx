@@ -198,10 +198,10 @@ export default function AdminProductsPage() {
             <button 
               key={cat} 
               onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-3 rounded-xl border transition-all text-[9px] font-bold uppercase tracking-widest ${
+              className={`px-6 py-2.5 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${
                 selectedCategory === cat 
-                ? "bg-paper text-asphalt border-paper shadow-lg" 
-                : "bg-paper/5 border-paper/5 text-paper/40 hover:bg-paper/10"
+                ? "bg-paper !text-[#000000] border-paper shadow-[0_0_20px_rgba(239,237,227,0.3)]" 
+                : "bg-paper/5 border-paper/10 text-paper/60 hover:text-paper hover:bg-paper/10"
               }`}
             >
               {cat}
@@ -218,7 +218,7 @@ export default function AdminProductsPage() {
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Sản phẩm</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Danh mục</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Giá tiền</th>
-              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Trạng thái</th>
+              <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30">Nổi bật</th>
               <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/30 text-right">Thao tác</th>
             </tr>
           </thead>
@@ -248,29 +248,37 @@ export default function AdminProductsPage() {
                   </span>
                 </td>
                 <td className="px-8 py-6">
-                  <span className="font-bold text-sm text-[#FF8C00]">
-                    {formatPrice(product.price)}₫
-                  </span>
-                </td>
-                <td className="px-8 py-6">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-sm text-[#FF8C00]">
+                      {formatPrice(product.price)}₫
+                    </span>
                     {product.isBestSeller && (
-                      <div className="flex items-center gap-1.5 text-yellow-500">
-                        <Star className="w-3 h-3 fill-yellow-500" />
-                        <span className="text-[9px] font-bold uppercase">Bán chạy</span>
+                      <div className="flex items-center gap-1 text-yellow-500 mt-1">
+                        <Star className="w-2.5 h-2.5 fill-yellow-500" />
+                        <span className="text-[7px] font-bold uppercase">Bán chạy</span>
                       </div>
                     )}
+                  </div>
+                </td>
+                <td className="px-8 py-6">
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={() => toggleFeatured(product.id, product.isFeatured)}
-                      className={`flex items-center gap-1.5 px-2 py-1 rounded-full border transition-all ${
-                        product.isFeatured 
-                        ? "bg-[#FF8C00]/20 border-[#FF8C00]/40 text-[#FF8C00]" 
-                        : "bg-paper/5 border-paper/10 text-paper/20 hover:text-paper/40"
+                      className={`relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300 focus:outline-none ${
+                        product.isFeatured ? "bg-[#FF8C00]" : "bg-paper/10"
                       }`}
                     >
-                      <CheckCircle className={`w-3 h-3 ${product.isFeatured ? "fill-[#FF8C00]" : ""}`} />
-                      <span className="text-[8px] font-bold uppercase">Nổi bật</span>
+                      <span 
+                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-paper transition-all duration-300 shadow-sm ${
+                          product.isFeatured ? "translate-x-5.5" : "translate-x-1"
+                        }`} 
+                      />
                     </button>
+                    <span className={`text-[9px] font-bold uppercase tracking-widest transition-colors ${
+                      product.isFeatured ? "text-[#FF8C00]" : "text-paper/20"
+                    }`}>
+                      {product.isFeatured ? "BẬT" : "TẮT"}
+                    </span>
                   </div>
                 </td>
                 <td className="px-8 py-6">
