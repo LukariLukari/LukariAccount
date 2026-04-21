@@ -165,14 +165,14 @@ export default function ProductsPage() {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-5 py-3.5 border rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
                 showFilters || selectedCategories.length > 0
-                  ? "bg-paper text-asphalt border-paper shadow-xl"
+                  ? "bg-paper !text-asphalt border-paper shadow-xl"
                   : "bg-paper/5 border-paper/10 text-paper/60 hover:text-paper hover:border-paper/20"
               }`}
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <SlidersHorizontal className={`w-3.5 h-3.5 ${showFilters || selectedCategories.length > 0 ? "text-asphalt" : ""}`} />
               Bộ lọc
               {selectedCategories.length > 0 && (
-                <span className="ml-1 w-5 h-5 rounded-full bg-[#FF8C00] text-asphalt flex items-center justify-center text-[9px]">
+                <span className="ml-1 w-5 h-5 rounded-full bg-[#FF8C00] !text-asphalt flex items-center justify-center text-[9px]">
                   {selectedCategories.length}
                 </span>
               )}
@@ -187,7 +187,7 @@ export default function ProductsPage() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="overflow-hidden mb-8"
             >
               <div className="bg-paper/5 border border-paper/10 rounded-2xl p-6">
@@ -287,14 +287,12 @@ export default function ProductsPage() {
               {filteredProducts.map((product, idx) => (
                 <motion.div
                   key={product.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
                   transition={{
-                    duration: 0.25,
-                    ease: "circOut",
-                    layout: { duration: 0.3 },
+                    duration: 0.2,
+                    ease: "easeOut",
                   }}
                 >
                   <ProductCard product={product} index={idx} />

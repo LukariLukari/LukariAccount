@@ -18,6 +18,7 @@ export async function GET() {
 
     return NextResponse.json(settings);
   } catch (error) {
+    console.error("Fetch settings error:", error);
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
   }
 }
@@ -26,19 +27,26 @@ export async function GET() {
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user?.role !== "ADMIN") {
+    
+    // Check if user is admin - using 'as any' to bypass strict augmentation issues in route handlers
+    if (!session || (session.user as any)?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
+    
+    // Remove fields that should not be updated manually
+    const { id, updatedAt, ...updateData } = body;
+
     const settings = await prisma.siteSettings.upsert({
       where: { id: "main" },
-      update: body,
-      create: { id: "main", ...body },
+      update: updateData,
+      create: { id: "main", ...updateData },
     });
 
     return NextResponse.json(settings);
   } catch (error) {
+    console.error("Update settings error:", error);
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
   }
 }
