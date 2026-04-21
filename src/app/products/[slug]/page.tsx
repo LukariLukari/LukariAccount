@@ -23,7 +23,8 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activePlan, setActivePlan] = useState(0);
+  const [activePlanIdx, setActivePlanIdx] = useState(0);
+  const [activeType, setActiveType] = useState("Mặc định");
   const [quantity, setQuantity] = React.useState(1);
   const [showPayment, setShowPayment] = useState(false);
 
@@ -34,6 +35,13 @@ export default function ProductDetail() {
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         setProduct(data);
+        
+        if (data.plans && Array.isArray(data.plans) && data.plans.length > 0) {
+          const types = Array.from(new Set(data.plans.map((p: Plan) => p.type || "Mặc định")));
+          setActiveType(types[0] as string);
+        } else {
+          setActiveType("Mặc định");
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -55,18 +63,6 @@ export default function ProductDetail() {
       ];
 
   const types = Array.from(new Set(plans.map(p => p.type || "Mặc định")));
-  
-  // Use state with delayed initialization since plans depends on product
-  const [activeType, setActiveType] = useState(types[0] || "Mặc định");
-  const [activePlanIdx, setActivePlanIdx] = useState(0);
-
-  // Sync state once product loads
-  useEffect(() => {
-    if (product) {
-      setActiveType(types[0] || "Mặc định");
-      setActivePlanIdx(0);
-    }
-  }, [product]);
 
   const handleTypeChange = (t: string) => {
     setActiveType(t);
@@ -97,9 +93,9 @@ export default function ProductDetail() {
           
           {/* LEFT CARD: Product Info */}
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="flex-[2.5] bg-paper/5 backdrop-blur-3xl rounded-[3rem] p-6 lg:p-14 relative overflow-hidden shadow-2xl border border-paper/10 flex flex-col justify-center"
           >
             {/* Background Large Text */}
@@ -112,9 +108,9 @@ export default function ProductDetail() {
             <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center h-full">
               {/* Product Image Card */}
               <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
                 className="w-full md:w-1/2 h-[280px] relative rounded-[2.5rem] overflow-hidden shadow-2xl group shrink-0 border border-paper/10"
               >
                 {product.image ? (
@@ -135,9 +131,9 @@ export default function ProductDetail() {
               {/* Text Info */}
               <div className="w-full md:w-1/2 flex flex-col justify-center">
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1 }}
                 >
                   <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full mb-4">
                     {product.category}
@@ -190,7 +186,7 @@ export default function ProductDetail() {
                   </div>
 
                   <div className="flex flex-col gap-1 mb-6">
-                    {activePlan === 0 && product.originalPrice && product.originalPrice > product.price && (
+                    {activePlanIdx === 0 && product.originalPrice && product.originalPrice > product.price && (
                       <span className="text-sm font-montserrat font-medium text-paper/30 line-through decoration-red-500/50">
                         {formatPrice(product.originalPrice)}₫
                       </span>
@@ -251,9 +247,9 @@ export default function ProductDetail() {
 
           {/* RIGHT CARD: Warranty & Protection */}
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
             className="flex-1 bg-paper/5 backdrop-blur-3xl rounded-[3rem] p-8 lg:p-10 relative overflow-hidden shadow-2xl border border-paper/10 flex flex-col"
           >
             {/* Background Large Text */}
@@ -279,9 +275,9 @@ export default function ProductDetail() {
                   ].map((item, idx) => (
                     <motion.div 
                       key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + (idx * 0.1) }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.2 + (idx * 0.05) }}
                       className="flex gap-4 group"
                     >
                       <div className="w-10 h-10 rounded-xl bg-paper/5 flex items-center justify-center shrink-0 group-hover:bg-paper group-hover:text-asphalt transition-all duration-300 border border-paper/10 text-paper/60">
