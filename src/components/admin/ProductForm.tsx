@@ -8,7 +8,8 @@ import {
   Image as ImageIcon, 
   Plus, 
   Trash2,
-  Sparkles
+  Sparkles,
+  Upload
 } from "lucide-react";
 import Link from "next/link";
 import { formatPrice, parseFormattedPrice, compressImageToWebp } from "@/lib/utils";
