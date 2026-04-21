@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/lib/data";
 import { useEffect } from "react";
+import Image from "next/image";
 
 interface PaymentPopupProps {
   isOpen: boolean;
@@ -108,11 +109,14 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
                   Quét mã QR
                 </p>
                 {bankInfo?.qrCodeUrl ? (
-                  <img
-                    src={bankInfo.qrCodeUrl}
-                    alt="QR Code thanh toán"
-                    className="w-40 h-40 rounded-xl bg-white p-2 object-contain"
-                  />
+                  <div className="relative w-40 h-40 rounded-xl bg-white p-2 overflow-hidden">
+                    <Image
+                      src={bankInfo.qrCodeUrl}
+                      alt="QR Code thanh toán"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 ) : (
                   <div className="w-40 h-40 rounded-xl bg-paper/10 flex items-center justify-center text-paper/20 text-[10px] font-bold">
                     QR CODE

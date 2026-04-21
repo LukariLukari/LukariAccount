@@ -8,6 +8,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@/lib/data";
+import Image from "next/image";
 
 export default function Home() {
   const { cartCount, addToCart } = useCart();
@@ -127,10 +128,13 @@ export default function Home() {
                       transition={{ duration: 1, ease: "easeOut" }}
                       className="absolute inset-0"
                     >
-                      <img 
+                      <Image 
                         src={banners[currentSlide].image} 
-                        className="w-full h-full object-cover"
+                        className="object-cover"
                         alt={banners[currentSlide].title || "Banner"}
+                        fill
+                        priority
+                        sizes="100vw"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-asphalt/90 via-asphalt/40 to-transparent" />
                       

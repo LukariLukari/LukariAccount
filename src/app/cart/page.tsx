@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
+import Image from "next/image";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -36,7 +37,9 @@ export default function CartPage() {
                   <div key={item.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 bg-paper/5 border border-paper/10 rounded-[2.5rem] shadow-xl backdrop-blur-xl">
                     <div className="w-24 h-24 shrink-0 bg-asphalt rounded-2xl flex items-center justify-center overflow-hidden border border-paper/10">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <div className="relative w-full h-full">
+                          <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover" />
+                        </div>
                       ) : (
                         <span className="text-[10px] text-paper/10 font-montserrat font-bold uppercase">AI</span>
                       )}

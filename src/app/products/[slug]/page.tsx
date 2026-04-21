@@ -9,6 +9,7 @@ import React, { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/utils";
 import PaymentPopup from "@/components/PaymentPopup";
+import Image from "next/image";
 
 interface Plan {
   label: string;
@@ -96,10 +97,13 @@ export default function ProductDetail() {
                 className="w-full md:w-1/2 h-[280px] relative rounded-[2.5rem] overflow-hidden shadow-2xl group shrink-0 border border-paper/10"
               >
                 {product.image ? (
-                  <img 
+                  <Image 
                     src={product.image} 
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                 ) : (
                   <div className="w-full h-full bg-paper/5 flex items-center justify-center text-paper/10 text-6xl font-bold">AI</div>
