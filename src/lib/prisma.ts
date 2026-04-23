@@ -1,25 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const getPrisma = () => {
-  if (globalForPrisma.prisma) return globalForPrisma.prisma;
-  
-  const url = process.env.DATABASE_URL;
-  const client = new PrismaClient({
-    log: ["error"],
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["error"] : ["error"],
   });
-
-  const availableModels = Object.keys(client).filter(k => !k.startsWith("_"));
-  console.log(`[Prisma ${new Date().toISOString()}] Initialized. Models:`, availableModels.join(", "));
-
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = client;
-  }
-
-  return client;
 };
 
-export const prisma = getPrisma();
+declare global {
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+}
+
+export const prisma = globalThis.prisma ?? prismaClientSingleton();
+
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
