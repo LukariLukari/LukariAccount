@@ -22,10 +22,20 @@ async function getBanners() {
 }
 
 export default async function Home() {
-  const [products, banners] = await Promise.all([
-    getProducts(),
-    getBanners(),
-  ]);
+  let products: any[] = [];
+  let banners: any[] = [];
+
+  try {
+    const [p, b] = await Promise.all([
+      getProducts(),
+      getBanners(),
+    ]);
+    products = p;
+    banners = b;
+  } catch (error) {
+    console.error("Database connection error:", error);
+    // Return empty state or handle accordingly
+  }
 
   const bestSellers = products.filter((p) => p.isBestSeller);
 
