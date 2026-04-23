@@ -378,9 +378,9 @@ export default function AdminProductsPage() {
           </div>
           <Link 
             href="/admin/products/new"
-            className="flex items-center gap-2 px-8 py-4 bg-paper text-asphalt rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
+            className="flex items-center gap-2 px-8 py-4 bg-paper !text-asphalt rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 !text-asphalt" />
             Thêm sản phẩm
           </Link>
         </div>
@@ -404,7 +404,7 @@ export default function AdminProductsPage() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-6 py-2.5 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest shrink-0 ${
                 selectedCategory === cat 
-                ? "bg-paper !text-[#000000] border-paper shadow-[0_0_20px_rgba(239,237,227,0.3)]" 
+                ? "bg-paper !text-asphalt border-paper shadow-[0_0_20px_rgba(239,237,227,0.3)]" 
                 : "bg-paper/5 border-paper/10 text-paper/60 hover:text-paper hover:bg-paper/10"
               }`}
             >

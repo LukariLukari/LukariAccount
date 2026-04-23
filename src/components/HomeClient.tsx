@@ -13,14 +13,30 @@ export default function HomeClient({ initialProducts, banners }: { initialProduc
   const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
+    // 1. Try to load from Cache (LocalStorage) for instant UI
+    const cachedCategories = localStorage.getItem("lukari_categories");
+    if (cachedCategories) {
+      try {
+        setCategories(JSON.parse(cachedCategories));
+      } catch (e) {
+        console.error("Failed to parse cached categories");
+      }
+    }
+
     const fetchCategories = async () => {
       try {
         const res = await fetch("/api/admin/categories/config");
         const data = await res.json();
-        setCategories(['all', ...data]);
+        const fullCategories = ['all', ...data];
+        
+        // 2. Update state and Sync to Cache
+        setCategories(fullCategories);
+        localStorage.setItem("lukari_categories", JSON.stringify(fullCategories));
       } catch (error) {
         console.error("Failed to fetch categories", error);
-        setCategories(['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios']);
+        if (categories.length === 0) {
+          setCategories(['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios']);
+        }
       }
     };
     fetchCategories();
@@ -143,6 +159,30 @@ export default function HomeClient({ initialProducts, banners }: { initialProduc
           )}
         </section>
       </div>
+
+      {/* Best Sellers Section - Moved to top for better visibility */}
+      {initialProducts.filter(p => p.isBestSeller).length > 0 && (
+        <div className="w-full mt-12 md:mt-16">
+          <div className="mb-6 flex items-end justify-between px-1">
+            <div>
+              <span className="text-[10px] font-bold text-[#FF8C00] uppercase tracking-[0.3em] mb-1 block">Hot Selection</span>
+              <h2 className="text-xl md:text-3xl font-montserrat font-bold text-paper uppercase tracking-tight">Sản phẩm bán chạy</h2>
+              <div className="h-1 w-12 bg-[#FF8C00] mt-2 rounded-full" />
+            </div>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-paper/30 hidden sm:block">Vuốt để xem thêm</p>
+          </div>
+          
+          <div className="relative -mx-1">
+            <div className="flex overflow-x-auto scrollbar-hide gap-4 md:gap-6 pb-6 snap-x snap-mandatory px-1">
+              {initialProducts.filter(p => p.isBestSeller).map((product, idx) => (
+                <div key={product.id} className="min-w-[190px] sm:min-w-[280px] md:min-w-[320px] snap-start">
+                  <ProductCard product={product} index={idx} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Product Grid Section */}
       <div className="w-full mt-12 md:mt-16">

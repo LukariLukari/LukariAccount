@@ -136,22 +136,22 @@ export default function CategoryAssetsPage() {
             </p>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <button 
             onClick={handleScanProducts}
             disabled={isScanning}
-            className="flex items-center gap-3 px-8 py-4 bg-paper/5 hover:bg-paper/10 text-paper border border-paper/10 rounded-2xl font-bold text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 bg-paper/5 hover:bg-paper/10 text-paper border border-paper/10 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
           >
-            <Zap className={`w-4 h-4 text-[#FF8C00] ${isScanning ? 'animate-pulse' : ''}`} />
+            <Zap className={`w-3.5 h-3.5 text-[#FF8C00] ${isScanning ? 'animate-pulse' : ''}`} />
             {isScanning ? "Đang quét..." : "Quét sản phẩm"}
           </button>
           
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-3 px-10 py-4 bg-paper/10 hover:bg-paper/20 text-paper border border-paper/20 rounded-2xl font-bold text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-2xl disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 px-7 py-2.5 bg-asphalt hover:bg-asphalt/80 text-paper border border-paper/10 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl disabled:opacity-50 cursor-pointer"
           >
-            <Save className="w-4 h-4 text-[#FF8C00]" />
+            <Save className="w-3.5 h-3.5 text-[#FF8C00]" />
             {isSaving ? "Đang xử lý..." : "Đồng bộ R2"}
           </button>
         </div>
@@ -167,11 +167,11 @@ export default function CategoryAssetsPage() {
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
-              className="flex-1 bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-paper/40 transition-all text-paper"
+              className="flex-1 bg-asphalt/50 border border-paper/10 rounded-2xl py-3 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper"
             />
             <button 
               onClick={handleAddCategory}
-              className="px-8 bg-paper text-asphalt rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
+              className="px-6 bg-asphalt hover:bg-asphalt/80 text-paper border border-paper/10 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
             >
               Thêm
             </button>

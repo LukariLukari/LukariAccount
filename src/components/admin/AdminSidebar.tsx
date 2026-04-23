@@ -50,12 +50,12 @@ export default function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group ${
                 isActive 
-                  ? "bg-paper text-asphalt shadow-xl" 
+                  ? "bg-paper !text-asphalt shadow-xl" 
                   : "text-paper/40 hover:text-paper hover:bg-paper/5"
               }`}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? "text-asphalt" : "group-hover:scale-110 transition-transform"}`} />
-              <span className="font-montserrat font-bold text-[11px] uppercase tracking-widest">
+              <item.icon className={`w-5 h-5 ${isActive ? "!text-asphalt" : "group-hover:scale-110 transition-transform"}`} />
+              <span className={`font-montserrat font-bold text-[11px] uppercase tracking-widest ${isActive ? "!text-asphalt" : ""}`}>
                 {item.label}
               </span>
             </Link>

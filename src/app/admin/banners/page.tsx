@@ -176,9 +176,9 @@ export default function AdminBannersPage() {
         {!isAdding && (
           <button 
             onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-paper text-asphalt rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+            className="flex items-center gap-2 px-8 py-4 bg-paper !text-asphalt rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 !text-asphalt" />
             Thêm Banner
           </button>
         )}
