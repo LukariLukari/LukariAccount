@@ -20,18 +20,7 @@ import {
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
-
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  category: string;
-  isBestSeller: boolean;
-  isFeatured: boolean;
-  createdAt: string;
-}
+import { Product } from "@/lib/data";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -490,7 +479,7 @@ export default function AdminProductsPage() {
                 <td className="px-8 py-6">
                   <div className="flex items-center justify-end gap-2">
                     <button 
-                      onClick={() => toggleBestSeller(product.id, product.isBestSeller)}
+                      onClick={() => toggleBestSeller(product.id, !!product.isBestSeller)}
                       title={product.isBestSeller ? "Bỏ khỏi mục bán chạy" : "Đưa vào mục bán chạy"}
                       className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 group/btn ${
                         product.isBestSeller 

@@ -17,8 +17,8 @@ export interface Product {
   features?: any;
   instructions?: any;
   warranty?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 // Hardcoded products removed. Use Database.
