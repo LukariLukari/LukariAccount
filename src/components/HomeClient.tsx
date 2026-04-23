@@ -10,6 +10,21 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function HomeClient({ initialProducts, banners }: { initialProducts: any[], banners: any[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/admin/categories/config");
+        const data = await res.json();
+        setCategories(['all', ...data]);
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+        setCategories(['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios']);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -36,7 +51,7 @@ export default function HomeClient({ initialProducts, banners }: { initialProduc
             </h2>
             
             <nav className="flex flex-col gap-1.5 overflow-y-auto scrollbar-hide pr-1">
-              {['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios'].map((tag) => (
+              {categories.map((tag) => (
                 <div key={tag} className="px-2">
                   <Link 
                     href={tag === 'all' ? '/' : `/categories/${tag}`}

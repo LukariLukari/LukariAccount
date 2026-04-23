@@ -24,6 +24,7 @@ import { Product } from "@/lib/data";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
@@ -44,8 +45,21 @@ export default function AdminProductsPage() {
   const showConfirm = (title: string, message: string, onConfirm: () => void) => setConfirmModal({ isOpen: true, title, message, onConfirm });
 
   useEffect(() => {
-    fetchProducts();
+    const init = async () => {
+      await Promise.all([fetchProducts(), fetchCategories()]);
+    };
+    init();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/admin/categories/config");
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to fetch categories", error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -384,7 +398,7 @@ export default function AdminProductsPage() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0">
-          {["Tất cả", "AI", "Office", "Design", "OS", "Video", "Combo iOS"].map(cat => (
+          {["Tất cả", ...categories].map(cat => (
             <button 
               key={cat} 
               onClick={() => setSelectedCategory(cat)}
@@ -455,12 +469,9 @@ export default function AdminProductsPage() {
                     onChange={(e) => updateProductCategory(product.id, e.target.value)}
                     className="bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-full py-1.5 px-4 text-[9px] font-bold uppercase tracking-widest text-paper/60 outline-none transition-all cursor-pointer appearance-none text-center"
                   >
-                    <option value="AI" className="bg-asphalt text-paper">AI</option>
-                    <option value="Office" className="bg-asphalt text-paper">Office</option>
-                    <option value="Design" className="bg-asphalt text-paper">Design</option>
-                    <option value="OS" className="bg-asphalt text-paper">OS</option>
-                    <option value="Video" className="bg-asphalt text-paper">Video</option>
-                    <option value="Combo iOS" className="bg-asphalt text-paper">Combo iOS</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat} className="bg-asphalt text-paper">{cat}</option>
+                    ))}
                   </select>
                 </td>
                 <td className="px-8 py-6">

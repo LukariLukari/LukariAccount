@@ -56,7 +56,26 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
   const [alertModal, setAlertModal] = useState<{isOpen: boolean, title: string, message: string}>({
     isOpen: false, title: "", message: ""
   });
+  const [categories, setCategories] = useState<string[]>([]);
+
   const showAlert = (title: string, message: string) => setAlertModal({ isOpen: true, title, message });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/admin/categories/config");
+        const data = await res.json();
+        setCategories(data);
+        if (data.length > 0 && !formData.category) {
+          setFormData(prev => ({ ...prev, category: data[0] }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+        setCategories(["AI", "Office", "Design", "OS", "Video", "Combo iOS"]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Sync state when initialData changes
   useEffect(() => {
@@ -253,12 +272,9 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper appearance-none cursor-pointer"
                   >
-                    <option value="AI">AI</option>
-                    <option value="Office">Office</option>
-                    <option value="Design">Design</option>
-                    <option value="OS">OS</option>
-                    <option value="Video">Video</option>
-                    <option value="Combo iOS">Combo iOS</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat} className="bg-asphalt text-paper">{cat}</option>
+                    ))}
                   </select>
                 </div>
               </div>
