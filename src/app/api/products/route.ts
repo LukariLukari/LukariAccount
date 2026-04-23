@@ -11,7 +11,8 @@ export async function GET(req: Request) {
     const where: any = {};
     if (category && category !== "all") {
       where.category = {
-        contains: category
+        contains: category,
+        mode: 'insensitive'
       };
     }
 

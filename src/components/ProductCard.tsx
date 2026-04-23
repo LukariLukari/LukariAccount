@@ -39,11 +39,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         
         {/* Full Card Background Image */}
         <div className="absolute inset-0 w-full h-full">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="w-full h-full"
-          >
+          <div className="w-full h-full">
             {product.image ? (
               <Image 
                 src={product.image} 
@@ -57,7 +53,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 AI
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Top Overlays - Category */}
@@ -132,4 +128,5 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       </div>
     </Link>
   );
+
 }

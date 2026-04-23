@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,11 +6,6 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-}
-
-enum Role {
-  USER
-  ADMIN
 }
 
 model Account {
@@ -29,8 +21,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -50,34 +41,34 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  createdAt     DateTime  @default(now())
   role          Role      @default(USER)
+  updatedAt     DateTime  @default(now()) @updatedAt
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt @default(now())
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  slug          String   @unique
+  id            String    @id @default(cuid())
+  slug          String    @unique
   name          String
   description   String
   price         Float
   originalPrice Float?
   billingCycle  String
-  rating        Float    @default(5.0)
-  downloads     String   @default("0+")
+  rating        Float     @default(5.0)
+  downloads     String    @default("0+")
   image         String
   category      String
-  isBestSeller  Boolean  @default(false)
-  isFeatured    Boolean  @default(false)
-  plans         Json?    // Array of {label: string, price: number, cycle: string}
-  details       String?  // Detailed description (Long text/Markdown)
-  features      Json?    // Array of strings
-  instructions  Json?    // Array of steps
-  warranty      String?  // Warranty policy description
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isBestSeller  Boolean   @default(false)
+  isFeatured    Boolean   @default(false)
+  plans         Json?
+  details       String?
+  features      Json?
+  instructions  Json?
+  warranty      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Coupon {
@@ -100,20 +91,20 @@ model VerificationToken {
 }
 
 model SiteSettings {
-  id        String   @id @default("main")
-  phone     String   @default("")
-  email     String   @default("")
-  address   String   @default("")
-  zaloLink  String   @default("")
-  facebookLink  String @default("")
-  tiktokLink    String @default("")
-  telegramLink  String @default("")
-  bankName      String @default("")
-  bankAccount   String @default("")
-  bankOwner     String @default("")
-  qrCodeUrl     String @default("")
+  id            String   @id @default("main")
+  phone         String   @default("")
+  email         String   @default("")
+  address       String   @default("")
+  zaloLink      String   @default("")
+  facebookLink  String   @default("")
+  tiktokLink    String   @default("")
+  telegramLink  String   @default("")
+  bankName      String   @default("")
+  bankAccount   String   @default("")
+  bankOwner     String   @default("")
+  qrCodeUrl     String   @default("")
   resourceLinks Json?
-  updatedAt DateTime @updatedAt
+  updatedAt     DateTime @updatedAt
 }
 
 model Banner {
@@ -126,4 +117,9 @@ model Banner {
   order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
 }

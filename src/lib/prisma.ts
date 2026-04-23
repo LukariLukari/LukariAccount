@@ -8,11 +8,12 @@ const getPrisma = () => {
   if (globalForPrisma.prisma) return globalForPrisma.prisma;
   
   const url = process.env.DATABASE_URL;
-  console.log("Prisma initializing with URL length:", url ? url.length : 0);
-
   const client = new PrismaClient({
     log: ["error"],
   });
+
+  const availableModels = Object.keys(client).filter(k => !k.startsWith("_"));
+  console.log(`[Prisma ${new Date().toISOString()}] Initialized. Models:`, availableModels.join(", "));
 
   if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prisma = client;

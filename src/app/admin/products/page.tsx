@@ -229,6 +229,23 @@ export default function AdminProductsPage() {
     });
   };
 
+  const updateProductCategory = async (id: string, newCategory: string) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: newCategory }),
+      });
+      if (res.ok) {
+        fetchProducts();
+      } else {
+        showAlert("Lỗi", "Không thể cập nhật danh mục.");
+      }
+    } catch (error) {
+      console.error("Failed to update category", error);
+    }
+  };
+
   const handleBulkBestSeller = async (status: boolean) => {
     setIsBulkUpdating(true);
     try {
@@ -377,12 +394,12 @@ export default function AdminProductsPage() {
             className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-3.5 pl-12 pr-6 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-paper/30 transition-all"
           />
         </div>
-        <div className="flex gap-2">
-          {["Tất cả", "AI", "Office", "Design", "OS"].map(cat => (
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0">
+          {["Tất cả", "AI", "Office", "Design", "OS", "Video", "Combo iOS"].map(cat => (
             <button 
               key={cat} 
               onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-2.5 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${
+              className={`px-6 py-2.5 rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest shrink-0 ${
                 selectedCategory === cat 
                 ? "bg-paper !text-[#000000] border-paper shadow-[0_0_20px_rgba(239,237,227,0.3)]" 
                 : "bg-paper/5 border-paper/10 text-paper/60 hover:text-paper hover:bg-paper/10"
@@ -444,9 +461,18 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
                 <td className="px-8 py-6">
-                  <span className="px-3 py-1 bg-paper/10 rounded-full text-[9px] font-bold uppercase tracking-widest text-paper/60">
-                    {product.category}
-                  </span>
+                  <select 
+                    value={product.category}
+                    onChange={(e) => updateProductCategory(product.id, e.target.value)}
+                    className="bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-full py-1.5 px-4 text-[9px] font-bold uppercase tracking-widest text-paper/60 outline-none transition-all cursor-pointer appearance-none text-center"
+                  >
+                    <option value="AI" className="bg-asphalt text-paper">AI</option>
+                    <option value="Office" className="bg-asphalt text-paper">Office</option>
+                    <option value="Design" className="bg-asphalt text-paper">Design</option>
+                    <option value="OS" className="bg-asphalt text-paper">OS</option>
+                    <option value="Video" className="bg-asphalt text-paper">Video</option>
+                    <option value="Combo iOS" className="bg-asphalt text-paper">Combo iOS</option>
+                  </select>
                 </td>
                 <td className="px-8 py-6">
                   <div className="flex flex-col">
@@ -546,21 +572,21 @@ export default function AdminProductsPage() {
       <AnimatePresence>
         {alertModal.isOpen && (
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAlertModal({ ...alertModal, isOpen: false })} />
+            <div className="absolute inset-0 bg-asphalt/60 backdrop-blur-xl" onClick={() => setAlertModal({ ...alertModal, isOpen: false })} />
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              className="bg-[#1a1917] border border-[#FF8C00]/30 p-8 rounded-[2rem] shadow-[0_0_40px_rgba(255,140,0,0.1)] relative z-10 w-full max-w-md text-center"
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-[#1a1917] border border-paper/10 p-10 rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.5)] relative z-10 w-full max-w-md text-center"
             >
-              <div className="w-12 h-12 rounded-full bg-[#FF8C00]/10 flex items-center justify-center mx-auto mb-4 text-[#FF8C00]">
-                <X className="w-6 h-6" />
+              <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-[#FF8C00]/10 text-[#FF8C00]">
+                <CheckCircle className="w-10 h-10" />
               </div>
-              <h3 className="text-xl font-bold uppercase tracking-tight text-paper mb-2">{alertModal.title}</h3>
-              <p className="text-paper/60 text-sm font-medium mb-8 leading-relaxed">{alertModal.message}</p>
+              <h3 className="text-2xl font-bold uppercase tracking-tight text-paper mb-3">{alertModal.title}</h3>
+              <p className="text-paper/40 text-sm font-medium mb-10 leading-relaxed px-4">{alertModal.message}</p>
               <button 
                 onClick={() => setAlertModal({ ...alertModal, isOpen: false })}
-                className="w-full py-3 rounded-xl bg-paper/10 hover:bg-paper text-paper hover:text-asphalt font-bold text-[10px] uppercase tracking-widest transition-all"
+                className="w-full py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
               >
                 Đã hiểu
               </button>

@@ -1,207 +1,41 @@
-"use client";
-
-import Link from "next/link";
-import { ArrowLeft, ArrowRight, ShoppingBag, Search, Menu as MenuIcon, X } from "lucide-react";
-import { useCart } from "@/context/CartContext";
-import { useState, useMemo, useEffect } from "react";
-import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
-import { Product } from "@/lib/data";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, ArrowLeft } from "lucide-react";
+import HomeClient from "@/components/HomeClient";
 
-export default function Home() {
-  const { cartCount, addToCart } = useCart();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [dbProducts, setDbProducts] = useState<Product[]>([]);
-  const [banners, setBanners] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+// Force dynamic because we want the latest products/banners
+export const dynamic = "force-dynamic";
 
-  // Best seller products for horizontal scroll
-  const bestSellers = useMemo(() => dbProducts.filter(p => p.isBestSeller), [dbProducts]);
+async function getProducts() {
+  return await prisma.product.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsRes, bannersRes] = await Promise.all([
-          fetch("/api/products", { cache: 'no-store' }),
-          fetch("/api/banners", { cache: 'no-store' })
-        ]);
-        const productsData = await productsRes.json();
-        const bannersData = await bannersRes.json();
-        setDbProducts(productsData);
-        setBanners(bannersData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+async function getBanners() {
+  return await prisma.banner.findMany({
+    where: { active: true },
+    orderBy: { order: "asc" },
+  });
+}
 
-  // Auto-slide effect
-  React.useEffect(() => {
-    if (banners.length === 0) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % banners.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [banners.length]);
+export default async function Home() {
+  const [products, banners] = await Promise.all([
+    getProducts(),
+    getBanners(),
+  ]);
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
-
-  const filteredProducts = useMemo(() => {
-    const query = searchQuery.toLowerCase();
-    if (!query) return dbProducts;
-    return dbProducts.filter(p => 
-      p.name.toLowerCase().includes(query) || 
-      p.category.toLowerCase().includes(query) ||
-      p.description.toLowerCase().includes(query)
-    );
-  }, [searchQuery, dbProducts]);
+  const bestSellers = products.filter((p) => p.isBestSeller);
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
-      {/* 
-        ========================================================================
-        HERO SECTION: SIDEBAR + BANNER
-        ========================================================================
-      */}
       <main className="pt-20 md:pt-32 pb-24">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10">
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
-            
-            {/* Sidebar: Categories - Hidden on Mobile */}
-            <aside className="hidden md:block w-[300px] shrink-0 h-[420px]">
-              <div className="bg-paper/5 backdrop-blur-xl rounded-[2.5rem] p-6 shadow-2xl border border-paper/10 h-full flex flex-col overflow-hidden">
-                <h2 className="font-montserrat font-bold text-[9px] uppercase tracking-[0.4em] mb-6 text-paper/30 flex items-center gap-2.5 px-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-paper/10" />
-                  Danh mục
-                </h2>
-                
-                <nav className="flex flex-col gap-1.5 overflow-y-auto scrollbar-hide pr-1">
-                  {['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios'].map((tag) => {
-                    return (
-                      <motion.div
-                        key={tag}
-                        whileHover={{ scale: 1.02, x: 4 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                        className="px-2"
-                      >
-                        <Link 
-                          href={tag === 'all' ? '/' : `/categories/${tag}`}
-                          className="relative group flex items-center justify-between px-5 py-3.5 rounded-xl transition-all duration-300 font-montserrat font-bold text-[10px] uppercase tracking-[0.15em] outline-none hover:bg-paper/5 hover:text-paper"
-                        >
-                          <span className="relative z-10 transition-colors duration-300 text-paper/40 group-hover:text-paper">
-                            {tag}
-                          </span>
-                          
-                          <ArrowRight className="relative z-10 w-3.5 h-3.5 transition-all duration-300 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 text-paper/20 group-hover:text-paper" />
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </nav>
-                
-                <div className="mt-auto pt-6 border-t border-paper/5">
-                  <div className="bg-paper/[0.02] rounded-[1.25rem] p-4 border border-paper/10">
-                    <p className="text-[10px] font-akina font-black text-paper leading-tight">Need help? Contact us.</p>
-                  </div>
-                </div>
-              </div>
-            </aside>
-
-            {/* Hero Banner - Responsive Sliding Carousel */}
-            <section className="flex-1 relative aspect-[16/8] sm:aspect-auto sm:h-[260px] md:h-[420px] rounded-[1.25rem] md:rounded-[2.5rem] overflow-hidden bg-asphalt group shadow-2xl border border-paper/10">
-              {banners.length > 0 ? (
-                <div className="relative w-full h-full">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={currentSlide}
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="absolute inset-0"
-                    >
-                      <Image 
-                        src={banners[currentSlide].image} 
-                        className="object-cover"
-                        alt={banners[currentSlide].title || "Banner"}
-                        fill
-                        priority
-                        sizes="100vw"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-r from-asphalt/90 via-asphalt/40 to-transparent" />
-                      
-                      {/* Banner Content Overlay */}
-                      <div className="absolute inset-0 p-8 md:p-14 flex flex-col justify-center">
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
-                          <span className="px-2 py-0.5 md:px-3 md:py-1 bg-[#FF8C00] text-asphalt text-[7px] md:text-[9px] font-bold uppercase tracking-widest rounded-full mb-1.5 md:mb-4 inline-block shadow-lg">
-                            Hot Deal
-                          </span>
-                          <h2 className="text-base sm:text-2xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tighter mb-2 md:mb-6 max-w-xs md:max-w-lg leading-[1.1] drop-shadow-2xl">
-                            {banners[currentSlide].title}
-                          </h2>
-                          {banners[currentSlide].subtitle && (
-                            <p className="text-[8px] md:text-xs text-paper/60 font-bold uppercase tracking-widest mb-4 md:mb-8 max-w-xs md:max-w-md line-clamp-2">
-                              {banners[currentSlide].subtitle}
-                            </p>
-                          )}
-                          <Link 
-                            href={banners[currentSlide].link || "/products"}
-                            className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 bg-paper text-asphalt rounded-full font-bold text-[8px] md:text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-                          >
-                            Khám phá ngay <ArrowRight className="w-3 md:w-4 h-3 md:h-4" />
-                          </Link>
-                        </motion.div>
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-
-                  {/* Navigation Control */}
-                  <div className="absolute bottom-4 md:bottom-10 left-8 md:left-14 z-30 flex items-center gap-3">
-                    <div className="flex gap-1.5 md:gap-2">
-                      {banners.map((_, i) => (
-                        <button 
-                          key={i} 
-                          onClick={() => setCurrentSlide(i)}
-                          className={`h-1 md:h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'bg-[#FF8C00] w-4 md:w-8 shadow-[0_0_10px_#FF8C00]' : 'bg-white/20 w-1 md:w-1.5'}`} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Desktop Arrows */}
-                  <button onClick={prevSlide} className="hidden md:flex absolute right-24 bottom-10 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-white/20 transition-all border border-white/10 z-30">
-                    <ArrowLeft className="w-5 h-5" />
-                  </button>
-                  <button onClick={nextSlide} className="hidden md:flex absolute right-10 bottom-10 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full items-center justify-center text-paper hover:bg-[#FF8C00] hover:text-asphalt transition-all border border-white/10 z-30">
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-paper/5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-paper/20">Đang tải banner...</p>
-                </div>
-              )}
-            </section>
-          </div>
-
-
-          {/* 
-            ========================================================================
-            BEST SELLERS SLIDER (LƯỚT)
-            ========================================================================
-          */}
+          <HomeClient initialProducts={products} banners={banners} />
+          
+          {/* Best Sellers Section - Server Rendered for initial speed */}
           {bestSellers.length > 0 && (
             <div className="w-full mt-12 md:mt-24">
               <div className="mb-6 flex items-end justify-between px-1">
@@ -223,51 +57,6 @@ export default function Home() {
               </div>
             </div>
           )}
-
-          {/* Search Results / Product Grid Section */}
-          <div className="w-full mt-12 md:mt-16">
-            <div className="mb-6 md:mb-8 flex items-center justify-between border-b border-paper/10 pb-4 px-1">
-              <h2 className="text-lg md:text-2xl font-montserrat font-bold text-paper uppercase tracking-tight">
-                {searchQuery ? `Kết quả cho "${searchQuery}"` : "Tất cả sản phẩm"}
-              </h2>
-              <span className="text-[9px] md:text-sm font-bold border border-paper/20 px-3 md:px-4 py-1 rounded-full text-paper/60 uppercase tracking-widest">
-                {filteredProducts.length} sản phẩm
-              </span>
-            </div>
-
-            <motion.div 
-              layout
-              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
-            >
-              <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product, idx) => (
-                  <motion.div
-                    key={product.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ 
-                      duration: 0.25, 
-                      ease: "circOut",
-                      layout: { duration: 0.3 }
-                    }}
-                  >
-                    <ProductCard product={product} index={idx} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-
-            {filteredProducts.length === 0 && (
-              <div className="py-32 text-center flex flex-col items-center gap-4">
-                <Search className="w-12 h-12 text-paper/20" />
-                <div className="font-display text-2xl text-paper/40 font-medium uppercase tracking-widest">
-                  Không tìm thấy sản phẩm.
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </main>
     </div>
