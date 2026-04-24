@@ -248,33 +248,33 @@ export default function AdminResourcesPage() {
     "text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-2 block";
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-7 max-w-6xl">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl lg:text-[2.5rem] leading-none font-bold tracking-tight mb-2 uppercase">
+          <h1 className="text-[2rem] lg:text-[2.2rem] leading-[0.95] font-bold tracking-tight mb-2 uppercase">
             Tài nguyên miễn phí
           </h1>
-          <p className="text-paper/40 text-[10px] font-bold uppercase tracking-[0.18em] max-w-xl">
+          <p className="text-paper/40 text-[9px] font-bold uppercase tracking-[0.16em] max-w-xl">
             Quản lý font, brush Procreate và các file free dẫn về Google Drive
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="ui-chip px-4 py-2.5 text-[10px]">
+          <div className="ui-chip px-3.5 py-2 text-[9px]">
             {resourceCountLabel}
           </div>
           <button
             onClick={addResource}
-            className="ui-btn ui-btn-secondary px-4 py-2.5 rounded-xl text-[10px]"
+            className="ui-btn ui-btn-secondary px-3.5 py-2 rounded-xl text-[9px]"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3 h-3" />
             <span className="text-paper whitespace-nowrap">Thêm tài nguyên</span>
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="ui-btn ui-btn-primary px-5 py-2.5 rounded-xl text-[10px]"
+            className="ui-btn ui-btn-primary px-4 py-2 rounded-xl text-[9px]"
           >
-            <Save className="w-3.5 h-3.5 !text-asphalt" />
+            <Save className="w-3 h-3 !text-asphalt" />
             <span className="text-asphalt whitespace-nowrap">
               {isSaving ? "Đang lưu..." : "Lưu tài nguyên"}
             </span>

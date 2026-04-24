@@ -36,13 +36,28 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
+            aria-pressed={selectedCategory === category}
             className={`px-5 py-3 rounded-full border text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
               selectedCategory === category
-                ? "bg-paper text-asphalt border-paper shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
-                : "bg-paper/5 text-paper/60 border-paper/10 hover:bg-paper/10 hover:text-paper"
+                ? ""
+                : "bg-paper/5 border-paper/10 hover:bg-paper/10 hover:border-paper/20"
             }`}
+            style={
+              selectedCategory === category
+                ? {
+                    backgroundColor: "var(--paper)",
+                    color: "var(--asphalt)",
+                    borderColor: "var(--paper)",
+                    boxShadow: "0 12px 30px rgba(0,0,0,0.18)",
+                  }
+                : undefined
+            }
           >
-            {category}
+            <span
+              className={selectedCategory === category ? "text-asphalt whitespace-nowrap" : "text-paper/60 whitespace-nowrap"}
+            >
+              {category}
+            </span>
           </button>
         ))}
       </div>
