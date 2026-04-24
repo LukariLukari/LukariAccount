@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 // GET: Public - fetch site settings
 export async function GET() {
@@ -43,6 +44,11 @@ export async function PUT(req: Request) {
       update: updateData,
       create: { id: "main", ...updateData },
     });
+
+    revalidatePath("/");
+    revalidatePath("/resources");
+    revalidatePath("/admin/resources");
+    revalidatePath("/admin/settings");
 
     return NextResponse.json(settings);
   } catch (error) {

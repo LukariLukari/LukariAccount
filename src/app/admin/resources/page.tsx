@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
+  ArrowDown,
+  ArrowUp,
   ChevronDown,
   ExternalLink,
   FileText,
@@ -15,7 +17,13 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { createEmptyResource, normalizeResources, type FreeResource } from "@/lib/resources";
+import {
+  RESOURCE_CATEGORIES,
+  createEmptyResource,
+  normalizeResources,
+  reindexResources,
+  type FreeResource,
+} from "@/lib/resources";
 
 export default function AdminResourcesPage() {
   type ResourcePanel = "content" | "media" | "drive";
@@ -31,9 +39,9 @@ export default function AdminResourcesPage() {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const res = await fetch("/api/settings");
+        const res = await fetch("/api/admin/resources");
         const data = await res.json();
-        setResources(normalizeResources(data.resourceLinks));
+        setResources(normalizeResources(data));
       } catch (error) {
         setMessage({ type: "error", text: "Không thể tải dữ liệu tài nguyên." });
       } finally {
@@ -59,14 +67,28 @@ export default function AdminResourcesPage() {
 
   const addResource = () => {
     const nextResource = createEmptyResource();
-    setResources((prev) => [...prev, nextResource]);
+    setResources((prev) => reindexResources([...prev, nextResource]));
     setExpandedResourceId(nextResource.id);
     setActivePanel((prev) => ({ ...prev, [nextResource.id]: "content" }));
   };
 
   const removeResource = (id: string) => {
-    setResources((prev) => prev.filter((resource) => resource.id !== id));
+    setResources((prev) => reindexResources(prev.filter((resource) => resource.id !== id)));
     setExpandedResourceId((prev) => (prev === id ? null : prev));
+  };
+
+  const moveResource = (id: string, direction: "up" | "down") => {
+    setResources((prev) => {
+      const currentIndex = prev.findIndex((resource) => resource.id === id);
+      if (currentIndex === -1) return prev;
+
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+
+      const next = [...prev];
+      [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
+      return reindexResources(next);
+    });
   };
 
   const toggleExpandedResource = (id: string) => {
@@ -97,6 +119,19 @@ export default function AdminResourcesPage() {
       prev.map((resource) =>
         resource.id === id
           ? { ...resource, images: [...resource.images, ""] }
+          : resource
+      )
+    );
+  };
+
+  const appendResourceImages = (id: string, nextImages: string[]) => {
+    setResources((prev) =>
+      prev.map((resource) =>
+        resource.id === id
+          ? {
+              ...resource,
+              images: [...resource.images, ...nextImages.filter((image) => image.trim().length > 0)],
+            }
           : resource
       )
     );
@@ -138,15 +173,55 @@ export default function AdminResourcesPage() {
     }
   };
 
+  const handleMultiImageUpload = async (id: string, files: FileList | File[]) => {
+    const fileList = Array.from(files);
+    if (fileList.length === 0) return;
+
+    setUploadingIds((prev) => [...prev, id]);
+
+    try {
+      const uploadedUrls = await Promise.all(
+        fileList.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data?.error || `Upload thất bại với file ${file.name}.`);
+          }
+
+          return data.url as string;
+        })
+      );
+
+      appendResourceImages(id, uploadedUrls);
+      setMessage({
+        type: "success",
+        text: `Đã tải lên ${uploadedUrls.length} ảnh mô tả thành công.`,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Upload nhiều ảnh thất bại.";
+      setMessage({ type: "error", text: errorMessage });
+    } finally {
+      setUploadingIds((prev) => prev.filter((resourceId) => resourceId !== id));
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     setMessage(null);
 
     try {
-      const res = await fetch("/api/settings", {
+      const res = await fetch("/api/admin/resources", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resourceLinks: resources }),
+        body: JSON.stringify(resources),
       });
 
       const data = await res.json().catch(() => null);
@@ -155,7 +230,7 @@ export default function AdminResourcesPage() {
         throw new Error(data?.error || "Không thể lưu tài nguyên.");
       }
 
-      setResources(normalizeResources(data?.resourceLinks ?? resources));
+      setResources(normalizeResources(data ?? resources));
       setMessage({ type: "success", text: "Đã lưu danh sách tài nguyên miễn phí." });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Không thể lưu tài nguyên.";
@@ -166,38 +241,40 @@ export default function AdminResourcesPage() {
   };
 
   const inputClass =
-    "w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-3.5 px-5 text-[11px] font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20";
+    "w-full bg-asphalt/50 border border-paper/10 rounded-xl py-3 px-4 text-[11px] font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20";
   const textareaClass =
-    "w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-5 text-[11px] font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20 min-h-[120px] resize-y";
+    "w-full bg-asphalt/50 border border-paper/10 rounded-xl py-3.5 px-4 text-[11px] font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20 min-h-[120px] resize-y";
   const labelClass =
     "text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-2 block";
 
   return (
-    <div className="space-y-10 max-w-6xl">
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+    <div className="space-y-8 max-w-6xl">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2 uppercase">Tài nguyên miễn phí</h1>
-          <p className="text-paper/40 text-[11px] font-bold uppercase tracking-widest">
+          <h1 className="text-3xl lg:text-[2.5rem] leading-none font-bold tracking-tight mb-2 uppercase">
+            Tài nguyên miễn phí
+          </h1>
+          <p className="text-paper/40 text-[10px] font-bold uppercase tracking-[0.18em] max-w-xl">
             Quản lý font, brush Procreate và các file free dẫn về Google Drive
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="ui-chip px-5 py-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="ui-chip px-4 py-2.5 text-[10px]">
             {resourceCountLabel}
           </div>
           <button
             onClick={addResource}
-            className="ui-btn ui-btn-secondary px-5 py-3 rounded-2xl"
+            className="ui-btn ui-btn-secondary px-4 py-2.5 rounded-xl text-[10px]"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span className="text-paper whitespace-nowrap">Thêm tài nguyên</span>
           </button>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="ui-btn ui-btn-primary px-8 py-4 rounded-2xl"
+            className="ui-btn ui-btn-primary px-5 py-2.5 rounded-xl text-[10px]"
           >
-            <Save className="w-4 h-4 !text-asphalt" />
+            <Save className="w-3.5 h-3.5 !text-asphalt" />
             <span className="text-asphalt whitespace-nowrap">
               {isSaving ? "Đang lưu..." : "Lưu tài nguyên"}
             </span>
@@ -224,7 +301,7 @@ export default function AdminResourcesPage() {
           ))}
         </div>
       ) : resources.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {resources.map((resource, index) => {
             const isUploading = uploadingIds.includes(resource.id);
             const previewImage = resource.images[0] || "";
@@ -239,17 +316,17 @@ export default function AdminResourcesPage() {
             return (
               <div
                 key={resource.id}
-                className="bg-paper/5 backdrop-blur-3xl rounded-[2rem] border border-paper/10 shadow-2xl overflow-hidden"
+                className="bg-paper/5 backdrop-blur-3xl rounded-[1.75rem] border border-paper/10 shadow-2xl overflow-hidden"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center gap-4 p-5 lg:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4 p-4 lg:p-5">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="relative w-20 h-20 rounded-[1.25rem] overflow-hidden border border-paper/10 bg-paper/5 shrink-0">
+                    <div className="relative w-16 h-16 rounded-[1rem] overflow-hidden border border-paper/10 bg-paper/5 shrink-0">
                       {previewImage ? (
                         <Image
                           src={previewImage}
                           alt={resource.title || "Resource preview"}
                           fill
-                          sizes="80px"
+                          sizes="64px"
                           className="object-cover"
                         />
                       ) : (
@@ -261,17 +338,18 @@ export default function AdminResourcesPage() {
 
                     <div className="min-w-0 flex-1">
                       <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#FF8C00] mb-2">
-                        Tài nguyên #{index + 1}
+                        Tài nguyên #{resource.order + 1}
                       </p>
-                      <h2 className="text-lg font-bold uppercase tracking-tight text-paper truncate">
+                      <h2 className="text-base font-bold uppercase tracking-tight text-paper truncate">
                         {resource.title || "Tài nguyên mới"}
                       </h2>
-                      <p className="text-paper/40 text-sm leading-relaxed truncate mt-1">
+                      <p className="text-paper/40 text-[13px] leading-relaxed truncate mt-1">
                         {resource.description || "Chưa có mô tả ngắn."}
                       </p>
                       <div className="flex flex-wrap items-center gap-2 mt-3">
-                        <span className="ui-chip px-3 py-2">{resource.images.length} ảnh</span>
-                        <span className="ui-chip px-3 py-2">
+                        <span className="ui-chip px-2.5 py-1.5 text-[10px]">{resource.images.length} ảnh</span>
+                        <span className="ui-chip px-2.5 py-1.5 text-[10px]">{resource.category}</span>
+                        <span className="ui-chip px-2.5 py-1.5 text-[10px]">
                           {resource.driveUrl ? "Có link Drive" : "Chưa có link"}
                         </span>
                       </div>
@@ -279,56 +357,93 @@ export default function AdminResourcesPage() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap lg:flex-nowrap">
-                    <div className="flex items-center gap-2 rounded-[1.25rem] border border-paper/10 bg-asphalt/30 p-2">
+                    <button
+                      onClick={() => moveResource(resource.id, "up")}
+                      disabled={index === 0}
+                      className="p-2.5 rounded-lg border border-paper/10 bg-paper/5 text-paper/40 hover:text-paper hover:bg-paper/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Đưa lên trên"
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveResource(resource.id, "down")}
+                      disabled={index === resources.length - 1}
+                      className="p-2.5 rounded-lg border border-paper/10 bg-paper/5 text-paper/40 hover:text-paper hover:bg-paper/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Đưa xuống dưới"
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </button>
+                    <div className="flex items-center gap-1.5 rounded-[1rem] border border-paper/10 bg-asphalt/30 p-1.5">
                       {panelButtons.map((panel) => (
                         <button
                           key={panel.key}
                           type="button"
                           onClick={() => openResourcePanel(resource.id, panel.key)}
-                          className={`p-3 rounded-xl transition-all ${
+                          className={`p-2.5 rounded-lg transition-all ${
                             isExpanded && currentPanel === panel.key
                               ? "bg-paper text-asphalt"
                               : "bg-transparent text-paper/45 hover:bg-paper/10 hover:text-paper"
                           }`}
                           title={panel.label}
                         >
-                          <panel.icon className={`w-4 h-4 ${isExpanded && currentPanel === panel.key ? "!text-asphalt" : ""}`} />
+                          <panel.icon className={`w-3.5 h-3.5 ${isExpanded && currentPanel === panel.key ? "!text-asphalt" : ""}`} />
                         </button>
                       ))}
                     </div>
                     <button
                       onClick={() => toggleExpandedResource(resource.id)}
-                      className={`p-3 rounded-xl border border-paper/10 transition-all ${
+                      className={`p-2.5 rounded-lg border border-paper/10 transition-all ${
                         isExpanded ? "bg-paper text-asphalt" : "bg-paper/5 text-paper/40 hover:text-paper hover:bg-paper/10"
                       }`}
                       title={isExpanded ? "Thu gọn" : "Mở chi tiết"}
                     >
-                      <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180 !text-asphalt" : ""}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? "rotate-180 !text-asphalt" : ""}`} />
                     </button>
                     <button
                       onClick={() => removeResource(resource.id)}
-                      className="p-3 rounded-xl border border-paper/10 bg-paper/5 text-paper/30 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/10 transition-all"
+                      className="p-2.5 rounded-lg border border-paper/10 bg-paper/5 text-paper/30 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/10 transition-all"
                       title="Xóa tài nguyên"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
 
                 {isExpanded && (
-                  <div className="border-t border-paper/10 bg-black/10 px-5 lg:px-6 py-5">
+                  <div className="border-t border-paper/10 bg-black/10 px-4 lg:px-5 py-4">
                     {currentPanel === "media" && (
-                      <div className="rounded-[1.5rem] border border-paper/10 bg-asphalt/35 p-4">
+                      <div className="rounded-[1.25rem] border border-paper/10 bg-asphalt/35 p-4">
                         <div className="flex items-center justify-between gap-3 mb-4">
                           <p className={labelClass}>Ảnh mô tả popup</p>
-                          <button
-                            type="button"
-                            onClick={() => addResourceImage(resource.id)}
-                            className="ui-btn ui-btn-secondary px-3.5 py-2 rounded-xl"
-                          >
-                            <Plus className="w-4 h-4" />
-                            <span className="text-paper whitespace-nowrap">Ảnh mới</span>
-                          </button>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <label className="ui-btn ui-btn-secondary px-3.5 py-2 rounded-xl">
+                              <ImagePlus className="w-4 h-4" />
+                              <span className="text-paper whitespace-nowrap">
+                                {isUploading ? "Đang tải..." : "Upload nhiều ảnh"}
+                              </span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                disabled={isUploading}
+                                onChange={(e) => {
+                                  if (e.target.files?.length) {
+                                    handleMultiImageUpload(resource.id, e.target.files);
+                                  }
+                                  e.currentTarget.value = "";
+                                }}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => addResourceImage(resource.id)}
+                              className="ui-btn ui-btn-secondary px-3.5 py-2 rounded-xl"
+                            >
+                              <Plus className="w-4 h-4" />
+                              <span className="text-paper whitespace-nowrap">Ảnh mới</span>
+                            </button>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] gap-4">
@@ -405,6 +520,21 @@ export default function AdminResourcesPage() {
 
                     {currentPanel === "content" && (
                       <div className="grid grid-cols-1 gap-5">
+                        <div>
+                          <label className={labelClass}>Phân loại tài nguyên</label>
+                          <select
+                            className={inputClass}
+                            value={resource.category}
+                            onChange={(e) => updateResource(resource.id, "category", e.target.value)}
+                          >
+                            {RESOURCE_CATEGORIES.map((category) => (
+                              <option key={category} value={category} className="bg-asphalt text-paper">
+                                {category}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
                         <div>
                           <label className={labelClass}>Tên tài nguyên</label>
                           <input

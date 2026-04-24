@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Eye, X } from "lucide-react";
@@ -13,6 +13,16 @@ interface ResourcesClientProps {
 export default function ResourcesClient({ resources }: ResourcesClientProps) {
   const [activeResource, setActiveResource] = useState<FreeResource | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+
+  const categories = useMemo(() => {
+    return ["Tất cả", ...Array.from(new Set(resources.map((resource) => resource.category)))];
+  }, [resources]);
+
+  const filteredResources = useMemo(() => {
+    if (selectedCategory === "Tất cả") return resources;
+    return resources.filter((resource) => resource.category === selectedCategory);
+  }, [resources, selectedCategory]);
 
   const openResource = (resource: FreeResource) => {
     setActiveResource(resource);
@@ -21,27 +31,62 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
 
   return (
     <>
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-5 py-3 rounded-full border text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
+              selectedCategory === category
+                ? "bg-paper text-asphalt border-paper shadow-[0_12px_30px_rgba(0,0,0,0.18)]"
+                : "bg-paper/5 text-paper/60 border-paper/10 hover:bg-paper/10 hover:text-paper"
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {resources.map((resource) => (
+        {filteredResources.map((resource) => (
           <div
             key={resource.id}
-            className="group rounded-[2rem] border border-paper/10 bg-gradient-to-br from-paper/5 to-paper/[0.02] p-6 transition-all duration-300 hover:border-paper/20 hover:shadow-2xl"
+            className="group rounded-[2rem] border border-paper/10 bg-gradient-to-br from-paper/5 to-paper/[0.02] p-5 transition-all duration-300 hover:border-paper/20 hover:shadow-2xl"
           >
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div>
-                <h2 className="font-montserrat font-bold text-lg text-paper uppercase tracking-tight mb-2">
+            <div className="flex items-start gap-4 mb-5">
+              <div className="relative w-24 h-24 rounded-[1.25rem] overflow-hidden border border-paper/10 bg-paper/5 shrink-0 shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
+                {resource.images[0] ? (
+                  <Image
+                    src={resource.images[0]}
+                    alt={resource.title}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-paper/20 text-[10px] font-bold uppercase tracking-widest">
+                    No Img
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#FF8C00] mb-2">
+                  #{resource.order + 1} • {resource.category}
+                </p>
+                <h2 className="font-montserrat font-bold text-xl text-paper uppercase tracking-tight mb-2 truncate">
                   {resource.title}
                 </h2>
-                <p className="text-paper/40 text-sm leading-relaxed">
+                <p className="text-paper/45 text-[15px] leading-relaxed line-clamp-2">
                   {resource.description}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-6">
+            <div className="flex flex-wrap gap-3 mt-5">
               <button
                 onClick={() => openResource(resource)}
-                className="ui-btn ui-btn-primary px-5 py-3 min-w-[170px]"
+                className="ui-btn ui-btn-primary px-4 py-2.5 min-w-[156px] rounded-xl text-[11px]"
               >
                 <Eye className="w-4 h-4 !text-asphalt" />
                 <span className="text-asphalt whitespace-nowrap">Chi tiết</span>
@@ -51,7 +96,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                   href={resource.driveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ui-btn ui-btn-secondary px-5 py-3 min-w-[170px]"
+                  className="ui-btn ui-btn-secondary px-4 py-2.5 min-w-[156px] rounded-xl text-[11px]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span className="text-paper whitespace-nowrap">Mở Drive</span>
@@ -61,6 +106,17 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
           </div>
         ))}
       </div>
+
+      {filteredResources.length === 0 && (
+        <div className="text-center py-20 border border-paper/10 rounded-[2rem] bg-paper/5">
+          <p className="text-paper/30 font-bold uppercase tracking-widest text-sm mb-2">
+            Chưa có tài nguyên trong mục này
+          </p>
+          <p className="text-paper/20 text-xs">
+            Hãy chọn danh mục khác hoặc thêm tài nguyên mới trong trang quản trị.
+          </p>
+        </div>
+      )}
 
       <AnimatePresence>
         {activeResource && (

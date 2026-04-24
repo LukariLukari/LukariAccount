@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getJsonFromR2 } from "@/lib/r2-json";
+import { normalizeResources } from "@/lib/resources";
 
 const DEFAULT_CATEGORIES = ["AI", "Office", "Design", "OS", "Video", "Combo iOS"];
 
@@ -61,6 +62,23 @@ export const getSiteSettings = cache(async () => {
   }
 
   return settings;
+});
+
+export const getResources = cache(async () => {
+  try {
+    const resources = await prisma.resource.findMany({
+      orderBy: { order: "asc" },
+    });
+
+    if (resources.length > 0) {
+      return normalizeResources(resources);
+    }
+  } catch (error) {
+    console.warn("Resource table unavailable, falling back to site settings.", error);
+  }
+
+  const settings = await getSiteSettings();
+  return normalizeResources(settings.resourceLinks);
 });
 
 export function getBaseUrl() {

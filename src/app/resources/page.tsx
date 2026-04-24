@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { BookOpen, Sparkles } from "lucide-react";
 import ResourcesClient from "@/components/ResourcesClient";
-import { getBaseUrl, getSiteSettings } from "@/lib/storefront";
-import { normalizeResources } from "@/lib/resources";
+import { getBaseUrl, getResources } from "@/lib/storefront";
 
 export const revalidate = 300;
 
@@ -15,8 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ResourcesPage() {
-  const settings = await getSiteSettings();
-  const resources = normalizeResources(settings.resourceLinks);
+  const resources = await getResources();
 
   return (
     <main className="min-h-screen bg-asphalt text-paper">

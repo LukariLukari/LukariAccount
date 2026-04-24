@@ -1,11 +1,22 @@
 export interface FreeResource {
   id: string;
+  order: number;
+  category: string;
   title: string;
   description: string;
   detailDescription: string;
   images: string[];
   driveUrl: string;
 }
+
+export const RESOURCE_CATEGORIES = [
+  "Brush",
+  "Font",
+  "Procreate",
+  "Template",
+  "Texture",
+  "Khác",
+] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -14,6 +25,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function createEmptyResource(): FreeResource {
   return {
     id: crypto.randomUUID(),
+    order: 0,
+    category: "Khác",
     title: "",
     description: "",
     detailDescription: "",
@@ -25,10 +38,18 @@ export function createEmptyResource(): FreeResource {
 export function normalizeResources(input: unknown): FreeResource[] {
   if (!Array.isArray(input)) return [];
 
-  return input
+  const normalized = input
     .map((item, index): FreeResource | null => {
       if (!isRecord(item)) return null;
 
+      const order =
+        typeof item.order === "number" && Number.isFinite(item.order)
+          ? item.order
+          : index;
+      const category =
+        typeof item.category === "string" && item.category.trim().length > 0
+          ? item.category
+          : "Khác";
       const title = typeof item.title === "string" ? item.title : "";
       const description = typeof item.description === "string" ? item.description : "";
       const detailDescription =
@@ -62,6 +83,8 @@ export function normalizeResources(input: unknown): FreeResource[] {
 
       return {
         id,
+        order,
+        category,
         title,
         description,
         detailDescription,
@@ -70,4 +93,18 @@ export function normalizeResources(input: unknown): FreeResource[] {
       };
     })
     .filter((item): item is FreeResource => item !== null);
+
+  return normalized
+    .sort((a, b) => a.order - b.order)
+    .map((resource, index) => ({
+      ...resource,
+      order: index,
+    }));
+}
+
+export function reindexResources(resources: FreeResource[]): FreeResource[] {
+  return resources.map((resource, index) => ({
+    ...resource,
+    order: index,
+  }));
 }
