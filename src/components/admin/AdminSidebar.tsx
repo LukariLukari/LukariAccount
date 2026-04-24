@@ -11,7 +11,8 @@ import {
   ArrowLeft,
   LogOut,
   LayoutGrid,
-  Image as ImageIcon
+  Image as ImageIcon,
+  BookOpen
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -20,6 +21,7 @@ const menuItems = [
   { icon: ShoppingBag, label: "Sản phẩm", href: "/admin/products" },
   { icon: LayoutGrid, label: "Loại sản phẩm", href: "/admin/categories" },
   { icon: ImageIcon, label: "Banner", href: "/admin/banners" },
+  { icon: BookOpen, label: "Tài nguyên", href: "/admin/resources" },
   { icon: TicketPercent, label: "Mã giảm giá", href: "/admin/coupons" },
   { icon: Users, label: "Người dùng", href: "/admin/users" },
   { icon: Settings, label: "Cài đặt", href: "/admin/settings" },

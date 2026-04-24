@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getJsonFromR2, uploadJsonToR2 } from "@/lib/r2-json";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
@@ -8,6 +10,11 @@ export async function GET(req: Request) {
     const isScan = searchParams.get("scan") === "true";
 
     if (isScan) {
+      const session = await getServerSession(authOptions);
+      if (session?.user?.role !== "ADMIN") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
       // Scan DB for unique categories
       const products = await prisma.product.findMany({ select: { category: true } });
       const dbCategories = Array.from(new Set(products.map(p => p.category)));
@@ -37,6 +44,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const categories = await req.json();
     // Ensure it's an array
     if (!Array.isArray(categories)) {

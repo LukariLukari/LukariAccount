@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, Syne, Montserrat } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
+import { getBaseUrl } from "@/lib/storefront";
 
 const outfit = Outfit({ 
   subsets: ["latin"],
@@ -19,8 +20,28 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "LukariAccount - Premium Software & Account Store",
-  description: "Cửa hàng cung cấp tài khoản và phần mềm bản quyền cao cấp.",
+  metadataBase: new URL(getBaseUrl()),
+  title: {
+    default: "LukariAccount | Tài khoản và phần mềm bản quyền",
+    template: "%s",
+  },
+  description: "LukariAccount cung cấp tài khoản và phần mềm bản quyền với chính sách hỗ trợ rõ ràng.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "LukariAccount | Tài khoản và phần mềm bản quyền",
+    description: "LukariAccount cung cấp tài khoản và phần mềm bản quyền với chính sách hỗ trợ rõ ràng.",
+    url: "/",
+    siteName: "LukariAccount",
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LukariAccount | Tài khoản và phần mềm bản quyền",
+    description: "LukariAccount cung cấp tài khoản và phần mềm bản quyền với chính sách hỗ trợ rõ ràng.",
+  },
 };
 
 import AuthContext from "@/providers/AuthContext";
@@ -33,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${syne.variable} ${montserrat.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="vi" className={`${outfit.variable} ${syne.variable} ${montserrat.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground" suppressHydrationWarning>
         <AuthContext>
           <CartProvider>

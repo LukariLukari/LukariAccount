@@ -1,46 +1,24 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Search, ArrowLeft } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function HomeClient({ initialProducts, banners }: { initialProducts: any[], banners: any[] }) {
+export default function HomeClient({
+  initialProducts,
+  banners,
+  categories: initialCategories,
+}: {
+  initialProducts: any[];
+  banners: any[];
+  categories: string[];
+}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [categories, setCategories] = useState<string[]>([]);
-
-  useEffect(() => {
-    // 1. Try to load from Cache (LocalStorage) for instant UI
-    const cachedCategories = localStorage.getItem("lukari_categories");
-    if (cachedCategories) {
-      try {
-        setCategories(JSON.parse(cachedCategories));
-      } catch (e) {
-        console.error("Failed to parse cached categories");
-      }
-    }
-
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch("/api/admin/categories/config");
-        const data = await res.json();
-        const fullCategories = ['all', ...data];
-        
-        // 2. Update state and Sync to Cache
-        setCategories(fullCategories);
-        localStorage.setItem("lukari_categories", JSON.stringify(fullCategories));
-      } catch (error) {
-        console.error("Failed to fetch categories", error);
-        if (categories.length === 0) {
-          setCategories(['all', 'ai', 'office', 'design', 'os', 'video', 'combo ios']);
-        }
-      }
-    };
-    fetchCategories();
-  }, []);
+  const categories = useMemo(() => ["all", ...initialCategories], [initialCategories]);
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase();

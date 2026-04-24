@@ -69,3 +69,37 @@ export async function PUT(
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+      select: { id: true, name: true },
+    });
+
+    if (!existingProduct) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      message: `Đã xóa sản phẩm "${existingProduct.name}" thành công.`,
+    });
+  } catch (error) {
+    console.error("Delete product error:", error);
+    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
+  }
+}

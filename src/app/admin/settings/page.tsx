@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, Plus, Trash2, ExternalLink } from "lucide-react";
-
-interface ResourceLink {
-  title: string;
-  url: string;
-  platform: string;
-  description: string;
-}
+import Link from "next/link";
+import { Save, ExternalLink } from "lucide-react";
 
 interface SiteSettings {
   phone: string;
@@ -22,7 +16,6 @@ interface SiteSettings {
   bankAccount: string;
   bankOwner: string;
   qrCodeUrl: string;
-  resourceLinks: ResourceLink[];
 }
 
 export default function AdminSettingsPage() {
@@ -38,7 +31,6 @@ export default function AdminSettingsPage() {
     bankAccount: "",
     bankOwner: "",
     qrCodeUrl: "",
-    resourceLinks: [],
   });
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -50,7 +42,6 @@ export default function AdminSettingsPage() {
         const data = await res.json();
         setSettings({
           ...data,
-          resourceLinks: data.resourceLinks || [],
         });
       } catch (error) {
         console.error(error);
@@ -80,32 +71,6 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const addResourceLink = () => {
-    setSettings((prev) => ({
-      ...prev,
-      resourceLinks: [
-        ...prev.resourceLinks,
-        { title: "", url: "", platform: "tiktok", description: "" },
-      ],
-    }));
-  };
-
-  const removeResourceLink = (index: number) => {
-    setSettings((prev) => ({
-      ...prev,
-      resourceLinks: prev.resourceLinks.filter((_: ResourceLink, i: number) => i !== index),
-    }));
-  };
-
-  const updateResourceLink = (index: number, field: keyof ResourceLink, value: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      resourceLinks: prev.resourceLinks.map((link: ResourceLink, i: number) =>
-        i === index ? { ...link, [field]: value } : link
-      ),
-    }));
-  };
-
   const inputClass =
     "w-full bg-asphalt/50 border border-paper/10 rounded-xl py-3 px-4 text-sm font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20";
   const labelClass =
@@ -119,7 +84,7 @@ export default function AdminSettingsPage() {
             Cài đặt
           </h1>
           <p className="text-paper/40 text-[11px] font-bold uppercase tracking-widest">
-            Quản lý thông tin footer, thanh toán, và tài nguyên
+            Quản lý thông tin footer và thanh toán
           </p>
         </div>
         <button
@@ -304,87 +269,28 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      {/* Resource Links */}
       <div className="bg-paper/5 backdrop-blur-3xl rounded-[2rem] border border-paper/10 p-8">
         <div className="flex justify-between items-center mb-6 border-b border-paper/10 pb-4">
           <h2 className="text-sm font-bold uppercase tracking-widest">
-            📚 Tài nguyên miễn phí
+            📚 Quản lý tài nguyên
           </h2>
-          <button
-            onClick={addResourceLink}
-            className="flex items-center gap-2 px-4 py-2 bg-paper/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-paper/20 transition-all"
-          >
-            <Plus className="w-3 h-3" />
-            Thêm link
-          </button>
         </div>
-
-        <div className="space-y-6">
-          {settings.resourceLinks.map((link: ResourceLink, index: number) => (
-            <div
-              key={index}
-              className="bg-asphalt/30 rounded-2xl p-5 border border-paper/5 relative"
-            >
-              <button
-                onClick={() => removeResourceLink(index)}
-                className="absolute top-3 right-3 p-2 rounded-xl hover:bg-red-500/10 text-paper/20 hover:text-red-400 transition-all"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClass}>Tiêu đề</label>
-                  <input
-                    className={inputClass}
-                    value={link.title}
-                    onChange={(e) =>
-                      updateResourceLink(index, "title", e.target.value)
-                    }
-                    placeholder="Hướng dẫn sử dụng ChatGPT"
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>URL</label>
-                  <input
-                    className={inputClass}
-                    value={link.url}
-                    onChange={(e) =>
-                      updateResourceLink(index, "url", e.target.value)
-                    }
-                    placeholder="https://tiktok.com/..."
-                  />
-                </div>
-                <div>
-                  <label className={labelClass}>Nền tảng</label>
-                  <select
-                    className={inputClass}
-                    value={link.platform}
-                    onChange={(e) =>
-                      updateResourceLink(index, "platform", e.target.value)
-                    }
-                  >
-                    <option value="tiktok">TikTok</option>
-                    <option value="youtube">YouTube</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="telegram">Telegram</option>
-                    <option value="other">Khác</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>Mô tả ngắn</label>
-                  <input
-                    className={inputClass}
-                    value={link.description}
-                    onChange={(e) =>
-                      updateResourceLink(index, "description", e.target.value)
-                    }
-                    placeholder="Video hướng dẫn chi tiết..."
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 rounded-[1.5rem] border border-paper/10 bg-asphalt/30 p-6">
+          <div>
+            <p className="text-paper font-bold uppercase tracking-widest text-sm mb-2">
+              Trang quản trị tài nguyên miễn phí
+            </p>
+            <p className="text-paper/40 text-sm max-w-2xl leading-relaxed">
+              Tài nguyên free như font, brush Procreate và các file dẫn tới Google Drive hiện được quản lý ở một trang riêng để bạn thêm ảnh mô tả, mô tả chi tiết và popup preview cho khách hàng.
+            </p>
+          </div>
+          <Link
+            href="/admin/resources"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-paper text-asphalt rounded-2xl font-bold text-[10px] uppercase tracking-[0.2em] hover:scale-[1.02] transition-all shrink-0"
+          >
+            <ExternalLink className="w-4 h-4 !text-asphalt" />
+            Mở trang tài nguyên
+          </Link>
         </div>
       </div>
     </div>

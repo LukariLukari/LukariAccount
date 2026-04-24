@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // Ensure environment variables are loaded
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
@@ -20,6 +22,11 @@ const s3Client = new S3Client({
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME || !R2_PUBLIC_URL) {
       return NextResponse.json({ error: "Missing R2 configuration" }, { status: 500 });
     }

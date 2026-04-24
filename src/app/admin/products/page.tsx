@@ -23,6 +23,13 @@ import { formatPrice } from "@/lib/utils";
 import { Product } from "@/lib/data";
 
 export default function AdminProductsPage() {
+  type Toast = {
+    id: number;
+    title: string;
+    message: string;
+    type: "success" | "error";
+  };
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,17 +39,30 @@ export default function AdminProductsPage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showImportHelp, setShowImportHelp] = useState(false);
+  const [pendingProductIds, setPendingProductIds] = useState<string[]>([]);
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Modal States
   const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void}>({
     isOpen: false, title: "", message: "", onConfirm: () => {}
   });
-  const [alertModal, setAlertModal] = useState<{isOpen: boolean, title: string, message: string}>({
-    isOpen: false, title: "", message: ""
-  });
 
-  const showAlert = (title: string, message: string) => setAlertModal({ isOpen: true, title, message });
   const showConfirm = (title: string, message: string, onConfirm: () => void) => setConfirmModal({ isOpen: true, title, message, onConfirm });
+  const showToast = (title: string, message: string, type: "success" | "error" = "success") => {
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    setToasts((prev) => [...prev, { id, title, message, type }]);
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3000);
+  };
+  const markProductPending = (id: string, isPending: boolean) => {
+    setPendingProductIds((prev) => {
+      if (isPending) {
+        return prev.includes(id) ? prev : [...prev, id];
+      }
+      return prev.filter((productId) => productId !== id);
+    });
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -136,10 +156,10 @@ export default function AdminProductsPage() {
           body: JSON.stringify(productsData),
         });
         const result = await res.json();
-        showAlert("Thông báo", result.message || result.error);
+        showToast(res.ok ? "Thành công" : "Lỗi", result.message || result.error, res.ok ? "success" : "error");
         fetchProducts();
       } catch (error) {
-        showAlert("Lỗi", "Lỗi khi nhập dữ liệu");
+        showToast("Lỗi", "Lỗi khi nhập dữ liệu", "error");
       } finally {
         setIsImporting(false);
       }
@@ -155,15 +175,34 @@ export default function AdminProductsPage() {
   });
 
   const toggleBestSeller = async (id: string, current: boolean) => {
+    const nextValue = !current;
+    const previousProducts = products;
+    setProducts((prev) =>
+      prev.map((product) =>
+        product.id === id ? { ...product, isBestSeller: nextValue } : product
+      )
+    );
+    markProductPending(id, true);
+
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isBestSeller: !current }),
+        body: JSON.stringify({ isBestSeller: nextValue }),
       });
-      if (res.ok) fetchProducts();
+      if (res.ok) {
+        showToast("Thành công", nextValue ? "Đã thêm vào mục bán chạy." : "Đã gỡ khỏi mục bán chạy.");
+      } else {
+        const data = await res.json().catch(() => null);
+        setProducts(previousProducts);
+        showToast("Lỗi", data?.error || "Không thể cập nhật trạng thái bán chạy.", "error");
+      }
     } catch (error) {
+      setProducts(previousProducts);
       console.error("Failed to toggle best seller status", error);
+      showToast("Lỗi", "Không thể cập nhật trạng thái bán chạy.", "error");
+    } finally {
+      markProductPending(id, false);
     }
   };
 
@@ -197,20 +236,23 @@ export default function AdminProductsPage() {
   const handleBulkDelete = () => {
     showConfirm("Xác nhận xóa hàng loạt", `Bạn có chắc chắn muốn xóa ${selectedIds.length} sản phẩm? Hành động này không thể hoàn tác.`, async () => {
       setIsBulkUpdating(true);
+      const idsToDelete = [...selectedIds];
       try {
         const res = await fetch("/api/admin/products/bulk-update", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids: selectedIds }),
+          body: JSON.stringify({ ids: idsToDelete }),
         });
         if (res.ok) {
+          setProducts((prev) => prev.filter((product) => !idsToDelete.includes(product.id)));
           setSelectedIds([]);
-          fetchProducts();
+          showToast("Thành công", `Đã xóa ${idsToDelete.length} sản phẩm.`);
         } else {
-          showAlert("Lỗi", "Không thể xóa hàng loạt.");
+          const data = await res.json().catch(() => null);
+          showToast("Lỗi", data?.error || "Không thể xóa hàng loạt.", "error");
         }
       } catch (error) {
-        showAlert("Lỗi", "Đã xảy ra lỗi khi xóa.");
+        showToast("Lỗi", "Đã xảy ra lỗi khi xóa.", "error");
       } finally {
         setIsBulkUpdating(false);
       }
@@ -222,17 +264,28 @@ export default function AdminProductsPage() {
       try {
         const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
         if (res.ok) {
-          fetchProducts();
+          setProducts((prev) => prev.filter((product) => product.id !== id));
+          setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+          showToast("Thành công", `Đã xóa sản phẩm "${name}".`);
         } else {
-          showAlert("Lỗi", "Không thể xóa sản phẩm.");
+          const data = await res.json().catch(() => null);
+          showToast("Lỗi", data?.error || "Không thể xóa sản phẩm.", "error");
         }
       } catch (error) {
-        showAlert("Lỗi", "Đã xảy ra lỗi khi xóa.");
+        showToast("Lỗi", "Đã xảy ra lỗi khi xóa.", "error");
       }
     });
   };
 
   const updateProductCategory = async (id: string, newCategory: string) => {
+    const previousProducts = products;
+    setProducts((prev) =>
+      prev.map((product) =>
+        product.id === id ? { ...product, category: newCategory } : product
+      )
+    );
+    markProductPending(id, true);
+
     try {
       const res = await fetch(`/api/admin/products/${id}`, {
         method: "PUT",
@@ -240,31 +293,48 @@ export default function AdminProductsPage() {
         body: JSON.stringify({ category: newCategory }),
       });
       if (res.ok) {
-        fetchProducts();
+        showToast("Thành công", `Đã chuyển sản phẩm sang danh mục "${newCategory}".`);
       } else {
-        showAlert("Lỗi", "Không thể cập nhật danh mục.");
+        const data = await res.json().catch(() => null);
+        setProducts(previousProducts);
+        showToast("Lỗi", data?.error || "Không thể cập nhật danh mục.", "error");
       }
     } catch (error) {
+      setProducts(previousProducts);
       console.error("Failed to update category", error);
+      showToast("Lỗi", "Không thể cập nhật danh mục.", "error");
+    } finally {
+      markProductPending(id, false);
     }
   };
 
   const handleBulkBestSeller = async (status: boolean) => {
     setIsBulkUpdating(true);
+    const idsToUpdate = [...selectedIds];
+    const previousProducts = products;
+    setProducts((prev) =>
+      prev.map((product) =>
+        idsToUpdate.includes(product.id) ? { ...product, isBestSeller: status } : product
+      )
+    );
+
     try {
       const res = await fetch("/api/admin/products/bulk-update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedIds, data: { isBestSeller: status } }),
+        body: JSON.stringify({ ids: idsToUpdate, data: { isBestSeller: status } }),
       });
       if (res.ok) {
         setSelectedIds([]);
-        fetchProducts();
+        showToast("Thành công", status ? "Đã cập nhật mục bán chạy cho các sản phẩm đã chọn." : "Đã gỡ mục bán chạy cho các sản phẩm đã chọn.");
       } else {
-        showAlert("Lỗi", "Không thể cập nhật trạng thái bán chạy.");
+        const data = await res.json().catch(() => null);
+        setProducts(previousProducts);
+        showToast("Lỗi", data?.error || "Không thể cập nhật trạng thái bán chạy.", "error");
       }
     } catch (error) {
-      showAlert("Lỗi", "Lỗi khi cập nhật hàng loạt");
+      setProducts(previousProducts);
+      showToast("Lỗi", "Lỗi khi cập nhật hàng loạt", "error");
     } finally {
       setIsBulkUpdating(false);
     }
@@ -467,6 +537,7 @@ export default function AdminProductsPage() {
                   <select 
                     value={product.category}
                     onChange={(e) => updateProductCategory(product.id, e.target.value)}
+                    disabled={pendingProductIds.includes(product.id)}
                     className="bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-full py-1.5 px-4 text-[9px] font-bold uppercase tracking-widest text-paper/60 outline-none transition-all cursor-pointer appearance-none text-center"
                   >
                     {categories.map(cat => (
@@ -491,8 +562,9 @@ export default function AdminProductsPage() {
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       onClick={() => toggleBestSeller(product.id, !!product.isBestSeller)}
+                      disabled={pendingProductIds.includes(product.id)}
                       title={product.isBestSeller ? "Bỏ khỏi mục bán chạy" : "Đưa vào mục bán chạy"}
-                      className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 group/btn ${
+                      className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 group/btn disabled:opacity-50 ${
                         product.isBestSeller 
                         ? "bg-yellow-500 text-asphalt border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.4)]" 
                         : "bg-paper/5 text-paper/40 border-paper/5 hover:text-paper hover:bg-paper/10"
@@ -570,27 +642,43 @@ export default function AdminProductsPage() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {alertModal.isOpen && (
-          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-asphalt/60 backdrop-blur-xl" onClick={() => setAlertModal({ ...alertModal, isOpen: false })} />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-[#1a1917] border border-paper/10 p-10 rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.5)] relative z-10 w-full max-w-md text-center"
-            >
-              <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-[#FF8C00]/10 text-[#FF8C00]">
-                <CheckCircle className="w-10 h-10" />
-              </div>
-              <h3 className="text-2xl font-bold uppercase tracking-tight text-paper mb-3">{alertModal.title}</h3>
-              <p className="text-paper/40 text-sm font-medium mb-10 leading-relaxed px-4">{alertModal.message}</p>
-              <button 
-                onClick={() => setAlertModal({ ...alertModal, isOpen: false })}
-                className="w-full py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-2xl font-bold text-[11px] uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
+        {toasts.length > 0 && (
+          <div className="fixed top-6 right-6 z-[999] flex w-full max-w-sm flex-col gap-3">
+            {toasts.map((toast) => (
+              <motion.div
+                key={toast.id}
+                initial={{ opacity: 0, x: 24, scale: 0.96 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 24, scale: 0.96 }}
+                className={`rounded-[1.75rem] border p-5 shadow-[0_24px_48px_rgba(0,0,0,0.35)] backdrop-blur-2xl ${
+                  toast.type === "success"
+                    ? "bg-[#1a1917]/95 border-emerald-500/20"
+                    : "bg-[#1a1917]/95 border-red-500/20"
+                }`}
               >
-                Đã hiểu
-              </button>
-            </motion.div>
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                      toast.type === "success"
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : "bg-red-500/10 text-red-400"
+                    }`}
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold uppercase tracking-wider text-paper">{toast.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-paper/60">{toast.message}</p>
+                  </div>
+                  <button
+                    onClick={() => setToasts((prev) => prev.filter((item) => item.id !== toast.id))}
+                    className="rounded-full p-1 text-paper/30 transition hover:bg-paper/5 hover:text-paper"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
           </div>
         )}
       </AnimatePresence>

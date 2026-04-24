@@ -19,6 +19,13 @@ export async function POST(request: Request) {
         name,
         password: hashedPassword,
       },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      }
     });
 
     return NextResponse.json(user);
