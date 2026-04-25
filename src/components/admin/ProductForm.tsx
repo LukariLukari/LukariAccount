@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice, parseFormattedPrice, compressImageToWebp } from "@/lib/utils";
+import RichText from "@/components/RichText";
 
 interface Plan {
   type?: string;
@@ -122,10 +123,11 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           ...formData, 
-          description: formData.details.slice(0, 160), // Use first 160 chars of details as description
           plans, 
-          features, 
-          instructions 
+          features: features.map((feature) => feature.trim()).filter(Boolean), 
+          instructions: instructions.map((instruction) => instruction.trim()).filter(Boolean),
+          warranty: formData.warranty.trim(),
+          details: formData.details.trim(),
         }),
       });
 
@@ -172,6 +174,10 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     newInstructions[index] = value;
     setInstructions(newInstructions);
   };
+  const warrantyLines = String(formData.warranty || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-10 pb-24">
@@ -354,13 +360,34 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
             
             {/* Detailed Description */}
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Mô tả chi tiết (Long Text / Markdown)</label>
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Mô tả ngắn hiển thị đầu trang</label>
+                  <textarea
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper resize-none"
+                    placeholder="VD: Giải pháp phù hợp cho nhu cầu sử dụng lâu dài và ổn định."
+                  />
+                </div>
+                <div className="rounded-2xl border border-paper/10 bg-paper/[0.03] p-5 flex flex-col justify-center">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-paper/25 mb-2">Hiển thị user</p>
+                  <p className="text-paper text-[13px] leading-relaxed line-clamp-4">
+                    <RichText text={formData.description || "Mô tả ngắn sẽ xuất hiện ngay dưới tên sản phẩm."} />
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Thông tin chi tiết</label>
               <textarea 
                 rows={10}
                 value={formData.details}
                 onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                 className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper resize-none"
-                placeholder="Nhập mô tả chi tiết, hướng dẫn chuyên sâu..."
+                placeholder="Nhập nội dung mô tả dài. Xuống dòng để chia đoạn trên trang user."
               />
             </div>
 
@@ -419,14 +446,50 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
 
             {/* Warranty Policy */}
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Chính sách bảo hành</label>
-              <textarea 
-                rows={4}
-                value={formData.warranty}
-                onChange={(e) => setFormData({ ...formData, warranty: e.target.value })}
-                className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper resize-none"
-                placeholder="VD: Bảo hành 1 đổi 1 trong vòng 24h..."
-              />
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">Chính sách bảo hành</label>
+                  <p className="text-[9px] text-paper/25 font-bold uppercase tracking-widest mt-2 ml-1">
+                    Mỗi dòng sẽ thành 1 mục. Nhập "Tiêu đề: Nội dung" để custom đề mục. Dùng **chữ cần nhấn** để highlight.
+                  </p>
+                </div>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-paper/25">
+                  {warrantyLines.length} mục
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_260px] gap-4">
+                <textarea 
+                  rows={7}
+                  value={formData.warranty}
+                  onChange={(e) => setFormData({ ...formData, warranty: e.target.value })}
+                  className="w-full bg-asphalt/50 border border-paper/10 rounded-2xl py-4 px-6 text-[11px] font-bold outline-none focus:border-paper/40 transition-all text-paper resize-none"
+                  placeholder={`Kích hoạt tức thì: Kích hoạt sau khi đối soát thanh toán.\nLỗi 1 đổi 1: Hỗ trợ đổi nếu lỗi từ phía tài khoản hoặc key.\nBảo hành rõ ràng: Khách có **3 lần hỗ trợ vàng** và **1 lần hỗ trợ lớn**.`}
+                />
+                <div className="rounded-2xl border border-paper/10 bg-paper/[0.03] p-5">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-paper/25 mb-3">Preview</p>
+                  <div className="space-y-3">
+                    {(warrantyLines.slice(0, 3).length > 0
+                      ? warrantyLines.slice(0, 3)
+                      : ["Bảo hành rõ ràng: Nội dung bảo hành sẽ hiển thị tại đây."]
+                    ).map((line, index) => {
+                      const [title, ...descParts] = line.split(":");
+                      const hasTitle = descParts.length > 0 && title.trim().length > 0;
+                      return (
+                        <div key={`${line}-${index}`} className="rounded-xl bg-asphalt/40 border border-paper/10 p-3">
+                          {hasTitle && (
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-paper mb-1">
+                              <RichText text={title.trim()} />
+                            </p>
+                          )}
+                          <p className="text-[11px] text-paper leading-relaxed">
+                            <RichText text={(hasTitle ? descParts.join(":") : line).trim()} />
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </div>
