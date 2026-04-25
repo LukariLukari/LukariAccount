@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
+  ArrowDown,
   ArrowLeft, 
+  ArrowUp,
   Save, 
   Image as ImageIcon, 
   Plus, 
@@ -24,9 +26,48 @@ interface Plan {
   cycle: string;
 }
 
+type ContentSectionId = "warranty" | "features" | "instructions";
+
+const DEFAULT_CONTENT_ORDER: ContentSectionId[] = ["warranty", "features", "instructions"];
+
+const CONTENT_SECTION_LABELS: Record<ContentSectionId, string> = {
+  warranty: "Bảo hành",
+  features: "Tính năng",
+  instructions: "Cách thức mua",
+};
+
 interface ProductFormProps {
   initialData?: any;
   productId?: string;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function getFeatureItems(input: unknown): string[] {
+  if (Array.isArray(input)) {
+    return input.filter((item): item is string => typeof item === "string");
+  }
+
+  if (isRecord(input) && Array.isArray(input.items)) {
+    return input.items.filter((item): item is string => typeof item === "string");
+  }
+
+  return [];
+}
+
+function getContentOrder(input: unknown): ContentSectionId[] {
+  const rawOrder =
+    isRecord(input) && Array.isArray(input.sectionOrder)
+      ? input.sectionOrder
+      : DEFAULT_CONTENT_ORDER;
+  const validOrder = rawOrder.filter(
+    (item): item is ContentSectionId =>
+      typeof item === "string" && DEFAULT_CONTENT_ORDER.includes(item as ContentSectionId)
+  );
+
+  return [...validOrder, ...DEFAULT_CONTENT_ORDER.filter((item) => !validOrder.includes(item))];
 }
 
 export default function ProductForm({ initialData, productId }: ProductFormProps) {
@@ -37,8 +78,9 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     { type: "Mặc định", label: "6 Tháng", price: 0, cycle: "6 tháng" },
     { type: "Mặc định", label: "1 Năm", price: 0, cycle: "năm" },
   ]);
-  const [features, setFeatures] = useState<string[]>(initialData?.features || []);
+  const [features, setFeatures] = useState<string[]>(getFeatureItems(initialData?.features));
   const [instructions, setInstructions] = useState<string[]>(initialData?.instructions || []);
+  const [contentOrder, setContentOrder] = useState<ContentSectionId[]>(getContentOrder(initialData?.features));
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -95,7 +137,8 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         details: initialData.details || "",
       });
       if (initialData.plans) setPlans(initialData.plans);
-      if (initialData.features) setFeatures(initialData.features);
+      setFeatures(getFeatureItems(initialData.features));
+      setContentOrder(getContentOrder(initialData.features));
       if (initialData.instructions) setInstructions(initialData.instructions);
     }
   }, [initialData]);
@@ -124,7 +167,10 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         body: JSON.stringify({ 
           ...formData, 
           plans, 
-          features: features.map((feature) => feature.trim()).filter(Boolean), 
+          features: {
+            items: features.map((feature) => feature.trim()).filter(Boolean),
+            sectionOrder: contentOrder,
+          },
           instructions: instructions.map((instruction) => instruction.trim()).filter(Boolean),
           warranty: formData.warranty.trim(),
           details: formData.details.trim(),
@@ -173,6 +219,14 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     const newInstructions = [...instructions];
     newInstructions[index] = value;
     setInstructions(newInstructions);
+  };
+  const moveContentSection = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= contentOrder.length) return;
+
+    const nextOrder = [...contentOrder];
+    [nextOrder[index], nextOrder[targetIndex]] = [nextOrder[targetIndex], nextOrder[index]];
+    setContentOrder(nextOrder);
   };
   const warrantyLines = String(formData.warranty || "")
     .split(/\r?\n/)
@@ -357,6 +411,60 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
           {/* Detailed Content Sections */}
           <section className="bg-paper/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-paper/10 space-y-10 shadow-2xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30 border-b border-paper/5 pb-6">Nội dung chi tiết</h2>
+
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-paper/40 ml-1">
+                    Thứ tự thẻ thông tin bên cạnh
+                  </label>
+                  <p className="text-[9px] text-paper/25 font-bold uppercase tracking-widest mt-2 ml-1">
+                    Sắp xếp thứ tự hiển thị Bảo hành, Tính năng và Cách thức mua. Thông tin chi tiết là thẻ riêng bên dưới.
+                  </p>
+                </div>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-paper/25">
+                  {contentOrder.length} mục
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {contentOrder.map((sectionId, index) => (
+                  <div
+                    key={sectionId}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-paper/10 bg-asphalt/35 px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#FF8C00] mb-1">
+                        #{index + 1}
+                      </p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-paper">
+                        {CONTENT_SECTION_LABELS[sectionId]}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => moveContentSection(index, "up")}
+                        disabled={index === 0}
+                        className="p-2.5 text-paper/25 hover:text-paper hover:bg-paper/5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                        title="Đưa mục lên"
+                      >
+                        <ArrowUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveContentSection(index, "down")}
+                        disabled={index === contentOrder.length - 1}
+                        className="p-2.5 text-paper/25 hover:text-paper hover:bg-paper/5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                        title="Đưa mục xuống"
+                      >
+                        <ArrowDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             
             {/* Detailed Description */}
             <div className="space-y-4">

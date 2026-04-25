@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${outfit.variable} ${syne.variable} ${montserrat.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col overflow-x-hidden font-sans bg-background text-foreground" suppressHydrationWarning>
         <AuthContext>
           <CartProvider>
             <Navbar />

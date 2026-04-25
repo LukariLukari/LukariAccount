@@ -30,27 +30,27 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-[#1a1917] border-t border-paper/5 mt-auto">
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="w-full bg-[#1a1917] border-t border-paper/5 mt-auto overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-xl shadow-xl">
+          <div className="lg:col-span-1 min-w-0">
+            <div className="flex items-center gap-3 mb-5 sm:mb-6 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-lg sm:text-xl shadow-xl shrink-0">
                 L
               </div>
-              <span className="font-montserrat font-bold text-xl tracking-tighter text-paper uppercase">
+              <span className="font-montserrat font-bold text-lg sm:text-xl tracking-tighter text-paper uppercase truncate">
                 LukariAccount
               </span>
             </div>
-            <p className="text-paper/30 text-xs font-bold leading-relaxed mb-6">
+            <p className="text-paper/35 text-sm sm:text-xs font-bold leading-relaxed mb-6 max-w-sm">
               Cửa hàng cung cấp tài khoản và phần mềm bản quyền cao cấp. Uy tín - Chất lượng - Giá tốt.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/30 mb-6">
+            <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/30 mb-4 sm:mb-6">
               Liên kết nhanh
             </h3>
             <ul className="space-y-3">
@@ -63,7 +63,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-paper/40 hover:text-paper text-xs font-bold uppercase tracking-widest transition-colors duration-300"
+                    className="text-paper/45 hover:text-paper text-[13px] sm:text-xs font-bold uppercase tracking-widest transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -74,22 +74,22 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/30 mb-6">
+            <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/30 mb-4 sm:mb-6">
               Liên hệ
             </h3>
             <ul className="space-y-3">
               {settings?.phone && (
-                <li className="text-paper/40 text-xs font-bold">
+                <li className="text-paper/45 text-[13px] sm:text-xs font-bold break-words">
                   📞 <span className="text-paper/60">{settings.phone}</span>
                 </li>
               )}
               {settings?.email && (
-                <li className="text-paper/40 text-xs font-bold">
+                <li className="text-paper/45 text-[13px] sm:text-xs font-bold break-words">
                   ✉️ <span className="text-paper/60">{settings.email}</span>
                 </li>
               )}
               {settings?.address && (
-                <li className="text-paper/40 text-xs font-bold">
+                <li className="text-paper/45 text-[13px] sm:text-xs font-bold break-words">
                   📍 <span className="text-paper/60">{settings.address}</span>
                 </li>
               )}
@@ -98,7 +98,7 @@ export default function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/30 mb-6">
+            <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/30 mb-4 sm:mb-6">
               Mạng xã hội
             </h3>
             <div className="flex flex-wrap gap-3">
@@ -147,11 +147,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-paper/5 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-paper/20 text-[10px] font-bold uppercase tracking-widest">
+        <div className="border-t border-paper/5 mt-8 sm:mt-12 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <p className="text-paper/25 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
             © {new Date().getFullYear()} LukariAccount. All rights reserved.
           </p>
-          <p className="text-paper/20 text-[10px] font-bold uppercase tracking-widest">
+          <p className="text-paper/25 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
             Made with ❤️ by Lukari
           </p>
         </div>
