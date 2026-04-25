@@ -17,6 +17,7 @@ import { formatPrice } from "@/lib/utils";
 import PaymentPopup from "@/components/PaymentPopup";
 import type { Product } from "@/lib/data";
 import RichText from "@/components/RichText";
+import ProductCard from "@/components/ProductCard";
 
 interface Plan {
   type?: string;
@@ -31,6 +32,7 @@ const DEFAULT_CONTENT_ORDER: ContentSectionId[] = ["warranty", "features", "inst
 
 interface ProductDetailClientProps {
   product: Product;
+  relatedProducts?: Product[];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -97,7 +99,7 @@ function getWarrantyItems(warranty?: string | null) {
   });
 }
 
-export default function ProductDetailClient({ product }: ProductDetailClientProps) {
+export default function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
   const { addToCart } = useCart();
   const [activePlanIdx, setActivePlanIdx] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -411,6 +413,37 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                     <RichText text={paragraph} />
                   </p>
                 ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {relatedProducts.length > 0 && (
+          <section className="mt-5 lg:mt-6">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-montserrat font-bold uppercase tracking-[0.24em] text-[#FF8C00] mb-2">
+                  Gợi ý thêm
+                </p>
+                <h2 className="text-xl lg:text-2xl font-montserrat font-bold tracking-[0.16em] uppercase text-paper">
+                  Sản phẩm liên quan
+                </h2>
+              </div>
+              <Link
+                href={`/categories/${encodeURIComponent(product.category)}`}
+                className="inline-flex items-center self-start rounded-full border border-paper/10 bg-paper/5 px-4 py-2 text-[9px] font-montserrat font-bold uppercase tracking-[0.18em] text-paper/45 transition hover:bg-paper hover:text-asphalt"
+              >
+                Xem danh mục {product.category}
+              </Link>
+            </div>
+
+            <div className="-mx-3 overflow-x-auto px-3 pb-2 scrollbar-hide sm:-mx-5 sm:px-5 lg:-mx-6 lg:px-6">
+              <div className="flex gap-3 sm:gap-4">
+              {relatedProducts.map((relatedProduct, index) => (
+                <div key={relatedProduct.id} className="w-[72vw] max-w-[280px] shrink-0 sm:w-[260px] lg:w-[275px]">
+                  <ProductCard product={relatedProduct} index={index} />
+                </div>
+              ))}
               </div>
             </div>
           </section>

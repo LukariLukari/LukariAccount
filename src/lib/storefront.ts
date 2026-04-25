@@ -38,6 +38,35 @@ export const getProductBySlug = cache(async (slug: string) => {
   });
 });
 
+export const getRelatedProducts = cache(async (productId: string, category: string, limit = 8) => {
+  const sameCategoryProducts = await prisma.product.findMany({
+    where: {
+      id: { not: productId },
+      category: {
+        contains: category,
+        mode: "insensitive",
+      },
+    },
+    orderBy: [{ isBestSeller: "desc" }, { createdAt: "desc" }],
+    take: limit,
+  });
+
+  if (sameCategoryProducts.length >= limit) {
+    return sameCategoryProducts;
+  }
+
+  const existingIds = [productId, ...sameCategoryProducts.map((item) => item.id)];
+  const fallbackProducts = await prisma.product.findMany({
+    where: {
+      id: { notIn: existingIds },
+    },
+    orderBy: [{ isBestSeller: "desc" }, { createdAt: "desc" }],
+    take: limit - sameCategoryProducts.length,
+  });
+
+  return [...sameCategoryProducts, ...fallbackProducts];
+});
+
 export const getProductsByCategory = cache(async (categorySlug: string) => {
   return prisma.product.findMany({
     where: {

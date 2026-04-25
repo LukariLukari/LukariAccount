@@ -29,6 +29,21 @@ export default function AdminProductsPage() {
     message: string;
     type: "success" | "error";
   };
+  type ImportPreviewProduct = {
+    name: string;
+    slug: string;
+    description: string;
+    price: string;
+    originalPrice: string;
+    billingCycle: string;
+    image: string;
+    category: string;
+    details: string;
+    features: string[];
+    instructions: string[];
+    warranty: string;
+    plans: { label: string; price: number; cycle: string }[];
+  };
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -39,6 +54,7 @@ export default function AdminProductsPage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showImportHelp, setShowImportHelp] = useState(false);
+  const [importPreview, setImportPreview] = useState<ImportPreviewProduct[]>([]);
   const [pendingProductIds, setPendingProductIds] = useState<string[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -120,7 +136,7 @@ export default function AdminProductsPage() {
 
     setIsImporting(true);
     const reader = new FileReader();
-    reader.onload = async (event) => {
+    reader.onload = (event) => {
       const text = event.target?.result as string;
       const rows = text.split("\n").slice(1); // Skip header
       const productsData = rows.filter(row => row.trim()).map(row => {
@@ -149,22 +165,39 @@ export default function AdminProductsPage() {
         };
       });
 
-      try {
-        const res = await fetch("/api/admin/products/bulk", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productsData),
-        });
-        const result = await res.json();
-        showToast(res.ok ? "Thành công" : "Lỗi", result.message || result.error, res.ok ? "success" : "error");
-        fetchProducts();
-      } catch (error) {
-        showToast("Lỗi", "Lỗi khi nhập dữ liệu", "error");
-      } finally {
-        setIsImporting(false);
-      }
+      setImportPreview(productsData.filter((item) => item.name && item.slug));
+      setIsImporting(false);
+      e.target.value = "";
+    };
+    reader.onerror = () => {
+      setIsImporting(false);
+      showToast("Lỗi", "Không thể đọc file CSV.", "error");
+      e.target.value = "";
     };
     reader.readAsText(file);
+  };
+
+  const confirmImportProducts = async () => {
+    if (importPreview.length === 0) return;
+
+    setIsImporting(true);
+    try {
+      const res = await fetch("/api/admin/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(importPreview),
+      });
+      const result = await res.json();
+      showToast(res.ok ? "Thành công" : "Lỗi", result.message || result.error, res.ok ? "success" : "error");
+      if (res.ok) {
+        setImportPreview([]);
+        fetchProducts();
+      }
+    } catch (error) {
+      showToast("Lỗi", "Lỗi khi nhập dữ liệu", "error");
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   const filteredProducts = products.filter(p => {
@@ -349,10 +382,10 @@ export default function AdminProductsPage() {
             initial={{ y: 100, opacity: 0, x: "-50%" }}
             animate={{ y: 0, opacity: 1, x: "-50%" }}
             exit={{ y: 100, opacity: 0, x: "-50%" }}
-            className="fixed bottom-10 left-1/2 z-50 bg-paper text-asphalt px-8 py-4 rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-paper/20 flex items-center gap-8 backdrop-blur-2xl"
+            className="fixed bottom-5 lg:bottom-10 left-1/2 z-50 max-w-[calc(100vw-1.5rem)] overflow-x-auto bg-paper text-asphalt px-4 lg:px-8 py-3 lg:py-4 rounded-[2rem] lg:rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-paper/20 flex items-center gap-4 lg:gap-8 backdrop-blur-2xl"
           >
-            <div className="flex items-center gap-4 pr-8 border-r border-asphalt/10">
-              <div className="w-12 h-12 rounded-full bg-asphalt text-paper flex items-center justify-center font-akina font-black text-xl">
+            <div className="flex items-center gap-3 lg:gap-4 pr-4 lg:pr-8 border-r border-asphalt/10 shrink-0">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-asphalt text-paper flex items-center justify-center font-akina font-black text-lg lg:text-xl">
                 {selectedIds.length}
               </div>
               <div className="flex flex-col">
@@ -361,7 +394,7 @@ export default function AdminProductsPage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 lg:gap-3 shrink-0">
               <button 
                 onClick={() => handleBulkBestSeller(true)}
                 disabled={isBulkUpdating}
@@ -398,14 +431,14 @@ export default function AdminProductsPage() {
         )}
       </AnimatePresence>
 
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col gap-5 lg:flex-row lg:justify-between lg:items-end">
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-2 uppercase">Quản lý sản phẩm</h1>
           <p className="text-paper/40 text-[11px] font-bold uppercase tracking-widest">
             {products.length} sản phẩm đang được bày bán
           </p>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 sm:items-center">
           <div className="relative">
             <label className="flex items-center gap-2 px-8 py-4 bg-paper/10 text-paper border border-paper/10 rounded-2xl font-montserrat font-bold text-[11px] uppercase tracking-widest hover:bg-paper/20 cursor-pointer transition-all shadow-xl">
               <Upload className="w-4 h-4" />
@@ -484,8 +517,8 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      <div className="bg-paper/5 backdrop-blur-3xl rounded-[3rem] border border-paper/10 overflow-hidden shadow-2xl">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-paper/5 backdrop-blur-3xl rounded-[2rem] lg:rounded-[3rem] border border-paper/10 overflow-x-auto shadow-2xl">
+        <table className="w-full min-w-[900px] text-left border-collapse">
           <thead>
             <tr className="border-b border-paper/10 bg-paper/5">
               <th className="px-8 py-6 w-12">
@@ -506,7 +539,7 @@ export default function AdminProductsPage() {
             {isLoading ? (
               [1, 2, 3].map(i => (
                 <tr key={i} className="animate-pulse">
-                  <td colSpan={4} className="px-8 py-12 bg-paper/5" />
+                  <td colSpan={5} className="px-8 py-12 bg-paper/5" />
                 </tr>
               ))
             ) : filteredProducts.map((product) => (
@@ -607,6 +640,96 @@ export default function AdminProductsPage() {
       </div>
 
       {/* CUSTOM MODALS */}
+      <AnimatePresence>
+        {importPreview.length > 0 && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setImportPreview([])} />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="relative z-10 w-full max-w-4xl overflow-hidden rounded-[2rem] border border-paper/10 bg-[#1a1917] shadow-2xl"
+            >
+              <div className="flex flex-col gap-4 border-b border-paper/10 p-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-[#FF8C00]">Xem trước import</p>
+                  <h3 className="text-xl font-bold uppercase tracking-tight text-paper">
+                    {importPreview.length} sản phẩm sẵn sàng nhập
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-paper/50">
+                    Kiểm tra nhanh tên, danh mục, giá và số mục nội dung trước khi tạo hoặc cập nhật hàng loạt.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setImportPreview([])}
+                  className="self-start rounded-full p-2 text-paper/30 transition hover:bg-paper/5 hover:text-paper"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="max-h-[55vh] overflow-auto">
+                <table className="w-full min-w-[780px] text-left">
+                  <thead className="sticky top-0 bg-[#1a1917]">
+                    <tr className="border-b border-paper/10">
+                      <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-[0.2em] text-paper/30">Sản phẩm</th>
+                      <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-[0.2em] text-paper/30">Danh mục</th>
+                      <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-[0.2em] text-paper/30">Giá</th>
+                      <th className="px-6 py-4 text-[9px] font-bold uppercase tracking-[0.2em] text-paper/30">Nội dung</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-paper/5">
+                    {importPreview.slice(0, 50).map((product, index) => (
+                      <tr key={`${product.slug}-${index}`}>
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-bold uppercase text-paper">{product.name}</p>
+                          <p className="mt-1 text-[9px] font-mono text-paper/25">{product.slug}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="rounded-full bg-paper/10 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-paper/60">
+                            {product.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-[#FF8C00]">
+                          {formatPrice(Number(product.price) || 0)}₫
+                        </td>
+                        <td className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-paper/40">
+                          {product.features.length} tính năng · {product.instructions.length} bước · {product.plans.length} gói
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {importPreview.length > 50 && (
+                  <p className="border-t border-paper/5 px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-paper/30">
+                    Đang hiển thị 50 sản phẩm đầu tiên
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-paper/10 p-6 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setImportPreview([])}
+                  className="rounded-xl px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-paper/40 transition hover:bg-paper/5 hover:text-paper"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmImportProducts}
+                  disabled={isImporting}
+                  className="rounded-xl bg-paper px-6 py-3 text-[10px] font-bold uppercase tracking-widest !text-asphalt transition hover:scale-[1.02] disabled:opacity-50"
+                >
+                  {isImporting ? "Đang nhập..." : "Xác nhận nhập"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {confirmModal.isOpen && (
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">

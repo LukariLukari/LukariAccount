@@ -127,6 +127,25 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
+
+  .admin-template-input {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid rgba(239, 237, 227, 0.1);
+    background: rgba(48, 47, 44, 0.5);
+    padding: 0.9rem 1rem;
+    color: var(--paper);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.65;
+    outline: none;
+    transition: border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .admin-template-input:focus {
+    border-color: rgba(239, 237, 227, 0.35);
+    background: rgba(48, 47, 44, 0.72);
+  }
 }
 
 /* Custom scrollbar hiding for clean UI */

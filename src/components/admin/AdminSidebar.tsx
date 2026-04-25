@@ -12,7 +12,8 @@ import {
   LogOut,
   LayoutGrid,
   Image as ImageIcon,
-  BookOpen
+  BookOpen,
+  FileText
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -22,6 +23,7 @@ export const adminMenuItems = [
   { icon: LayoutGrid, label: "Loại sản phẩm", href: "/admin/categories" },
   { icon: ImageIcon, label: "Banner", href: "/admin/banners" },
   { icon: BookOpen, label: "Tài nguyên", href: "/admin/resources" },
+  { icon: FileText, label: "Template", href: "/admin/product-templates" },
   { icon: TicketPercent, label: "Mã giảm giá", href: "/admin/coupons" },
   { icon: Users, label: "Người dùng", href: "/admin/users" },
   { icon: Settings, label: "Cài đặt", href: "/admin/settings" },

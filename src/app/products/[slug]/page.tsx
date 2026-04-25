@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "@/components/ProductDetailClient";
-import { getBaseUrl, getProductBySlug } from "@/lib/storefront";
+import { getBaseUrl, getProductBySlug, getRelatedProducts } from "@/lib/storefront";
 
 export const revalidate = 300;
 
@@ -56,6 +56,8 @@ export default async function ProductDetailPage(
     notFound();
   }
 
+  const relatedProducts = await getRelatedProducts(product.id, product.category, 4);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -78,7 +80,7 @@ export default async function ProductDetailPage(
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductDetailClient product={product} />
+      <ProductDetailClient product={product} relatedProducts={relatedProducts} />
     </>
   );
 }

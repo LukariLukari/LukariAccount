@@ -18,6 +18,13 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice, parseFormattedPrice, compressImageToWebp } from "@/lib/utils";
 import RichText from "@/components/RichText";
+import {
+  CONTENT_SECTION_LABELS,
+  DEFAULT_CONTENT_ORDER,
+  DEFAULT_PRODUCT_CONTENT_TEMPLATES,
+  type ContentSectionId,
+  type ProductContentTemplate,
+} from "@/lib/product-templates";
 
 interface Plan {
   type?: string;
@@ -25,16 +32,6 @@ interface Plan {
   price: number;
   cycle: string;
 }
-
-type ContentSectionId = "warranty" | "features" | "instructions";
-
-const DEFAULT_CONTENT_ORDER: ContentSectionId[] = ["warranty", "features", "instructions"];
-
-const CONTENT_SECTION_LABELS: Record<ContentSectionId, string> = {
-  warranty: "Bảo hành",
-  features: "Tính năng",
-  instructions: "Cách thức mua",
-};
 
 interface ProductFormProps {
   initialData?: any;
@@ -81,6 +78,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
   const [features, setFeatures] = useState<string[]>(getFeatureItems(initialData?.features));
   const [instructions, setInstructions] = useState<string[]>(initialData?.instructions || []);
   const [contentOrder, setContentOrder] = useState<ContentSectionId[]>(getContentOrder(initialData?.features));
+  const [contentTemplates, setContentTemplates] = useState<ProductContentTemplate[]>(DEFAULT_PRODUCT_CONTENT_TEMPLATES);
 
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -118,6 +116,22 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
       }
     };
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const res = await fetch("/api/admin/product-templates");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          setContentTemplates(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch product templates", error);
+      }
+    };
+    fetchTemplates();
   }, []);
 
   // Sync state when initialData changes
@@ -199,6 +213,15 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     setPlans(plans.filter((_, i) => i !== index));
   };
 
+  const movePlan = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= plans.length) return;
+
+    const nextPlans = [...plans];
+    [nextPlans[index], nextPlans[targetIndex]] = [nextPlans[targetIndex], nextPlans[index]];
+    setPlans(nextPlans);
+  };
+
   const updatePlan = (index: number, field: keyof Plan, value: any) => {
     const newPlans = [...plans];
     newPlans[index] = { ...newPlans[index], [field]: value };
@@ -228,24 +251,37 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     [nextOrder[index], nextOrder[targetIndex]] = [nextOrder[targetIndex], nextOrder[index]];
     setContentOrder(nextOrder);
   };
+
+  const applyContentTemplate = (template: ProductContentTemplate) => {
+    setFormData((prev) => ({
+      ...prev,
+      description: template.description,
+      details: template.details,
+      warranty: template.warranty,
+    }));
+    setFeatures(template.features);
+    setInstructions(template.instructions);
+    setContentOrder(template.sectionOrder);
+  };
+
   const warrantyLines = String(formData.warranty || "")
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-10 pb-24">
+    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 lg:space-y-10 pb-32 lg:pb-24">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-4 lg:gap-6">
           <Link 
             href="/admin/products"
-            className="p-4 rounded-2xl bg-paper/5 hover:bg-paper/10 border border-paper/10 text-paper/40 hover:text-paper transition-all"
+            className="p-3 lg:p-4 rounded-2xl bg-paper/5 hover:bg-paper/10 border border-paper/10 text-paper/40 hover:text-paper transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold uppercase tracking-tight">
+            <h1 className="text-2xl lg:text-3xl font-bold uppercase tracking-tight">
               {productId ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
             </h1>
             <p className="text-paper/30 text-[10px] font-bold uppercase tracking-widest mt-1">
@@ -256,7 +292,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         <button 
           type="submit"
           disabled={isLoading}
-          className="flex items-center gap-3 px-10 py-4 !bg-[#efede3] !text-[#302f2c] rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50"
+          className="hidden lg:flex items-center gap-3 px-10 py-4 !bg-[#efede3] !text-[#302f2c] rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl disabled:opacity-50"
         >
           <Save className="w-4 h-4 !text-[#302f2c]" />
           {isLoading ? "Đang lưu..." : "Lưu sản phẩm"}
@@ -266,7 +302,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Side: General Info */}
         <div className="lg:col-span-2 space-y-8">
-          <section className="bg-paper/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
+          <section className="bg-paper/5 backdrop-blur-3xl p-5 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30 border-b border-paper/5 pb-6">Thông tin cơ bản</h2>
             
             <div className="space-y-6">
@@ -342,7 +378,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
           </section>
 
           {/* Pricing Plans */}
-          <section className="bg-paper/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
+          <section className="bg-paper/5 backdrop-blur-3xl p-5 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
             <div className="flex justify-between items-center border-b border-paper/5 pb-6">
               <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30">Cấu hình các gói (Plans)</h2>
               <button 
@@ -356,7 +392,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
 
             <div className="space-y-4">
               {plans.map((plan, idx) => (
-                <div key={idx} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 bg-paper/[0.03] border border-paper/5 rounded-2xl items-end relative group">
+                <div key={idx} className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-4 p-4 lg:p-6 bg-paper/[0.03] border border-paper/5 rounded-2xl items-end relative group">
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold uppercase tracking-widest text-paper/20">Phân loại (Loại gói)</label>
                     <input 
@@ -394,7 +430,25 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                       className="w-full bg-asphalt/50 border border-transparent focus:border-paper/10 rounded-xl py-3 px-4 text-[10px] font-bold outline-none text-paper/60"
                     />
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-1">
+                    <button
+                      type="button"
+                      onClick={() => movePlan(idx, "up")}
+                      disabled={idx === 0}
+                      className="p-3 text-paper/20 hover:text-paper hover:bg-paper/5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                      title="Đưa gói lên"
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => movePlan(idx, "down")}
+                      disabled={idx === plans.length - 1}
+                      className="p-3 text-paper/20 hover:text-paper hover:bg-paper/5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                      title="Đưa gói xuống"
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </button>
                     <button 
                       type="button" 
                       onClick={() => removePlan(idx)}
@@ -409,8 +463,32 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
           </section>
 
           {/* Detailed Content Sections */}
-          <section className="bg-paper/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-paper/10 space-y-10 shadow-2xl">
-            <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30 border-b border-paper/5 pb-6">Nội dung chi tiết</h2>
+          <section className="bg-paper/5 backdrop-blur-3xl p-5 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-paper/10 space-y-10 shadow-2xl">
+            <div className="border-b border-paper/5 pb-6">
+              <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30">Nội dung chi tiết</h2>
+              <p className="mt-3 text-[9px] font-bold uppercase tracking-widest text-paper/25">
+                Dùng template để điền nhanh, sau đó chỉnh lại theo từng sản phẩm trước khi lưu.
+              </p>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-paper/10 bg-asphalt/35 p-4 lg:p-5">
+              <div className="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-paper/35">
+                <Sparkles className="w-4 h-4 text-[#FF8C00]" />
+                Template nội dung
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {contentTemplates.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => applyContentTemplate(template)}
+                    className="rounded-full border border-paper/10 bg-paper/5 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-paper/60 transition hover:bg-paper hover:!text-asphalt"
+                  >
+                    {template.name}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-4">
               <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -605,7 +683,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         {/* Right Side: Media & Settings */}
         <div className="space-y-8">
           {/* Image Selection */}
-          <section className="bg-paper/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
+          <section className="bg-paper/5 backdrop-blur-3xl p-5 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30 border-b border-paper/5 pb-6">Hình ảnh</h2>
             
             <div className="space-y-6">
@@ -673,7 +751,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
           </section>
 
           {/* Visibility Settings */}
-          <section className="bg-paper/5 backdrop-blur-3xl p-10 rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
+          <section className="bg-paper/5 backdrop-blur-3xl p-5 lg:p-10 rounded-[2rem] lg:rounded-[3rem] border border-paper/10 space-y-8 shadow-2xl">
             <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-paper/30 border-b border-paper/5 pb-6">Cài đặt hiển thị</h2>
             
             <div className="flex items-center justify-between p-6 bg-paper/[0.03] rounded-2xl border border-paper/5">
@@ -697,6 +775,17 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
             </div>
           </section>
         </div>
+      </div>
+
+      <div className="fixed inset-x-3 bottom-3 z-[80] rounded-[1.5rem] border border-paper/15 bg-[#efede3] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.45)] lg:hidden">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="flex w-full items-center justify-center gap-3 rounded-[1.1rem] px-5 py-4 !text-[#302f2c] font-bold text-[11px] uppercase tracking-widest transition active:scale-[0.98] disabled:opacity-50"
+        >
+          <Save className="w-4 h-4 !text-[#302f2c]" />
+          {isLoading ? "Đang lưu..." : "Lưu sản phẩm"}
+        </button>
       </div>
 
       <AnimatePresence>
