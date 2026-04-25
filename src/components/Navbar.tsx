@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ShoppingCart, Search, Menu, ShoppingBag, X, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import AuthStatus from "./AuthStatus";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -14,19 +14,25 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const closeMobileOverlays = () => {
+    setIsMobileMenuOpen(false);
+    setIsMobileSearchOpen(false);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/products?q=${encodeURIComponent(searchQuery)}`);
-      setIsMobileSearchOpen(false);
+      closeMobileOverlays();
     }
   };
 
   // Close menu on route change
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [router]);
+    closeMobileOverlays();
+  }, [pathname]);
 
   return (
     <nav className="fixed top-4 md:top-6 left-0 right-0 z-[100] px-4 md:px-6">
@@ -34,7 +40,7 @@ export default function Navbar() {
         <div className="backdrop-blur-2xl bg-paper/5 border border-paper/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.4)] px-4 sm:px-10 h-16 md:h-18 flex items-center justify-between gap-4 md:gap-6 transition-all duration-500 hover:shadow-[0_25px_50px_rgba(0,0,0,0.5)]">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0 group">
+          <Link href="/" onClick={closeMobileOverlays} className="flex items-center gap-2 md:gap-3 shrink-0 group">
             <div className="w-9 h-9 md:w-10 md:h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-lg md:text-xl shadow-xl group-hover:scale-110 transition-all duration-500 active:scale-95">
               L
             </div>
@@ -87,7 +93,7 @@ export default function Navbar() {
             
             <AuthStatus />
             
-            <Link href="/cart" className="p-2 md:p-3 text-paper/40 hover:text-paper hover:bg-paper/5 transition-all rounded-full relative group">
+            <Link href="/cart" onClick={closeMobileOverlays} className="p-2 md:p-3 text-paper/40 hover:text-paper hover:bg-paper/5 transition-all rounded-full relative group">
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
                 <span className="absolute top-1 md:top-2 right-1 md:right-2 w-4 h-4 bg-paper text-asphalt text-[8px] flex items-center justify-center rounded-full font-montserrat font-bold ring-2 ring-asphalt shadow-lg">
@@ -152,6 +158,7 @@ export default function Navbar() {
                       <Link 
                         key={item.label}
                         href={item.href}
+                        onClick={closeMobileOverlays}
                         className="flex items-center justify-between p-5 rounded-2xl bg-paper/5 border border-paper/5 hover:bg-paper/10 transition-all group"
                       >
                         <span className="text-[11px] font-montserrat font-bold uppercase tracking-widest text-paper/60 group-hover:text-paper">{item.label}</span>
@@ -167,7 +174,8 @@ export default function Navbar() {
                     {['AI', 'Office', 'Design', 'OS', 'Video', 'Combo iOS'].map((cat) => (
                       <Link 
                         key={cat}
-                        href={`/categories/${cat.toLowerCase()}`}
+                        href={`/categories/${encodeURIComponent(cat.toLowerCase())}`}
+                        onClick={closeMobileOverlays}
                         className="px-4 py-2 rounded-full bg-paper/5 border border-paper/5 text-[9px] font-montserrat font-bold uppercase tracking-widest text-paper/40 hover:bg-[#FF8C00] hover:text-asphalt hover:border-[#FF8C00] transition-all"
                       >
                         {cat}
