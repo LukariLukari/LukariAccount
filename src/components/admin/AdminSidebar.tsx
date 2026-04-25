@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
-const menuItems = [
+export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Tổng quan", href: "/admin" },
   { icon: ShoppingBag, label: "Sản phẩm", href: "/admin/products" },
   { icon: LayoutGrid, label: "Loại sản phẩm", href: "/admin/categories" },
@@ -31,7 +31,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-72 h-screen sticky top-0 bg-asphalt border-r border-paper/10 flex flex-col p-6">
+    <aside className="hidden lg:flex w-72 h-screen sticky top-0 bg-asphalt border-r border-paper/10 flex-col p-6">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-12 px-2">
         <div className="w-8 h-8 bg-paper rounded-lg flex items-center justify-center text-asphalt font-montserrat font-bold">
@@ -44,7 +44,7 @@ export default function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 flex flex-col gap-2">
-        {menuItems.map((item) => {
+        {adminMenuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

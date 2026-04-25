@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AuthStatus from "./AuthStatus";
 import { motion, AnimatePresence } from "framer-motion";
+import { adminMenuItems } from "@/components/admin/AdminSidebar";
 
 export default function Navbar() {
   const { cartCount } = useCart();
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith("/admin");
 
   const closeMobileOverlays = () => {
     setIsMobileMenuOpen(false);
@@ -152,22 +154,36 @@ export default function Navbar() {
             >
               <div className="bg-[#1a1a1a] border border-paper/10 rounded-[2.5rem] shadow-2xl p-8 space-y-8">
                 <div className="space-y-4">
-                  <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/20">Menu chính</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[{label: 'Products', href: '/products'}, {label: 'Tài nguyên', href: '/resources'}, {label: 'Cart', href: '/cart'}, {label: 'Profile', href: '/profile'}].map((item) => (
+                  <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/20">
+                    {isAdminRoute ? "Admin CP" : "Menu chính"}
+                  </h3>
+                  <div className={isAdminRoute ? "grid grid-cols-1 gap-2.5" : "grid grid-cols-2 gap-4"}>
+                    {(isAdminRoute ? adminMenuItems : [{label: 'Products', href: '/products'}, {label: 'Tài nguyên', href: '/resources'}, {label: 'Cart', href: '/cart'}, {label: 'Profile', href: '/profile'}]).map((item) => (
                       <Link 
                         key={item.label}
                         href={item.href}
                         onClick={closeMobileOverlays}
-                        className="flex items-center justify-between p-5 rounded-2xl bg-paper/5 border border-paper/5 hover:bg-paper/10 transition-all group"
+                        className={`flex items-center justify-between rounded-2xl border transition-all group ${
+                          isAdminRoute && pathname === item.href
+                            ? "bg-paper text-asphalt border-paper p-4"
+                            : "bg-paper/5 border-paper/5 hover:bg-paper/10 p-5"
+                        }`}
                       >
-                        <span className="text-[11px] font-montserrat font-bold uppercase tracking-widest text-paper/60 group-hover:text-paper">{item.label}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-paper/20 group-hover:text-paper group-hover:translate-x-1 transition-all" />
+                        <span className={`flex items-center gap-3 text-[11px] font-montserrat font-bold uppercase tracking-widest ${
+                          isAdminRoute && pathname === item.href ? "text-asphalt" : "text-paper/60 group-hover:text-paper"
+                        }`}>
+                          {"icon" in item && <item.icon className={`w-4 h-4 ${isAdminRoute && pathname === item.href ? "!text-asphalt" : ""}`} />}
+                          {item.label}
+                        </span>
+                        <ArrowRight className={`w-3.5 h-3.5 transition-all group-hover:translate-x-1 ${
+                          isAdminRoute && pathname === item.href ? "text-asphalt" : "text-paper/20 group-hover:text-paper"
+                        }`} />
                       </Link>
                     ))}
                   </div>
                 </div>
 
+                {!isAdminRoute && (
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-montserrat font-bold uppercase tracking-[0.3em] text-paper/20">Danh mục phổ biến</h3>
                   <div className="flex flex-wrap gap-2">
@@ -183,6 +199,20 @@ export default function Navbar() {
                     ))}
                   </div>
                 </div>
+                )}
+
+                {isAdminRoute && (
+                  <div className="pt-4 border-t border-paper/10">
+                    <Link
+                      href="/"
+                      onClick={closeMobileOverlays}
+                      className="flex items-center justify-between rounded-2xl bg-paper/5 border border-paper/5 p-4 text-paper/60 hover:text-paper hover:bg-paper/10 transition-all"
+                    >
+                      <span className="text-[11px] font-montserrat font-bold uppercase tracking-widest">Về cửa hàng</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-paper/20" />
+                    </Link>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
