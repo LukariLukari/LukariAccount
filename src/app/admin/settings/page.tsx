@@ -10,12 +10,17 @@ interface SiteSettings {
   address: string;
   zaloLink: string;
   facebookLink: string;
+  instagramLink: string;
   tiktokLink: string;
   telegramLink: string;
   bankName: string;
   bankAccount: string;
   bankOwner: string;
   qrCodeUrl: string;
+  paymentGuideText: string;
+  transferContentTemplate: string;
+  orderMessageTemplate: string;
+  paymentFooterText: string;
 }
 
 export default function AdminSettingsPage() {
@@ -25,12 +30,17 @@ export default function AdminSettingsPage() {
     address: "",
     zaloLink: "",
     facebookLink: "",
+    instagramLink: "",
     tiktokLink: "",
     telegramLink: "",
     bankName: "",
     bankAccount: "",
     bankOwner: "",
     qrCodeUrl: "",
+    paymentGuideText: "",
+    transferContentTemplate: "",
+    orderMessageTemplate: "",
+    paymentFooterText: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -75,6 +85,10 @@ export default function AdminSettingsPage() {
     "w-full bg-asphalt/50 border border-paper/10 rounded-xl py-3 px-4 text-sm font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20";
   const labelClass =
     "text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-2 block";
+  const textareaClass =
+    "w-full bg-asphalt/50 border border-paper/10 rounded-xl py-3 px-4 text-sm font-bold text-paper outline-none focus:border-paper/30 transition-all placeholder:text-paper/20 resize-none leading-relaxed";
+  const templateHelp =
+    "{product}, {slug}, {category}, {plan}, {cycle}, {quantity}, {total}, {note}, {noteSuffix}, {noteLine}, {transferContent}";
 
   return (
     <div className="space-y-10 max-w-4xl">
@@ -197,6 +211,17 @@ export default function AdminSettingsPage() {
             />
           </div>
           <div>
+            <label className={labelClass}>Instagram URL nhận đơn</label>
+            <input
+              className={inputClass}
+              value={settings.instagramLink || ""}
+              onChange={(e) =>
+                setSettings((prev) => ({ ...prev, instagramLink: e.target.value }))
+              }
+              placeholder="https://instagram.com/..."
+            />
+          </div>
+          <div>
             <label className={labelClass}>Telegram URL</label>
             <input
               className={inputClass}
@@ -264,6 +289,70 @@ export default function AdminSettingsPage() {
                 setSettings((prev) => ({ ...prev, qrCodeUrl: e.target.value }))
               }
               placeholder="https://..."
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Payment Flow */}
+      <div className="bg-paper/5 backdrop-blur-3xl rounded-[2rem] border border-paper/10 p-8">
+        <h2 className="text-sm font-bold uppercase tracking-widest mb-6 border-b border-paper/10 pb-4">
+          💬 Thanh toán & tin nhắn
+        </h2>
+        <div className="space-y-6">
+          <div>
+            <label className={labelClass}>Hướng dẫn xác nhận đơn trong popup</label>
+            <textarea
+              rows={3}
+              className={textareaClass}
+              value={settings.paymentGuideText || ""}
+              onChange={(e) =>
+                setSettings((prev) => ({ ...prev, paymentGuideText: e.target.value }))
+              }
+              placeholder="Bấm nút bên dưới để copy sẵn nội dung đơn, sau đó gửi qua Zalo hoặc Instagram cho shop xử lý nhanh hơn."
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Mẫu nội dung chuyển khoản</label>
+            <input
+              className={inputClass}
+              value={settings.transferContentTemplate || ""}
+              onChange={(e) =>
+                setSettings((prev) => ({ ...prev, transferContentTemplate: e.target.value }))
+              }
+              placeholder="LUKARI {product} {cycle} x{quantity}{noteSuffix}"
+            />
+            <p className="mt-2 text-[9px] font-bold uppercase tracking-widest text-paper/20">
+              Biến dùng được: {templateHelp}
+            </p>
+          </div>
+
+          <div>
+            <label className={labelClass}>Mẫu nội dung copy gửi shop</label>
+            <textarea
+              rows={8}
+              className={textareaClass}
+              value={settings.orderMessageTemplate || ""}
+              onChange={(e) =>
+                setSettings((prev) => ({ ...prev, orderMessageTemplate: e.target.value }))
+              }
+              placeholder={`Chào shop, mình đã đặt đơn:\nSản phẩm: {product}\nGói: {plan} / {cycle}\nSố lượng: {quantity}\nTổng tiền: {total}đ\nNội dung chuyển khoản: {transferContent}\n{noteLine}`}
+            />
+            <p className="mt-2 text-[9px] font-bold uppercase tracking-widest text-paper/20">
+              Đây là nội dung được copy khi khách bấm Nhắn Zalo, Nhắn Instagram hoặc Copy nội dung đơn.
+            </p>
+          </div>
+
+          <div>
+            <label className={labelClass}>Ghi chú cuối popup thanh toán</label>
+            <input
+              className={inputClass}
+              value={settings.paymentFooterText || ""}
+              onChange={(e) =>
+                setSettings((prev) => ({ ...prev, paymentFooterText: e.target.value }))
+              }
+              placeholder="Sau khi chuyển khoản, đơn hàng sẽ được xử lý trong vòng 5-15 phút"
             />
           </div>
         </div>

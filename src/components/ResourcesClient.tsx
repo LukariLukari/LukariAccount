@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, Eye, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Eye, X } from "lucide-react";
 import type { FreeResource } from "@/lib/resources";
 
 interface ResourcesClientProps {
@@ -29,15 +29,43 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
     setActiveImageIndex(0);
   };
 
+  const activeImageCount = activeResource?.images.length || 0;
+  const canNavigateImages = activeImageCount > 1;
+
+  const goToImage = (direction: "prev" | "next") => {
+    if (!activeImageCount) return;
+    setActiveImageIndex((currentIndex) => {
+      const offset = direction === "next" ? 1 : -1;
+      return (currentIndex + offset + activeImageCount) % activeImageCount;
+    });
+  };
+
+  useEffect(() => {
+    if (!activeResource) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveResource(null);
+        return;
+      }
+      if (!canNavigateImages) return;
+      if (event.key === "ArrowLeft") goToImage("prev");
+      if (event.key === "ArrowRight") goToImage("next");
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeResource, canNavigateImages, activeImageCount]);
+
   return (
     <>
-      <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+      <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7 lg:mb-8">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
             aria-pressed={selectedCategory === category}
-            className={`px-5 py-3 rounded-full border text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
+            className={`px-4 py-2.5 rounded-full border text-[9px] font-bold uppercase tracking-[0.18em] transition-all ${
               selectedCategory === category
                 ? ""
                 : "bg-paper/5 border-paper/10 hover:bg-paper/10 hover:border-paper/20"
@@ -62,20 +90,20 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {filteredResources.map((resource) => (
           <div
             key={resource.id}
-            className="group rounded-[2rem] border border-paper/10 bg-gradient-to-br from-paper/5 to-paper/[0.02] p-5 transition-all duration-300 hover:border-paper/20 hover:shadow-2xl"
+            className="group flex h-[214px] flex-col rounded-[1.5rem] border border-paper/10 bg-gradient-to-br from-paper/5 to-paper/[0.02] p-4 transition-all duration-300 hover:border-paper/20 hover:shadow-2xl"
           >
-            <div className="flex items-start gap-4 mb-5">
-              <div className="relative w-24 h-24 rounded-[1.25rem] overflow-hidden border border-paper/10 bg-paper/5 shrink-0 shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
+            <div className="flex min-h-0 flex-1 items-start gap-3">
+              <div className="relative w-16 h-16 rounded-[1rem] overflow-hidden border border-paper/10 bg-paper/5 shrink-0 shadow-[0_10px_22px_rgba(0,0,0,0.16)]">
                 {resource.images[0] ? (
                   <Image
                     src={resource.images[0]}
                     alt={resource.title}
                     fill
-                    sizes="96px"
+                    sizes="64px"
                     className="object-cover"
                   />
                 ) : (
@@ -85,25 +113,25 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                 )}
               </div>
 
-              <div className="min-w-0">
-                <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#FF8C00] mb-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-[#FF8C00] mb-1.5">
                   #{resource.order + 1} • {resource.category}
                 </p>
-                <h2 className="font-montserrat font-bold text-xl text-paper uppercase tracking-tight mb-2 truncate">
+                <h2 className="font-montserrat font-bold text-base text-paper uppercase tracking-tight mb-1.5 truncate">
                   {resource.title}
                 </h2>
-                <p className="text-paper/45 text-[15px] leading-relaxed line-clamp-2">
+                <p className="text-paper/45 text-xs leading-relaxed line-clamp-2 min-h-[2.5rem]">
                   {resource.description}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-5">
+            <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
               <button
                 onClick={() => openResource(resource)}
-                className="ui-btn ui-btn-primary px-4 py-2.5 min-w-[156px] rounded-xl text-[11px]"
+                className={`ui-btn ui-btn-primary px-3 py-2.5 min-w-0 rounded-xl text-[8px] ${resource.driveUrl ? "" : "col-span-2"}`}
               >
-                <Eye className="w-4 h-4 !text-asphalt" />
+                <Eye className="w-3.5 h-3.5 !text-asphalt" />
                 <span className="text-asphalt whitespace-nowrap">Chi tiết</span>
               </button>
               {resource.driveUrl && (
@@ -111,9 +139,9 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                   href={resource.driveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ui-btn ui-btn-secondary px-4 py-2.5 min-w-[156px] rounded-xl text-[11px]"
+                  className="ui-btn ui-btn-secondary px-3 py-2.5 min-w-0 rounded-xl text-[8px]"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-3.5 h-3.5" />
                   <span className="text-paper whitespace-nowrap">Mở Drive</span>
                 </a>
               )}
@@ -157,21 +185,70 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
               </button>
 
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr]">
-                <div className="relative min-h-[320px] lg:min-h-[560px] bg-paper/5">
+                <motion.div
+                  className="relative min-h-[320px] overflow-hidden bg-paper/5 lg:min-h-[560px]"
+                  drag={canNavigateImages ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.18}
+                  onDragEnd={(_, info) => {
+                    if (!canNavigateImages) return;
+                    const swipeDistance = Math.abs(info.offset.x);
+                    const swipeVelocity = Math.abs(info.velocity.x);
+                    if (swipeDistance > 60 || swipeVelocity > 500) {
+                      goToImage(info.offset.x < 0 ? "next" : "prev");
+                    }
+                  }}
+                >
                   {activeResource.images[activeImageIndex] ? (
-                    <Image
-                      src={activeResource.images[activeImageIndex]}
-                      alt={activeResource.title}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 60vw"
-                      className="object-cover"
-                    />
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeResource.images[activeImageIndex]}
+                        initial={{ opacity: 0, scale: 1.015 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.985 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="absolute inset-0"
+                      >
+                        <Image
+                          src={activeResource.images[activeImageIndex]}
+                          alt={activeResource.title}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 60vw"
+                          className="object-cover"
+                          priority
+                        />
+                      </motion.div>
+                    </AnimatePresence>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-paper/20 text-sm font-bold uppercase tracking-widest">
                       Chưa có ảnh mô tả
                     </div>
                   )}
-                </div>
+
+                  {canNavigateImages && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => goToImage("prev")}
+                        className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-paper/15 bg-black/45 text-paper/70 backdrop-blur-md transition hover:bg-paper hover:text-asphalt"
+                        aria-label="Ảnh trước"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => goToImage("next")}
+                        className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-paper/15 bg-black/45 text-paper/70 backdrop-blur-md transition hover:bg-paper hover:text-asphalt"
+                        aria-label="Ảnh sau"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                      <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full border border-paper/10 bg-black/45 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-paper/70 backdrop-blur-md">
+                        {activeImageIndex + 1} / {activeImageCount}
+                      </div>
+                    </>
+                  )}
+                </motion.div>
 
                 <div className="p-8 lg:p-10 flex flex-col">
                   <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#FF8C00] mb-3">

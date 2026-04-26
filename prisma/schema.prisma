@@ -62,6 +62,8 @@ model Product {
   category      String
   isBestSeller  Boolean   @default(false)
   isFeatured    Boolean   @default(false)
+  isHidden      Boolean   @default(false)
+  isSoldOut     Boolean   @default(false)
   plans         Json?
   details       String?
   features      Json?
@@ -97,12 +99,17 @@ model SiteSettings {
   address       String   @default("")
   zaloLink      String   @default("")
   facebookLink  String   @default("")
+  instagramLink String   @default("")
   tiktokLink    String   @default("")
   telegramLink  String   @default("")
   bankName      String   @default("")
   bankAccount   String   @default("")
   bankOwner     String   @default("")
   qrCodeUrl     String   @default("")
+  paymentGuideText String @default("")
+  transferContentTemplate String @default("")
+  orderMessageTemplate String @default("")
+  paymentFooterText String @default("")
   resourceLinks Json?
   updatedAt     DateTime @updatedAt
 }

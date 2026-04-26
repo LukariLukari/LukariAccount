@@ -12,6 +12,8 @@ export interface Product {
   category: string;
   isBestSeller?: boolean;
   isFeatured?: boolean;
+  isHidden?: boolean;
+  isSoldOut?: boolean;
   plans?: any;
   details?: string | null;
   features?: any;

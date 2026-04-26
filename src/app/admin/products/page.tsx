@@ -7,7 +7,6 @@ import {
   Edit2, 
   Trash2, 
   ExternalLink,
-  MoreVertical,
   Star,
   ShoppingBag,
   Upload,
@@ -15,7 +14,9 @@ import {
   CheckCircle,
   FileDown,
   Zap,
-  X
+  X,
+  EyeOff,
+  CircleSlash
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,6 +44,8 @@ export default function AdminProductsPage() {
     instructions: string[];
     warranty: string;
     plans: { label: string; price: number; cycle: string }[];
+    isHidden: boolean;
+    isSoldOut: boolean;
   };
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -142,7 +145,7 @@ export default function AdminProductsPage() {
       const productsData = rows.filter(row => row.trim()).map(row => {
         const [
           name, slug, description, price, originalPrice, billingCycle, image, category, 
-          details, features, instructions, warranty, plansStr
+          details, features, instructions, warranty, plansStr, isHidden, isSoldOut
         ] = parseCSVRow(row.trim());
         
         return {
@@ -161,7 +164,9 @@ export default function AdminProductsPage() {
           plans: plansStr ? plansStr.split("|").map(plan => {
             const [label, p, cycle] = plan.split(":");
             return { label: label?.trim() || "Gói", price: Number(p) || 0, cycle: cycle?.trim() || "tháng" };
-          }) : []
+          }) : [],
+          isHidden: ["true", "1", "yes", "ẩn"].includes((isHidden || "").trim().toLowerCase()),
+          isSoldOut: ["true", "1", "yes", "sold out", "soldout", "hết"].includes((isSoldOut || "").trim().toLowerCase())
         };
       });
 
@@ -239,9 +244,49 @@ export default function AdminProductsPage() {
     }
   };
 
+  const toggleProductFlag = async (
+    id: string,
+    field: "isHidden" | "isSoldOut",
+    current: boolean
+  ) => {
+    const nextValue = !current;
+    const previousProducts = products;
+    setProducts((prev) =>
+      prev.map((product) =>
+        product.id === id ? { ...product, [field]: nextValue } : product
+      )
+    );
+    markProductPending(id, true);
+
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: nextValue }),
+      });
+      if (res.ok) {
+        showToast(
+          "Thành công",
+          field === "isHidden"
+            ? nextValue ? "Đã tạm ẩn sản phẩm khỏi cửa hàng." : "Đã mở hiển thị lại sản phẩm."
+            : nextValue ? "Đã đánh dấu sản phẩm sold out." : "Đã mở bán lại sản phẩm."
+        );
+      } else {
+        const data = await res.json().catch(() => null);
+        setProducts(previousProducts);
+        showToast("Lỗi", data?.error || "Không thể cập nhật trạng thái sản phẩm.", "error");
+      }
+    } catch (error) {
+      setProducts(previousProducts);
+      showToast("Lỗi", "Không thể cập nhật trạng thái sản phẩm.", "error");
+    } finally {
+      markProductPending(id, false);
+    }
+  };
+
   const downloadTemplate = () => {
-    const headers = "name,slug,description,price,originalPrice,billingCycle,image,category,details,features,instructions,warranty,plans";
-    const example = '"ChatGPT Plus","chatgpt-plus","Tài khoản ChatGPT Plus chính chủ","499000","599000","tháng","https://example.com/img.png","AI","Chi tiết dài ở đây...","Tính năng 1|Tính năng 2","Bước 1|Bước 2","Bảo hành 1 đổi 1","1 Tháng:499000:tháng|6 Tháng:2500000:6 tháng"';
+    const headers = "name,slug,description,price,originalPrice,billingCycle,image,category,details,features,instructions,warranty,plans,isHidden,isSoldOut";
+    const example = '"ChatGPT Plus","chatgpt-plus","Tài khoản ChatGPT Plus chính chủ","499000","599000","tháng","https://example.com/img.png","AI","Chi tiết dài ở đây...","Tính năng 1|Tính năng 2","Bước 1|Bước 2","Bảo hành 1 đổi 1","1 Tháng:499000:tháng|6 Tháng:2500000:6 tháng","false","false"';
     const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + example;
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -373,6 +418,41 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleBulkFlagUpdate = async (
+    field: "isHidden" | "isSoldOut",
+    status: boolean
+  ) => {
+    setIsBulkUpdating(true);
+    const idsToUpdate = [...selectedIds];
+    const previousProducts = products;
+    setProducts((prev) =>
+      prev.map((product) =>
+        idsToUpdate.includes(product.id) ? { ...product, [field]: status } : product
+      )
+    );
+
+    try {
+      const res = await fetch("/api/admin/products/bulk-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: idsToUpdate, data: { [field]: status } }),
+      });
+      if (res.ok) {
+        setSelectedIds([]);
+        showToast("Thành công", "Đã cập nhật trạng thái cho các sản phẩm đã chọn.");
+      } else {
+        const data = await res.json().catch(() => null);
+        setProducts(previousProducts);
+        showToast("Lỗi", data?.error || "Không thể cập nhật trạng thái hàng loạt.", "error");
+      }
+    } catch (error) {
+      setProducts(previousProducts);
+      showToast("Lỗi", "Lỗi khi cập nhật hàng loạt", "error");
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
   return (
     <div className="space-y-10 relative">
       {/* Floating Bulk Actions Bar */}
@@ -410,6 +490,38 @@ export default function AdminProductsPage() {
               >
                 <Zap className="w-4 h-4" />
                 Gỡ Bán chạy
+              </button>
+              <button
+                onClick={() => handleBulkFlagUpdate("isSoldOut", true)}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-asphalt/5 hover:bg-asphalt/10 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <CircleSlash className="w-4 h-4" />
+                Sold out
+              </button>
+              <button
+                onClick={() => handleBulkFlagUpdate("isSoldOut", false)}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-asphalt/5 hover:bg-asphalt/10 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <Zap className="w-4 h-4" />
+                Mở bán
+              </button>
+              <button
+                onClick={() => handleBulkFlagUpdate("isHidden", true)}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-asphalt/5 hover:bg-asphalt/10 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <EyeOff className="w-4 h-4" />
+                Tạm ẩn
+              </button>
+              <button
+                onClick={() => handleBulkFlagUpdate("isHidden", false)}
+                disabled={isBulkUpdating}
+                className="flex items-center gap-2 px-6 py-3 bg-asphalt/5 hover:bg-asphalt/10 rounded-xl transition-all text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Hiện lại
               </button>
               <button 
                 onClick={handleBulkDelete}
@@ -458,13 +570,14 @@ export default function AdminProductsPage() {
                 <div className="text-[10px] text-paper/60 font-medium leading-relaxed mb-4 space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
                   <p>File CSV hỗ trợ các cột (ngăn cách bởi dấu phẩy):</p>
                   <code className="text-[#FF8C00] bg-paper/5 p-2 rounded-lg block font-bold text-[9px] break-all">
-                    name, slug, description, price, originalPrice, billingCycle, image, category, details, features, instructions, warranty, plans
+                    name, slug, description, price, originalPrice, billingCycle, image, category, details, features, instructions, warranty, plans, isHidden, isSoldOut
                   </code>
                   <div className="bg-paper/5 p-3 rounded-xl mt-3 space-y-2">
                     <p><strong className="text-paper">Lưu ý định dạng:</strong></p>
                     <ul className="list-disc pl-4 space-y-1 text-paper/40">
                       <li><strong>features / instructions:</strong> Dùng dấu gạch đứng <code className="text-[#FF8C00]">|</code> để ngăn cách các dòng. VD: <code className="bg-black/20 p-1">Tính năng 1 | Tính năng 2</code></li>
                       <li><strong>plans:</strong> Format <code className="bg-black/20 p-1">Tên:Giá:Kỳ hạn</code> và ngăn cách bởi <code className="text-[#FF8C00]">|</code>. VD: <code className="bg-black/20 p-1">1 Tháng:499000:tháng | 6 Tháng:2500000:6 tháng</code></li>
+                      <li><strong>isHidden / isSoldOut:</strong> Nhập <code className="text-[#FF8C00]">true</code> hoặc <code className="text-[#FF8C00]">false</code>.</li>
                       <li>Dùng dấu ngoặc kép <code className="text-[#FF8C00]">""</code> bao quanh nội dung nếu bên trong có chứa dấu phẩy <code className="text-[#FF8C00]">,</code> (VD: <code className="bg-black/20 p-1">"Chi tiết 1, Chi tiết 2"</code>).</li>
                     </ul>
                   </div>
@@ -563,6 +676,18 @@ export default function AdminProductsPage() {
                     <div>
                       <h3 className="font-bold text-sm uppercase tracking-tight">{product.name}</h3>
                       <p className="text-[9px] text-paper/20 font-mono">{product.slug}</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {product.isHidden && (
+                          <span className="rounded-full bg-paper/10 px-2 py-1 text-[7px] font-bold uppercase tracking-widest text-paper/45">
+                            Tạm ẩn
+                          </span>
+                        )}
+                        {product.isSoldOut && (
+                          <span className="rounded-full bg-red-500/15 px-2 py-1 text-[7px] font-bold uppercase tracking-widest text-red-300">
+                            Sold out
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -605,6 +730,30 @@ export default function AdminProductsPage() {
                     >
                       <Star className={`w-4 h-4 ${product.isBestSeller ? "fill-asphalt" : ""}`} />
                       {product.isBestSeller && <span className="text-[9px] font-bold uppercase tracking-widest">Bán chạy</span>}
+                    </button>
+                    <button
+                      onClick={() => toggleProductFlag(product.id, "isSoldOut", !!product.isSoldOut)}
+                      disabled={pendingProductIds.includes(product.id)}
+                      title={product.isSoldOut ? "Mở bán lại" : "Đánh dấu sold out"}
+                      className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 disabled:opacity-50 ${
+                        product.isSoldOut
+                          ? "bg-red-500/15 text-red-300 border-red-500/20"
+                          : "bg-paper/5 text-paper/40 border-paper/5 hover:text-paper hover:bg-paper/10"
+                      }`}
+                    >
+                      <CircleSlash className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => toggleProductFlag(product.id, "isHidden", !!product.isHidden)}
+                      disabled={pendingProductIds.includes(product.id)}
+                      title={product.isHidden ? "Hiện lại trên cửa hàng" : "Tạm ẩn khỏi cửa hàng"}
+                      className={`p-2.5 rounded-xl border transition-all flex items-center gap-2 disabled:opacity-50 ${
+                        product.isHidden
+                          ? "bg-paper text-asphalt border-paper"
+                          : "bg-paper/5 text-paper/40 border-paper/5 hover:text-paper hover:bg-paper/10"
+                      }`}
+                    >
+                      <EyeOff className={`w-4 h-4 ${product.isHidden ? "!text-asphalt" : ""}`} />
                     </button>
                     <Link 
                       href={`/admin/products/${product.id}`}
@@ -696,6 +845,8 @@ export default function AdminProductsPage() {
                         </td>
                         <td className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-paper/40">
                           {product.features.length} tính năng · {product.instructions.length} bước · {product.plans.length} gói
+                          {product.isHidden ? " · tạm ẩn" : ""}
+                          {product.isSoldOut ? " · sold out" : ""}
                         </td>
                       </tr>
                     ))}

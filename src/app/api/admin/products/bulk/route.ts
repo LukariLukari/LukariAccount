@@ -74,6 +74,8 @@ export async function POST(req: Request) {
         instructions: normalizeStringArray(p.instructions),
         warranty: String(p.warranty || "").trim(),
         plans: normalizePlans(p.plans),
+        isHidden: !!p.isHidden,
+        isSoldOut: !!p.isSoldOut,
       };
 
       const result = await prisma.product.upsert({

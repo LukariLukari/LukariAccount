@@ -21,11 +21,36 @@ interface BankInfo {
   bankAccount: string;
   bankOwner: string;
   qrCodeUrl: string;
+  zaloLink?: string;
+  facebookLink?: string;
+  instagramLink?: string;
+  paymentGuideText?: string;
+  transferContentTemplate?: string;
+  orderMessageTemplate?: string;
+  paymentFooterText?: string;
+}
+
+const DEFAULT_PAYMENT_GUIDE =
+  "Bấm nút bên dưới để copy sẵn nội dung đơn, sau đó gửi qua Zalo hoặc Instagram cho shop xử lý nhanh hơn.";
+const DEFAULT_TRANSFER_TEMPLATE = "LUKARI {product} {cycle} x{quantity}{noteSuffix}";
+const DEFAULT_ORDER_TEMPLATE = `Chào shop, mình đã đặt đơn:
+Sản phẩm: {product}
+Gói: {plan} / {cycle}
+Số lượng: {quantity}
+Tổng tiền: {total}đ
+Nội dung chuyển khoản: {transferContent}
+{noteLine}`;
+const DEFAULT_PAYMENT_FOOTER = "Sau khi chuyển khoản, đơn hàng sẽ được xử lý trong vòng 5-15 phút";
+
+function renderTemplate(template: string | undefined, fallback: string, values: Record<string, string>) {
+  const source = template?.trim() ? template : fallback;
+  return source.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
 }
 
 export default function PaymentPopup({ isOpen, onClose, product, plan, quantity }: PaymentPopupProps) {
   const [note, setNote] = useState("");
   const [copied, setCopied] = useState(false);
+  const [copiedOrder, setCopiedOrder] = useState(false);
   const [bankInfo, setBankInfo] = useState<BankInfo | null>(null);
   const totalPrice = plan.price * quantity;
 
@@ -46,7 +71,43 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
     }
   };
 
-  const transferContent = `LUKARI ${product.name} ${plan.cycle} x${quantity}${note ? " - " + note : ""}`;
+  const baseValues = {
+    product: product.name,
+    slug: product.slug,
+    category: product.category,
+    plan: plan.label,
+    cycle: plan.cycle,
+    quantity: String(quantity),
+    total: formatPrice(totalPrice),
+    note,
+    noteSuffix: note ? ` - ${note}` : "",
+    noteLine: note ? `Ghi chú: ${note}` : "",
+  };
+  const transferContent = renderTemplate(
+    bankInfo?.transferContentTemplate,
+    DEFAULT_TRANSFER_TEMPLATE,
+    baseValues
+  );
+  const orderMessage = renderTemplate(
+    bankInfo?.orderMessageTemplate,
+    DEFAULT_ORDER_TEMPLATE,
+    { ...baseValues, transferContent }
+  ).replace(/\n{3,}/g, "\n\n").trim();
+  const paymentGuideText = bankInfo?.paymentGuideText?.trim() || DEFAULT_PAYMENT_GUIDE;
+  const paymentFooterText = bankInfo?.paymentFooterText?.trim() || DEFAULT_PAYMENT_FOOTER;
+  const instagramUrl = bankInfo?.instagramLink || bankInfo?.facebookLink;
+
+  const handleCopyOrder = async () => {
+    await navigator.clipboard.writeText(orderMessage);
+    setCopiedOrder(true);
+    setTimeout(() => setCopiedOrder(false), 2000);
+  };
+
+  const openContact = async (url?: string) => {
+    if (!url) return;
+    await handleCopyOrder();
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <AnimatePresence>
@@ -184,10 +245,54 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
               />
             </div>
 
+            {/* Contact Confirmation */}
+            <div className="bg-paper/5 rounded-2xl p-4 border border-paper/10 mb-6">
+              <div className="flex flex-col gap-3">
+                <div>
+                  <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-2">
+                    Gửi xác nhận đơn hàng
+                  </p>
+                  <p className="text-paper/45 text-[11px] leading-relaxed font-bold">
+                    {paymentGuideText}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openContact(bankInfo?.zaloLink)}
+                    disabled={!bankInfo?.zaloLink}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#0068ff]/15 border border-[#0068ff]/25 px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest text-blue-200 transition-all hover:bg-[#0068ff]/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Nhắn Zalo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openContact(instagramUrl)}
+                    disabled={!instagramUrl}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#FF8C00]/15 border border-[#FF8C00]/25 px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest text-[#FFB45C] transition-all hover:bg-[#FF8C00]/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Nhắn Instagram
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopyOrder}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-paper/5 border border-paper/10 px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/55 transition-all hover:bg-paper/10 hover:text-paper"
+                >
+                  {copiedOrder ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                  {copiedOrder ? "Đã copy nội dung đơn" : "Copy nội dung đơn"}
+                </button>
+              </div>
+            </div>
+
             {/* Footer note */}
             <div className="text-center">
               <p className="text-paper/20 text-[9px] font-bold uppercase tracking-widest">
-                Sau khi chuyển khoản, đơn hàng sẽ được xử lý trong vòng 5-15 phút
+                {paymentFooterText}
               </p>
             </div>
           </motion.div>

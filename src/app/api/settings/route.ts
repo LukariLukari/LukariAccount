@@ -4,9 +4,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
+async function ensurePaymentSettingsColumns() {
+  await prisma.$executeRawUnsafe('ALTER TABLE "SiteSettings" ADD COLUMN IF NOT EXISTS "instagramLink" TEXT NOT NULL DEFAULT \'\'');
+  await prisma.$executeRawUnsafe('ALTER TABLE "SiteSettings" ADD COLUMN IF NOT EXISTS "paymentGuideText" TEXT NOT NULL DEFAULT \'\'');
+  await prisma.$executeRawUnsafe('ALTER TABLE "SiteSettings" ADD COLUMN IF NOT EXISTS "transferContentTemplate" TEXT NOT NULL DEFAULT \'\'');
+  await prisma.$executeRawUnsafe('ALTER TABLE "SiteSettings" ADD COLUMN IF NOT EXISTS "orderMessageTemplate" TEXT NOT NULL DEFAULT \'\'');
+  await prisma.$executeRawUnsafe('ALTER TABLE "SiteSettings" ADD COLUMN IF NOT EXISTS "paymentFooterText" TEXT NOT NULL DEFAULT \'\'');
+}
+
 // GET: Public - fetch site settings
 export async function GET() {
   try {
+    await ensurePaymentSettingsColumns();
+
     let settings = await prisma.siteSettings.findUnique({
       where: { id: "main" },
     });
@@ -35,6 +45,7 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
+    await ensurePaymentSettingsColumns();
     
     // Remove fields that should not be updated manually
     const { id, updatedAt, ...updateData } = body;

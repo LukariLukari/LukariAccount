@@ -24,6 +24,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.isSoldOut) return;
     addToCart(product);
   };
 
@@ -59,9 +60,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         {/* Top Overlays - Category */}
         <div className="absolute top-2 md:top-3 left-3 md:left-4 z-20">
           <span className="px-1.5 md:px-2 py-0.5 rounded-full bg-paper/10 backdrop-blur-md text-[6px] md:text-[7px] font-akina font-bold uppercase tracking-[0.2em] text-paper border border-paper/10 drop-shadow-md">
-            {product.category}
+            {product.isSoldOut ? "Sold out" : product.category}
           </span>
         </div>
+        {product.isSoldOut && (
+          <div className="absolute inset-0 z-10 bg-asphalt/35 backdrop-blur-[1px] pointer-events-none" />
+        )}
         <button className="absolute top-2 md:top-3 right-3 md:right-4 z-20 w-6 h-6 md:w-7 md:h-7 rounded-full bg-paper/10 backdrop-blur-md flex items-center justify-center text-paper border border-paper/10 opacity-60 hover:opacity-100 transition-opacity drop-shadow-md">
           <Menu className="w-2.5 h-2.5 md:w-3 md:h-3" />
         </button>
@@ -92,7 +96,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               {!isInCart ? (
                 <button 
                   onClick={handleAddToCart}
-                  className="w-8 md:w-10 h-8 md:h-10 flex items-center justify-center text-[#302f2c] hover:bg-asphalt/5"
+                  disabled={product.isSoldOut}
+                  className="w-8 md:w-10 h-8 md:h-10 flex items-center justify-center text-[#302f2c] hover:bg-asphalt/5 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#302f2c] stroke-[3px]" />
                 </button>

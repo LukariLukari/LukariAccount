@@ -21,6 +21,7 @@ export const getCategoryConfig = cache(async () => {
 
 export const getProducts = cache(async () => {
   return prisma.product.findMany({
+    where: { isHidden: false },
     orderBy: { createdAt: "desc" },
   });
 });
@@ -33,14 +34,15 @@ export const getBanners = cache(async () => {
 });
 
 export const getProductBySlug = cache(async (slug: string) => {
-  return prisma.product.findUnique({
-    where: { slug },
+  return prisma.product.findFirst({
+    where: { slug, isHidden: false },
   });
 });
 
 export const getRelatedProducts = cache(async (productId: string, category: string, limit = 8) => {
   const sameCategoryProducts = await prisma.product.findMany({
     where: {
+      isHidden: false,
       id: { not: productId },
       category: {
         contains: category,
@@ -58,6 +60,7 @@ export const getRelatedProducts = cache(async (productId: string, category: stri
   const existingIds = [productId, ...sameCategoryProducts.map((item) => item.id)];
   const fallbackProducts = await prisma.product.findMany({
     where: {
+      isHidden: false,
       id: { notIn: existingIds },
     },
     orderBy: [{ isBestSeller: "desc" }, { createdAt: "desc" }],
@@ -70,6 +73,7 @@ export const getRelatedProducts = cache(async (productId: string, category: stri
 export const getProductsByCategory = cache(async (categorySlug: string) => {
   return prisma.product.findMany({
     where: {
+      isHidden: false,
       category: {
         contains: decodeURIComponent(categorySlug),
         mode: "insensitive",

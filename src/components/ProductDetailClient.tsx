@@ -135,6 +135,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
   };
 
   const handleAddToCart = () => {
+    if (product.isSoldOut) return;
     addToCart({ ...product, price: selectedPlan.price }, quantity);
   };
 
@@ -193,7 +194,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   transition={{ delay: 0.1 }}
                 >
                   <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full mb-4">
-                    {product.category}
+                    {product.isSoldOut ? "Sold out" : product.category}
                   </span>
                   <h1
                     className="text-[1.25rem] sm:text-[1.35rem] lg:text-[1.75rem] font-montserrat font-bold tracking-tight mb-2 leading-none text-paper uppercase truncate max-w-full"
@@ -293,16 +294,18 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                       </div>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowPayment(true)}
-                        className="flex-1 sm:flex-none min-w-[210px] px-4 sm:px-5 py-2.5 rounded-full !bg-[#efede3] !text-[#302f2c] font-montserrat font-bold text-[9px] uppercase tracking-[0.16em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl"
+                        onClick={() => !product.isSoldOut && setShowPayment(true)}
+                        disabled={product.isSoldOut}
+                        className="flex-1 sm:flex-none min-w-[210px] px-4 sm:px-5 py-2.5 rounded-full !bg-[#efede3] !text-[#302f2c] font-montserrat font-bold text-[9px] uppercase tracking-[0.16em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        Thanh toán ngay
+                        {product.isSoldOut ? "Tạm hết hàng" : "Thanh toán ngay"}
                       </motion.button>
 
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={handleAddToCart}
-                        className="w-10 h-10 rounded-full bg-paper/5 border border-paper/10 flex items-center justify-center text-paper hover:bg-paper/10 transition-all shrink-0"
+                        disabled={product.isSoldOut}
+                        className="w-10 h-10 rounded-full bg-paper/5 border border-paper/10 flex items-center justify-center text-paper hover:bg-paper/10 transition-all shrink-0 disabled:opacity-35 disabled:cursor-not-allowed"
                       >
                         <ShoppingBag className="w-4 h-4" />
                       </motion.button>

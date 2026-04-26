@@ -3,6 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+async function ensureProductVisibilityColumns() {
+  await prisma.$executeRawUnsafe(
+    'ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "isHidden" BOOLEAN NOT NULL DEFAULT false'
+  );
+  await prisma.$executeRawUnsafe(
+    'ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "isSoldOut" BOOLEAN NOT NULL DEFAULT false'
+  );
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -53,11 +62,37 @@ export async function PUT(
     if (body.category !== undefined) updateData.category = body.category;
     if (body.isBestSeller !== undefined) updateData.isBestSeller = body.isBestSeller;
     if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
+    if (body.isHidden !== undefined) updateData.isHidden = body.isHidden;
+    if (body.isSoldOut !== undefined) updateData.isSoldOut = body.isSoldOut;
     if (body.plans !== undefined) updateData.plans = body.plans;
     if (body.warranty !== undefined) updateData.warranty = body.warranty;
     if (body.details !== undefined) updateData.details = body.details;
     if (body.features !== undefined) updateData.features = body.features;
     if (body.instructions !== undefined) updateData.instructions = body.instructions;
+
+    const isVisibilityOnlyUpdate =
+      Object.keys(updateData).length > 0 &&
+      Object.keys(updateData).every((key) => key === "isHidden" || key === "isSoldOut");
+
+    if (isVisibilityOnlyUpdate) {
+      await ensureProductVisibilityColumns();
+      if (body.isHidden !== undefined) {
+        await prisma.$executeRawUnsafe(
+          'UPDATE "Product" SET "isHidden" = $1, "updatedAt" = NOW() WHERE "id" = $2',
+          !!body.isHidden,
+          id
+        );
+      }
+      if (body.isSoldOut !== undefined) {
+        await prisma.$executeRawUnsafe(
+          'UPDATE "Product" SET "isSoldOut" = $1, "updatedAt" = NOW() WHERE "id" = $2',
+          !!body.isSoldOut,
+          id
+        );
+      }
+
+      return NextResponse.json({ id, ...updateData });
+    }
 
     const product = await prisma.product.update({
       where: { id },
@@ -66,6 +101,7 @@ export async function PUT(
 
     return NextResponse.json(product);
   } catch (error) {
+    console.error("Update product error:", error);
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
   }
 }

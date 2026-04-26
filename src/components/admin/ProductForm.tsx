@@ -90,6 +90,8 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
     category: initialData?.category || "AI",
     image: initialData?.image || "",
     isBestSeller: initialData?.isBestSeller || false,
+    isHidden: initialData?.isHidden || false,
+    isSoldOut: initialData?.isSoldOut || false,
     warranty: initialData?.warranty || "",
     details: initialData?.details || "",
   });
@@ -147,6 +149,8 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         category: initialData.category || "AI",
         image: initialData.image || "",
         isBestSeller: initialData.isBestSeller || false,
+        isHidden: initialData.isHidden || false,
+        isSoldOut: initialData.isSoldOut || false,
         warranty: initialData.warranty || "",
         details: initialData.details || "",
       });
@@ -765,6 +769,34 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
                 className={`w-14 h-8 rounded-full transition-all relative ${formData.isBestSeller ? 'bg-[#FF8C00]' : 'bg-paper/10'}`}
               >
                 <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${formData.isBestSeller ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-6 bg-paper/[0.03] rounded-2xl border border-paper/5">
+              <div>
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-paper mb-1">Sold out / tạm hết</h3>
+                <p className="text-[9px] text-paper/30 font-bold uppercase">Vẫn hiển thị sản phẩm nhưng chặn mua và hiện nhãn sold out</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, isSoldOut: !formData.isSoldOut })}
+                className={`w-14 h-8 rounded-full transition-all relative ${formData.isSoldOut ? 'bg-red-500' : 'bg-paper/10'}`}
+              >
+                <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${formData.isSoldOut ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-6 bg-paper/[0.03] rounded-2xl border border-paper/5">
+              <div>
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-paper mb-1">Tạm ẩn khỏi cửa hàng</h3>
+                <p className="text-[9px] text-paper/30 font-bold uppercase">Không hiển thị ở trang user và link chi tiết sẽ trả về 404</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, isHidden: !formData.isHidden })}
+                className={`w-14 h-8 rounded-full transition-all relative ${formData.isHidden ? 'bg-paper text-asphalt' : 'bg-paper/10'}`}
+              >
+                <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${formData.isHidden ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
             

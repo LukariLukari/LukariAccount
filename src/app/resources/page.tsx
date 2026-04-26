@@ -18,8 +18,8 @@ export default async function ResourcesPage() {
 
   return (
     <main className="min-h-screen bg-asphalt text-paper">
-      <div className="max-w-5xl mx-auto px-6 py-16">
-        <div className="text-center mb-16">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-14">
+        <div className="text-center mb-10 lg:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF8C00]/10 border border-[#FF8C00]/20 rounded-full mb-6">
             <Sparkles className="w-4 h-4 text-[#FF8C00]" />
             <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-[#FF8C00]">

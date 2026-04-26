@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     
-    const where: any = {};
+    const where: any = { isHidden: false };
     if (category && category !== "all") {
       where.category = {
         contains: category,
