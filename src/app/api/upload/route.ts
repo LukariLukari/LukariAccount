@@ -38,10 +38,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json({ error: "Only image uploads are allowed" }, { status: 400 });
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      return NextResponse.json({ error: "Image must be smaller than 8MB" }, { status: 400 });
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
     
     // Generate unique filename
-    const fileExtension = file.name.split('.').pop();
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || "webp";
+    const allowedExtensions = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
+    if (!allowedExtensions.has(fileExtension)) {
+      return NextResponse.json({ error: "Unsupported image format" }, { status: 400 });
+    }
+
     const uniqueFileName = `${crypto.randomBytes(16).toString('hex')}.${fileExtension}`;
     
     const command = new PutObjectCommand({

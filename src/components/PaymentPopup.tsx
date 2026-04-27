@@ -14,6 +14,12 @@ interface PaymentPopupProps {
   product: Product;
   plan: { label: string; price: number; cycle: string };
   quantity: number;
+  lineItems?: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  onSubmitOrder?: (note: string) => Promise<{ orderCode?: string } | void>;
 }
 
 interface BankInfo {
@@ -38,6 +44,7 @@ Sản phẩm: {product}
 Gói: {plan} / {cycle}
 Số lượng: {quantity}
 Tổng tiền: {total}đ
+Chi tiết: {itemLines}
 Nội dung chuyển khoản: {transferContent}
 {noteLine}`;
 const DEFAULT_PAYMENT_FOOTER = "Sau khi chuyển khoản, đơn hàng sẽ được xử lý trong vòng 5-15 phút";
@@ -47,12 +54,20 @@ function renderTemplate(template: string | undefined, fallback: string, values: 
   return source.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
 }
 
-export default function PaymentPopup({ isOpen, onClose, product, plan, quantity }: PaymentPopupProps) {
+export default function PaymentPopup({ isOpen, onClose, product, plan, quantity, lineItems, onSubmitOrder }: PaymentPopupProps) {
   const [note, setNote] = useState("");
   const [copied, setCopied] = useState(false);
   const [copiedOrder, setCopiedOrder] = useState(false);
   const [bankInfo, setBankInfo] = useState<BankInfo | null>(null);
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [submittedOrderCode, setSubmittedOrderCode] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const totalPrice = plan.price * quantity;
+  const itemLines = lineItems?.length
+    ? lineItems
+        .map((item) => `${item.name} x${item.quantity} - ${formatPrice(item.price * item.quantity)}đ`)
+        .join("; ")
+    : `${product.name} x${quantity}`;
 
   useEffect(() => {
     if (isOpen) {
@@ -79,6 +94,7 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
     cycle: plan.cycle,
     quantity: String(quantity),
     total: formatPrice(totalPrice),
+    itemLines,
     note,
     noteSuffix: note ? ` - ${note}` : "",
     noteLine: note ? `Ghi chú: ${note}` : "",
@@ -107,6 +123,20 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
     if (!url) return;
     await handleCopyOrder();
     window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleSubmitOrder = async () => {
+    if (!onSubmitOrder || submittedOrderCode) return;
+    setIsSubmittingOrder(true);
+    setSubmitError("");
+    try {
+      const result = await onSubmitOrder(note);
+      setSubmittedOrderCode(result?.orderCode || plan.label);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Không thể xác nhận đơn hàng");
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   return (
@@ -160,6 +190,16 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
                   {formatPrice(totalPrice)}₫
                 </span>
               </div>
+              {lineItems?.length ? (
+                <div className="mt-4 space-y-2 border-t border-paper/10 pt-4">
+                  {lineItems.map((item, index) => (
+                    <div key={`${item.name}-${index}`} className="flex justify-between gap-4 text-[11px] font-bold text-paper/50">
+                      <span className="line-clamp-1">{item.name} x{item.quantity}</span>
+                      <span className="shrink-0">{formatPrice(item.price * item.quantity)}₫</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             {/* QR Code & Bank Info */}
@@ -228,6 +268,7 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
                 >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
+
               </div>
             </div>
 
@@ -286,6 +327,38 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity 
                   {copiedOrder ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                   {copiedOrder ? "Đã copy nội dung đơn" : "Copy nội dung đơn"}
                 </button>
+
+                {onSubmitOrder && (
+                  <div className="space-y-3 rounded-2xl border border-paper/10 bg-asphalt/30 p-4">
+                    {submittedOrderCode ? (
+                      <div className="rounded-xl border border-green-400/20 bg-green-400/10 p-4 text-center">
+                        <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-green-300 mb-1">
+                          Đã ghi nhận đơn hàng
+                        </p>
+                        <p className="text-lg font-montserrat font-bold text-paper">{submittedOrderCode}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-paper/45 text-[11px] leading-relaxed font-bold">
+                          Chỉ bấm xác nhận sau khi bạn đã chuyển khoản hoặc đã gửi thông tin đơn cho shop.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleSubmitOrder}
+                          disabled={isSubmittingOrder}
+                          className="w-full rounded-xl bg-paper px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest text-asphalt transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isSubmittingOrder ? "Đang ghi nhận..." : "Xác nhận đã gửi đơn"}
+                        </button>
+                      </>
+                    )}
+                    {submitError && (
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-red-400">
+                        {submitError}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -139,6 +139,30 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     addToCart({ ...product, price: selectedPlan.price }, quantity);
   };
 
+  const handleSubmitOrder = async (note: string) => {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        createOrder: true,
+        items: [
+          {
+            productId: product.id,
+            quantity,
+            unitPrice: selectedPlan.price,
+            planLabel: selectedPlan.label,
+          },
+        ],
+        note,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || "Không thể xác nhận đơn hàng");
+    }
+    return { orderCode: data.order?.orderCode };
+  };
+
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
       <main className="w-full max-w-[1180px] mx-auto px-3 sm:px-5 lg:px-6 py-4 lg:py-5 overflow-x-hidden">
@@ -459,6 +483,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
         product={product}
         plan={selectedPlan}
         quantity={quantity}
+        onSubmitOrder={handleSubmitOrder}
       />
     </div>
   );

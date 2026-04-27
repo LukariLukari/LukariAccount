@@ -45,8 +45,7 @@ export const metadata: Metadata = {
 };
 
 import AuthContext from "@/providers/AuthContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import AppShell from "@/components/AppShell";
 
 export default function RootLayout({
   children,
@@ -58,11 +57,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col overflow-x-hidden font-sans bg-background text-foreground" suppressHydrationWarning>
         <AuthContext>
           <CartProvider>
-            <Navbar />
-            <div className="pt-32 flex-1">
+            <AppShell>
               {children}
-            </div>
-            <Footer />
+            </AppShell>
           </CartProvider>
         </AuthContext>
       </body>

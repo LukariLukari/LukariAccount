@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/admin-auth";
+import { pickStringSettings } from "@/lib/api-validation";
 
 async function ensurePaymentSettingsColumns() {
   await prisma.$executeRawUnsafe('ALTER TABLE "SiteSettings" ADD COLUMN IF NOT EXISTS "instagramLink" TEXT NOT NULL DEFAULT \'\'');
@@ -37,18 +37,12 @@ export async function GET() {
 // PUT: Admin only - update site settings
 export async function PUT(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    // Check if user is admin - using 'as any' to bypass strict augmentation issues in route handlers
-    if (!session || (session.user as any)?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const unauthorized = await requireAdmin();
+    if (unauthorized) return unauthorized;
 
     const body = await req.json();
     await ensurePaymentSettingsColumns();
-    
-    // Remove fields that should not be updated manually
-    const { id, updatedAt, ...updateData } = body;
+    const updateData = pickStringSettings(body);
 
     const settings = await prisma.siteSettings.upsert({
       where: { id: "main" },
