@@ -27,6 +27,13 @@ interface Banner {
   order: number;
 }
 
+interface MediaItem {
+  url: string;
+  title: string;
+  subtitle?: string;
+  source: "product" | "resource" | "banner";
+}
+
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +50,9 @@ export default function AdminBannersPage() {
     subtitle: "",
     link: ""
   });
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [isMediaLoading, setIsMediaLoading] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<"new" | "edit" | null>(null);
 
   // Modal States
   const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void}>({
@@ -70,6 +80,39 @@ export default function AdminBannersPage() {
   useEffect(() => {
     fetchBanners();
   }, []);
+
+  const fetchMediaItems = async () => {
+    setIsMediaLoading(true);
+    try {
+      const res = await fetch("/api/admin/media-library");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setMediaItems(data);
+      }
+    } catch (error) {
+      console.error(error);
+      showAlert("Lỗi", "Không thể tải thư viện ảnh.");
+    } finally {
+      setIsMediaLoading(false);
+    }
+  };
+
+  const openMediaPicker = async (target: "new" | "edit") => {
+    setMediaPickerTarget(target);
+    if (mediaItems.length === 0) {
+      await fetchMediaItems();
+    }
+  };
+
+  const selectMediaItem = (url: string) => {
+    if (mediaPickerTarget === "new") {
+      setNewBannerImage(url);
+    }
+    if (mediaPickerTarget === "edit") {
+      setEditData((prev) => ({ ...prev, image: url }));
+    }
+    setMediaPickerTarget(null);
+  };
 
   const handleUploadImage = async (file: File): Promise<string | null> => {
     try {
@@ -208,7 +251,15 @@ export default function AdminBannersPage() {
                       <Upload className="w-6 h-6 text-paper/40" />
                     </div>
                     <p className="text-sm font-bold uppercase tracking-widest text-paper/40 mb-4 text-center">Bắt đầu bằng cách chọn ảnh banner</p>
-                    <label className="px-8 py-3 bg-paper/10 hover:bg-paper/20 border border-paper/10 text-paper rounded-xl font-bold text-[11px] uppercase tracking-widest cursor-pointer transition-all">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker("new")}
+                      className="px-8 py-3 bg-[#FF8C00]/15 hover:bg-[#FF8C00]/25 border border-[#FF8C00]/25 text-[#FFB45C] rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all"
+                    >
+                      Chọn từ thư viện
+                    </button>
+                    <label className="px-8 py-3 bg-paper/10 hover:bg-paper/20 border border-paper/10 text-paper rounded-xl font-bold text-[11px] uppercase tracking-widest cursor-pointer transition-all text-center">
                       Tải ảnh lên
                       <input 
                         type="file" accept="image/*" className="hidden"
@@ -221,6 +272,7 @@ export default function AdminBannersPage() {
                         }}
                       />
                     </label>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col lg:flex-row gap-8">
@@ -339,7 +391,14 @@ export default function AdminBannersPage() {
                         placeholder="/products/slug"
                       />
                     </div>
-                    <div className="space-y-2 flex flex-col justify-end">
+                    <div className="space-y-2 flex flex-col justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker("edit")}
+                        className="flex items-center justify-center bg-[#FF8C00]/15 hover:bg-[#FF8C00]/25 border border-[#FF8C00]/25 rounded-xl py-3 px-4 text-[#FFB45C] transition-all"
+                      >
+                        <span className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap">Chọn từ thư viện</span>
+                      </button>
                       <label className="flex items-center justify-center bg-paper/10 hover:bg-paper/20 border border-paper/10 rounded-xl py-3 px-4 cursor-pointer transition-all">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-paper whitespace-nowrap">Đổi ảnh khác</span>
                         <input 
@@ -433,6 +492,72 @@ export default function AdminBannersPage() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {mediaPickerTarget && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMediaPickerTarget(null)} />
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0, y: 12 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.96, opacity: 0, y: 12 }}
+              className="relative z-10 w-full max-w-5xl rounded-[2rem] border border-paper/10 bg-[#1a1917] p-6 shadow-2xl"
+            >
+              <div className="mb-6 flex items-start justify-between gap-4 border-b border-paper/10 pb-5">
+                <div>
+                  <h3 className="text-xl font-bold uppercase tracking-tight text-paper">Thư viện ảnh</h3>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-paper/30">
+                    Ảnh từ sản phẩm, tài nguyên và banner đã lưu
+                  </p>
+                </div>
+                <button
+                  onClick={() => setMediaPickerTarget(null)}
+                  className="rounded-full bg-paper/5 p-2 text-paper/40 transition hover:bg-paper/10 hover:text-paper"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {isMediaLoading ? (
+                <div className="flex h-64 items-center justify-center text-[10px] font-bold uppercase tracking-widest text-paper/30">
+                  Đang tải thư viện...
+                </div>
+              ) : mediaItems.length > 0 ? (
+                <div className="grid max-h-[70vh] grid-cols-2 gap-4 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-4">
+                  {mediaItems.map((item) => (
+                    <button
+                      key={item.url}
+                      type="button"
+                      onClick={() => selectMediaItem(item.url)}
+                      className="group overflow-hidden rounded-2xl border border-paper/10 bg-paper/5 text-left transition hover:border-[#FF8C00]/60 hover:bg-paper/10"
+                    >
+                      <div className="relative aspect-video overflow-hidden bg-asphalt">
+                        <img src={item.url} alt={item.title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                        <span className="absolute left-2 top-2 rounded-full bg-black/55 px-2 py-1 text-[8px] font-bold uppercase tracking-widest text-paper backdrop-blur">
+                          {item.source === "product" ? "Sản phẩm" : item.source === "resource" ? "Tài nguyên" : "Banner"}
+                        </span>
+                      </div>
+                      <div className="p-3">
+                        <p className="line-clamp-1 text-[11px] font-bold uppercase tracking-tight text-paper">{item.title}</p>
+                        {item.subtitle && (
+                          <p className="mt-1 line-clamp-1 text-[9px] font-bold uppercase tracking-widest text-paper/30">{item.subtitle}</p>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
+                  <ImageIcon className="h-10 w-10 text-paper/10" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-paper/30">
+                    Chưa tìm thấy ảnh nào trong sản phẩm hoặc tài nguyên.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* CUSTOM MODALS */}
       <AnimatePresence>

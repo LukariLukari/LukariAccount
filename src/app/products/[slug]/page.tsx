@@ -69,7 +69,7 @@ export default async function ProductDetailPage(
       "@type": "Offer",
       price: product.price,
       priceCurrency: "VND",
-      availability: "https://schema.org/InStock",
+      availability: product.isSoldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       url: `${getBaseUrl()}/products/${product.slug}`,
     },
   };

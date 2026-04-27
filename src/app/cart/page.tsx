@@ -104,7 +104,10 @@ export default function CartPage() {
           <h1 className="text-3xl md:text-4xl font-montserrat font-bold mb-8 md:mb-12 tracking-tighter text-paper uppercase">Giỏ hàng của bạn</h1>
 
           {cart.length === 0 ? (
-            <div className="text-center py-20 md:py-24 bg-paper/5 border border-paper/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl backdrop-blur-xl">
+            <div 
+              className="text-center py-20 md:py-24 bg-paper/5 border border-paper/10 rounded-[2rem] md:rounded-[3rem] shadow-2xl backdrop-blur-xl"
+              suppressHydrationWarning
+            >
               <ShoppingBag className="w-16 h-16 mx-auto text-paper/10 mb-6" />
               <h2 className="text-2xl font-montserrat font-bold mb-4">Giỏ hàng trống</h2>
               <p className="text-paper/40 mb-10 font-bold font-montserrat text-[10px] uppercase tracking-widest">Bạn chưa thêm bất kỳ sản phẩm nào vào giỏ.</p>

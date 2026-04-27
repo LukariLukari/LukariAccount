@@ -12,7 +12,10 @@ export default function AuthStatus() {
 
   if (status === "loading") {
     return (
-      <div className="w-8 h-8 rounded-full bg-black/5 animate-pulse" />
+      <div 
+        className="w-8 h-8 rounded-full bg-black/5 animate-pulse" 
+        suppressHydrationWarning
+      />
     );
   }
 

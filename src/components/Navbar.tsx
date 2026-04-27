@@ -39,11 +39,17 @@ export default function Navbar() {
   return (
     <nav className="fixed top-4 md:top-6 left-0 right-0 z-[100] px-4 md:px-6">
       <div className="max-w-7xl mx-auto relative">
-        <div className="backdrop-blur-2xl bg-paper/5 border border-paper/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.4)] px-4 sm:px-10 h-16 md:h-18 flex items-center justify-between gap-4 md:gap-6 transition-all duration-500 hover:shadow-[0_25px_50px_rgba(0,0,0,0.5)]">
+        <div 
+          className="backdrop-blur-2xl bg-paper/5 border border-paper/10 rounded-full shadow-[0_20px_40px_rgba(0,0,0,0.4)] px-4 sm:px-10 h-16 md:h-18 flex items-center justify-between gap-4 md:gap-6 transition-all duration-500 hover:shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
+          suppressHydrationWarning
+        >
           
           {/* Logo */}
           <Link href="/" onClick={closeMobileOverlays} className="flex items-center gap-2 md:gap-3 shrink-0 group">
-            <div className="w-9 h-9 md:w-10 md:h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-lg md:text-xl shadow-xl group-hover:scale-110 transition-all duration-500 active:scale-95">
+            <div 
+              className="w-9 h-9 md:w-10 md:h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-lg md:text-xl shadow-xl group-hover:scale-110 transition-all duration-500 active:scale-95"
+              suppressHydrationWarning
+            >
               L
             </div>
             <span className="font-montserrat font-bold text-xl md:text-2xl tracking-tighter text-paper hidden sm:block uppercase">

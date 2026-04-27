@@ -6,7 +6,13 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  CheckCircle2,
+  Clock3,
+  Copy,
+  Headphones,
+  PackageCheck,
   RefreshCcw,
+  Share2,
   Shield,
   ShoppingBag,
   Sparkles,
@@ -113,6 +119,12 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
 
   const filteredPlans = plans.filter((plan) => (plan.type || "Mặc định") === activeType);
   const selectedPlan = filteredPlans[activePlanIdx] || filteredPlans[0] || plans[0];
+  const basePlanPrice = filteredPlans[0]?.price || product.price;
+  const totalPrice = selectedPlan.price * quantity;
+  const selectedPlanSavings =
+    basePlanPrice > 0 && selectedPlan.price < basePlanPrice * quantity
+      ? Math.max(0, Math.round((1 - selectedPlan.price / (basePlanPrice * quantity)) * 100))
+      : 0;
   const features = useMemo(() => getFeatureItems(product.features), [product.features]);
   const contentOrder = useMemo(() => getContentOrder(product.features), [product.features]);
   const instructions =
@@ -137,6 +149,23 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
   const handleAddToCart = () => {
     if (product.isSoldOut) return;
     addToCart({ ...product, price: selectedPlan.price }, quantity);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: product.name,
+          text: product.description,
+          url,
+        });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+    } catch {
+      await navigator.clipboard.writeText(url);
+    }
   };
 
   const handleSubmitOrder = async (note: string) => {
@@ -165,7 +194,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
-      <main className="w-full max-w-[1180px] mx-auto px-3 sm:px-5 lg:px-6 py-4 lg:py-5 overflow-x-hidden">
+      <main className="w-full max-w-[1180px] mx-auto px-3 sm:px-5 lg:px-6 pt-4 pb-28 lg:py-5 overflow-x-hidden">
         <Link
           href="/products"
           className="inline-flex items-center gap-2 text-xs font-montserrat font-bold uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity mb-4 group"
@@ -217,9 +246,25 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full mb-4">
-                    {product.isSoldOut ? "Sold out" : product.category}
-                  </span>
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full">
+                      {product.isSoldOut ? "Tạm hết" : product.category}
+                    </span>
+                    {product.isBestSeller && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF8C00]/25 bg-[#FF8C00]/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#FFB45C]">
+                        <Sparkles className="h-3 w-3" />
+                        Bán chạy
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleShare}
+                      className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-paper/10 bg-paper/5 text-paper/40 transition hover:bg-paper/10 hover:text-paper"
+                      aria-label="Chia sẻ sản phẩm"
+                    >
+                      <Share2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                   <h1
                     className="text-[1.25rem] sm:text-[1.35rem] lg:text-[1.75rem] font-montserrat font-bold tracking-tight mb-2 leading-none text-paper uppercase truncate max-w-full"
                     title={product.name}
@@ -229,6 +274,8 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   <p className="text-paper text-[13px] leading-relaxed mb-4 max-w-[36rem]">
                     <RichText text={product.description || "Giải pháp phù hợp cho nhu cầu sử dụng lâu dài và ổn định."} />
                   </p>
+
+
 
                   <div className="mb-4 space-y-3">
                     {types.length > 1 && (
@@ -258,18 +305,29 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                       <p className="text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] text-paper/30 mb-3">
                         Thời hạn sử dụng
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         {filteredPlans.map((plan, idx) => (
                           <button
                             key={`${plan.label}-${idx}`}
                             onClick={() => setActivePlanIdx(idx)}
-                            className={`px-4 py-2 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden ${
+                            className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 ${
                               activePlanIdx === idx
-                                ? "!text-[#302f2c] !bg-[#efede3] shadow-xl"
-                                : "text-paper/40 bg-paper/5 border-paper/10 hover:border-paper/30"
-                            } border`}
+                                ? "border-paper bg-paper text-asphalt shadow-xl"
+                                : "border-paper/10 bg-paper/5 text-paper hover:border-paper/25 hover:bg-paper/10"
+                            }`}
                           >
-                            {plan.label}
+                            <span className={`mb-2 block text-[10px] font-montserrat font-bold uppercase tracking-widest ${activePlanIdx === idx ? "text-asphalt/70" : "text-paper/45"}`}>
+                              {plan.label}
+                            </span>
+                            <span className={`block text-lg font-montserrat font-black ${activePlanIdx === idx ? "text-asphalt" : "text-[#FF8C00]"}`}>
+                              {formatPrice(plan.price)}₫
+                            </span>
+                            <span className={`mt-1 block text-[9px] font-bold uppercase tracking-widest ${activePlanIdx === idx ? "text-asphalt/45" : "text-paper/25"}`}>
+                              / {plan.cycle}
+                            </span>
+                            {activePlanIdx === idx && (
+                              <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-asphalt" />
+                            )}
                           </button>
                         ))}
                       </div>
@@ -287,12 +345,20 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                         )}
                       <div className="text-[1.75rem] lg:text-[2rem] font-montserrat font-bold text-paper flex items-baseline gap-2">
                         <span className="text-[#FF8C00] drop-shadow-[0_2px_10px_rgba(255,140,0,0.3)]">
-                          {formatPrice(selectedPlan.price)}₫
+                          {formatPrice(totalPrice)}₫
                         </span>
                         <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">
-                          / {selectedPlan.cycle}
+                          {quantity > 1 ? `cho ${quantity} sản phẩm` : `/ ${selectedPlan.cycle}`}
                         </span>
                       </div>
+                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-paper/25">
+                        Gói {selectedPlan.label} - {formatPrice(selectedPlan.price)}₫ mỗi sản phẩm
+                      </p>
+                      {selectedPlanSavings > 0 && (
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-green-400">
+                          Tiết kiệm khoảng {selectedPlanSavings}%
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5 xl:justify-end">
@@ -335,6 +401,8 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                       </motion.button>
                     </div>
                   </div>
+
+
                 </motion.div>
               </div>
             </div>
@@ -476,6 +544,34 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
           </section>
         )}
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-[90] border-t border-paper/10 bg-[#1a1917]/95 p-3 shadow-[0_-18px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex max-w-[1180px] items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="line-clamp-1 text-[10px] font-bold uppercase tracking-widest text-paper/35">
+              {selectedPlan.label} / {selectedPlan.cycle}
+            </p>
+            <p className="text-lg font-black text-[#FF8C00]">{formatPrice(totalPrice)}₫</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={product.isSoldOut}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-paper/10 bg-paper/5 text-paper disabled:opacity-40"
+            aria-label="Thêm vào giỏ"
+          >
+            <ShoppingBag className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => !product.isSoldOut && setShowPayment(true)}
+            disabled={product.isSoldOut}
+            className="rounded-full bg-paper px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-asphalt disabled:opacity-50"
+          >
+            {product.isSoldOut ? "Hết hàng" : "Thanh toán"}
+          </button>
+        </div>
+      </div>
 
       <PaymentPopup
         isOpen={showPayment}

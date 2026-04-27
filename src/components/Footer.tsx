@@ -36,7 +36,10 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1 min-w-0">
             <div className="flex items-center gap-3 mb-5 sm:mb-6 min-w-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-lg sm:text-xl shadow-xl shrink-0">
+              <div 
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-paper rounded-full flex items-center justify-center text-asphalt font-montserrat font-bold text-lg sm:text-xl shadow-xl shrink-0"
+                suppressHydrationWarning
+              >
                 L
               </div>
               <span className="font-montserrat font-bold text-lg sm:text-xl tracking-tighter text-paper uppercase truncate">
@@ -148,7 +151,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-paper/5 mt-8 sm:mt-12 pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-          <p className="text-paper/25 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
+          <p 
+            className="text-paper/25 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest"
+            suppressHydrationWarning
+          >
             © {new Date().getFullYear()} LukariAccount. All rights reserved.
           </p>
           <p className="text-paper/25 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">

@@ -339,14 +339,14 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity,
                       </div>
                     ) : (
                       <>
-                        <p className="text-paper/45 text-[11px] leading-relaxed font-bold">
+                        <p className="text-paper/80 text-[11px] leading-relaxed font-bold">
                           Chỉ bấm xác nhận sau khi bạn đã chuyển khoản hoặc đã gửi thông tin đơn cho shop.
                         </p>
                         <button
                           type="button"
                           onClick={handleSubmitOrder}
                           disabled={isSubmittingOrder}
-                          className="w-full rounded-xl bg-paper px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest text-asphalt transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full rounded-xl !bg-[#efede3] !text-[#302f2c] px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl"
                         >
                           {isSubmittingOrder ? "Đang ghi nhận..." : "Xác nhận đã gửi đơn"}
                         </button>
@@ -364,7 +364,7 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity,
 
             {/* Footer note */}
             <div className="text-center">
-              <p className="text-paper/20 text-[9px] font-bold uppercase tracking-widest">
+              <p className="text-paper/80 text-[9px] font-bold uppercase tracking-widest">
                 {paymentFooterText}
               </p>
             </div>
