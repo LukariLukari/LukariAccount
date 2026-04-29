@@ -258,23 +258,14 @@ export default function CategoryAssetsPage() {
               
               <button 
                 onClick={() => setAlertModal({ ...alertModal, isOpen: false })}
-                className="group relative w-full py-5 bg-white/[0.03] hover:bg-white/[0.08] text-white border border-white/10 rounded-[1.5rem] font-montserrat font-black text-[12px] uppercase tracking-[0.3em] overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl"
+                className="w-full py-4 bg-paper text-asphalt rounded-[1.25rem] font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-paper/90 shadow-xl cursor-pointer"
               >
-                <span className="relative z-10">Đã hiểu</span>
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
+                Đã hiểu
               </button>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-
-      <style jsx global>{`
-        @keyframes shimmer {
-          100% {
-            transform: translateX(100%);
-          }
-        }
-      `}</style>
     </div>
   );
 }
