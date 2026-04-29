@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   TicketPercent,
   TrendingUp,
-  Users,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 

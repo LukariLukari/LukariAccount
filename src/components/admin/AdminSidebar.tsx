@@ -20,6 +20,7 @@ import { signOut } from "next-auth/react";
 export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Tổng quan", href: "/admin" },
   { icon: ShoppingBag, label: "Sản phẩm", href: "/admin/products" },
+  { icon: TicketPercent, label: "Đơn hàng", href: "/admin/orders" },
   { icon: LayoutGrid, label: "Loại sản phẩm", href: "/admin/categories" },
   { icon: ImageIcon, label: "Banner", href: "/admin/banners" },
   { icon: BookOpen, label: "Tài nguyên", href: "/admin/resources" },
