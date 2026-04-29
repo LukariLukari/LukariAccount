@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isRecord } from "@/lib/api-validation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 function makeOrderCode() {
   const date = new Date();
@@ -26,6 +28,7 @@ function getPlanPrices(plans: unknown) {
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
     if (!isRecord(body)) {
       return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
@@ -157,6 +160,7 @@ export async function POST(request: Request) {
             total,
             couponCode: appliedCoupon?.code,
             customerNote,
+            userId: session?.user?.id || null,
             items: {
               create: validItems.map((item) => ({
                 productId: item.id,

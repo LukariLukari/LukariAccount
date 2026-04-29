@@ -46,6 +46,7 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt
   accounts      Account[]
   sessions      Session[]
+  orders        Order[]
 }
 
 model Product {
@@ -97,6 +98,8 @@ model Order {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   items          OrderItem[]
+  userId         String?
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
   @@index([status])

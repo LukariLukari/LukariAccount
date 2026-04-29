@@ -85,10 +85,10 @@ export default function AuthStatus() {
                 </Link>
               )}
 
-              <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-paper/5 transition-colors group text-left">
+              <Link href="/profile" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-paper/5 transition-colors group text-left">
                 <Settings className="w-4 h-4 text-paper/20 group-hover:text-paper transition-colors" />
-                <span className="text-[11px] font-akina font-bold text-paper/60 group-hover:text-paper">Cài đặt</span>
-              </button>
+                <span className="text-[11px] font-akina font-bold text-paper/60 group-hover:text-paper">Tài khoản & Đơn hàng</span>
+              </Link>
 
               <button 
                 onClick={() => signOut()}
