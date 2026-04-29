@@ -258,7 +258,7 @@ export default function CategoryAssetsPage() {
               
               <button 
                 onClick={() => setAlertModal({ ...alertModal, isOpen: false })}
-                className="w-full py-4 bg-paper text-asphalt rounded-[1.25rem] font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-paper/90 shadow-xl cursor-pointer"
+                className="w-full py-4 bg-paper !text-asphalt rounded-[1.25rem] font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-paper/90 shadow-xl cursor-pointer"
               >
                 Đã hiểu
               </button>

@@ -387,7 +387,7 @@ export default function AdminOrdersPage() {
                  </div>
                  <button 
                   onClick={() => setSelectedOrder(null)}
-                  className="px-6 py-2.5 rounded-xl bg-paper text-asphalt font-bold text-[10px] uppercase tracking-widest transition-all hover:scale-105"
+                  className="px-6 py-2.5 rounded-xl bg-paper !text-asphalt font-bold text-[10px] uppercase tracking-widest transition-all hover:scale-105"
                  >
                   Đóng
                  </button>
