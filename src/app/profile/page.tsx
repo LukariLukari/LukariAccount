@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { User, Package, Clock, CheckCircle, AlertCircle, CreditCard, ExternalLink, ShoppingCart, LucideIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
+import { ensureWallet, getTopUpRequests, getWalletTransactions } from "@/lib/wallet";
+import WalletPanel from "@/components/WalletPanel";
 
 export const metadata = {
   title: "Thông tin cá nhân | LukariAccount",
@@ -25,7 +28,8 @@ export default async function ProfilePage() {
     redirect("/auth/login?callbackUrl=/profile");
   }
 
-  const [user, orders] = await Promise.all([
+  const wallet = await ensureWallet(session.user.id);
+  const [user, orders, walletTransactions, topUpRequests] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: { name: true, email: true, image: true, createdAt: true },
@@ -35,6 +39,8 @@ export default async function ProfilePage() {
       orderBy: { createdAt: "desc" },
       include: { items: true },
     }),
+    getWalletTransactions(session.user.id, 20),
+    getTopUpRequests(session.user.id, 10),
   ]);
 
   if (!user) {
@@ -54,9 +60,11 @@ export default async function ProfilePage() {
           <div className="bg-paper/5 border border-paper/10 rounded-[2.5rem] p-8 shadow-2xl lg:sticky lg:top-32">
             <div className="flex flex-col items-center text-center">
               {user.image ? (
-                <img 
-                  src={user.image} 
-                  alt={user.name || "User"} 
+                <Image
+                  src={user.image}
+                  alt={user.name || "User"}
+                  width={96}
+                  height={96}
                   className="w-24 h-24 rounded-full object-cover border-4 border-paper/10 mb-4"
                 />
               ) : (
@@ -84,6 +92,14 @@ export default async function ProfilePage() {
 
           {/* Order History */}
           <div className="lg:col-span-2 space-y-6">
+            <WalletPanel
+              initialData={{
+                wallet,
+                transactions: walletTransactions,
+                topUpRequests,
+              }}
+            />
+
             <h2 className="text-xl md:text-2xl font-black uppercase tracking-tight mb-6">Lịch sử đơn hàng</h2>
 
             {orders.length === 0 ? (

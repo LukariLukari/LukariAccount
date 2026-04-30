@@ -7,10 +7,6 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   CheckCircle2,
-  Clock3,
-  Copy,
-  Headphones,
-  PackageCheck,
   RefreshCcw,
   Share2,
   Shield,
@@ -168,12 +164,13 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     }
   };
 
-  const handleSubmitOrder = async (note: string) => {
+  const submitOrder = async (note: string, paymentMethod: "bank" | "wallet") => {
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         createOrder: true,
+        paymentMethod,
         items: [
           {
             productId: product.id,
@@ -191,6 +188,9 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
     }
     return { orderCode: data.order?.orderCode };
   };
+
+  const handleSubmitOrder = (note: string) => submitOrder(note, "bank");
+  const handleSubmitWalletOrder = (note: string) => submitOrder(note, "wallet");
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
@@ -413,7 +413,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
-              className="w-full min-w-0 lg:flex-[0.7] bg-paper/5 backdrop-blur-3xl rounded-[1.5rem] lg:rounded-[1.75rem] p-4 lg:p-5 relative overflow-hidden shadow-2xl border border-paper/10 flex flex-col gap-5"
+              className="w-full min-w-0 lg:flex-[0.7] lg:self-start lg:max-h-[min(760px,calc(100vh-9rem))] lg:overflow-y-auto lg:overscroll-contain scrollbar-hide bg-paper/5 backdrop-blur-3xl rounded-[1.5rem] lg:rounded-[1.75rem] p-4 lg:p-5 relative overflow-hidden shadow-2xl border border-paper/10 flex flex-col gap-5"
             >
               {visibleSideContentOrder.map((sectionId) => {
                 if (sectionId === "warranty") {
@@ -580,6 +580,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
         plan={selectedPlan}
         quantity={quantity}
         onSubmitOrder={handleSubmitOrder}
+        onSubmitWalletOrder={handleSubmitWalletOrder}
       />
     </div>
   );

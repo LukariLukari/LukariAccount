@@ -3,17 +3,24 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Search, ArrowLeft } from "lucide-react";
+import { ArrowRight, Search, ArrowLeft, Wallet, Zap } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
+import type { Product } from "@/lib/data";
+
+interface Banner {
+  image: string;
+  title?: string | null;
+  link?: string | null;
+}
 
 export default function HomeClient({
   initialProducts,
   banners,
   categories: initialCategories,
 }: {
-  initialProducts: any[];
-  banners: any[];
+  initialProducts: Product[];
+  banners: Banner[];
   categories: string[];
 }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -137,6 +144,36 @@ export default function HomeClient({
           )}
         </section>
       </div>
+
+      {!searchQuery && (
+        <section className="mt-8 overflow-hidden rounded-[1.75rem] border border-[#FF8C00]/20 bg-[#FF8C00]/10 p-5 shadow-[0_22px_60px_rgba(255,140,0,0.08)] md:mt-10 md:p-6">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FF8C00] text-asphalt shadow-xl">
+                <Wallet className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="mb-1 text-[10px] font-montserrat font-bold uppercase tracking-[0.24em] text-[#FFB45C]">
+                  Ví Lukari
+                </p>
+                <h2 className="text-lg font-montserrat font-bold uppercase tracking-tight text-paper md:text-2xl">
+                  Nạp tiền trước, mua hàng nhanh hơn
+                </h2>
+                <p className="mt-2 max-w-2xl text-xs font-bold leading-relaxed text-paper/45 md:text-sm">
+                  Chủ động số dư trong tài khoản để thanh toán sản phẩm ngay khi cần, không phải gửi xác nhận chuyển khoản từng đơn.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/profile"
+              className="ui-btn ui-btn-primary self-start rounded-full px-6 py-3 md:self-center"
+            >
+              <Zap className="h-4 w-4" />
+              Nạp tiền ngay
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Best Sellers Section - Moved to top for better visibility */}
       {initialProducts.filter(p => p.isBestSeller).length > 0 && (

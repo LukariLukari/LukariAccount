@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getJsonFromR2, uploadJsonToR2 } from "@/lib/r2-json";
+import { uploadJsonToR2 } from "@/lib/r2-json";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
+import { CATEGORY_CONFIG_TAG, getCategoryConfig } from "@/lib/storefront";
 
 export async function GET(req: Request) {
   try {
@@ -21,23 +23,13 @@ export async function GET(req: Request) {
       return NextResponse.json(dbCategories);
     }
 
-    // Get config from R2
-    const config = await getJsonFromR2("categories_config.json");
-    
-    let categories: string[] = [];
-    
-    if (Array.isArray(config)) {
-      categories = config;
-    } else if (config && typeof config === 'object') {
-      // Transition from old object format
-      categories = Object.keys(config);
-    } else {
-      // Default initial categories
-      categories = ["AI", "Office", "Design", "OS", "Video", "Combo iOS"];
-    }
-
-    return NextResponse.json(categories);
-  } catch (error) {
+    const categories = await getCategoryConfig();
+    return NextResponse.json(categories, {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400",
+      },
+    });
+  } catch {
     return NextResponse.json({ error: "Failed to fetch category config" }, { status: 500 });
   }
 }
@@ -55,8 +47,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
     await uploadJsonToR2("categories_config.json", categories);
+    revalidateTag(CATEGORY_CONFIG_TAG, "max");
     return NextResponse.json({ message: "Categories synced to R2" });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to save to R2" }, { status: 500 });
   }
 }

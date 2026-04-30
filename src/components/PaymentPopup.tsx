@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Copy, Check, MessageSquare } from "lucide-react";
+import { X, Copy, Check, MessageSquare, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/lib/data";
@@ -20,6 +20,7 @@ interface PaymentPopupProps {
     price: number;
   }>;
   onSubmitOrder?: (note: string) => Promise<{ orderCode?: string } | void>;
+  onSubmitWalletOrder?: (note: string) => Promise<{ orderCode?: string } | void>;
 }
 
 interface BankInfo {
@@ -54,14 +55,25 @@ function renderTemplate(template: string | undefined, fallback: string, values: 
   return source.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
 }
 
-export default function PaymentPopup({ isOpen, onClose, product, plan, quantity, lineItems, onSubmitOrder }: PaymentPopupProps) {
+export default function PaymentPopup({
+  isOpen,
+  onClose,
+  product,
+  plan,
+  quantity,
+  lineItems,
+  onSubmitOrder,
+  onSubmitWalletOrder,
+}: PaymentPopupProps) {
   const [note, setNote] = useState("");
   const [copied, setCopied] = useState(false);
   const [copiedOrder, setCopiedOrder] = useState(false);
   const [bankInfo, setBankInfo] = useState<BankInfo | null>(null);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+  const [isSubmittingWalletOrder, setIsSubmittingWalletOrder] = useState(false);
   const [submittedOrderCode, setSubmittedOrderCode] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const totalPrice = plan.price * quantity;
   const itemLines = lineItems?.length
     ? lineItems
@@ -74,6 +86,12 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity,
       fetch("/api/settings")
         .then(res => res.json())
         .then(data => setBankInfo(data))
+        .catch(() => {});
+      fetch("/api/wallet")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.wallet) setWalletBalance(Number(data.wallet.balance) || 0);
+        })
         .catch(() => {});
     }
   }, [isOpen]);
@@ -136,6 +154,20 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity,
       setSubmitError(error instanceof Error ? error.message : "Không thể xác nhận đơn hàng");
     } finally {
       setIsSubmittingOrder(false);
+    }
+  };
+
+  const handleSubmitWalletOrder = async () => {
+    if (!onSubmitWalletOrder || submittedOrderCode) return;
+    setIsSubmittingWalletOrder(true);
+    setSubmitError("");
+    try {
+      const result = await onSubmitWalletOrder(note);
+      setSubmittedOrderCode(result?.orderCode || plan.label);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Không thể thanh toán bằng số dư");
+    } finally {
+      setIsSubmittingWalletOrder(false);
     }
   };
 
@@ -328,7 +360,7 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity,
                   {copiedOrder ? "Đã copy nội dung đơn" : "Copy nội dung đơn"}
                 </button>
 
-                {onSubmitOrder && (
+                {(onSubmitOrder || onSubmitWalletOrder) && (
                   <div className="space-y-3 rounded-2xl border border-paper/10 bg-asphalt/30 p-4">
                     {submittedOrderCode ? (
                       <div className="rounded-xl border border-green-400/20 bg-green-400/10 p-4 text-center">
@@ -339,17 +371,50 @@ export default function PaymentPopup({ isOpen, onClose, product, plan, quantity,
                       </div>
                     ) : (
                       <>
+                        {onSubmitWalletOrder && (
+                          <div className="rounded-xl border border-[#FF8C00]/20 bg-[#FF8C00]/10 p-3">
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2 text-[9px] font-montserrat font-bold uppercase tracking-[0.18em] text-[#FFB45C]">
+                                <Wallet className="h-4 w-4" />
+                                Số dư tài khoản
+                              </div>
+                              <span className="text-xs font-montserrat font-bold text-paper">
+                                {walletBalance === null ? "..." : `${formatPrice(walletBalance)}₫`}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleSubmitWalletOrder}
+                              disabled={
+                                isSubmittingWalletOrder ||
+                                walletBalance === null ||
+                                walletBalance < totalPrice
+                              }
+                              className="w-full rounded-xl !bg-[#FF8C00] !text-asphalt px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl"
+                            >
+                              {isSubmittingWalletOrder ? "Đang thanh toán..." : "Thanh toán bằng số dư"}
+                            </button>
+                            {walletBalance !== null && walletBalance < totalPrice && (
+                              <p className="mt-2 text-[9px] font-bold uppercase tracking-widest text-red-300">
+                                Số dư chưa đủ, vui lòng nạp thêm trong tài khoản.
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         <p className="text-paper/80 text-[11px] leading-relaxed font-bold">
                           Chỉ bấm xác nhận sau khi bạn đã chuyển khoản hoặc đã gửi thông tin đơn cho shop.
                         </p>
-                        <button
-                          type="button"
-                          onClick={handleSubmitOrder}
-                          disabled={isSubmittingOrder}
-                          className="w-full rounded-xl !bg-[#efede3] !text-[#302f2c] px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl"
-                        >
-                          {isSubmittingOrder ? "Đang ghi nhận..." : "Xác nhận đã gửi đơn"}
-                        </button>
+                        {onSubmitOrder && (
+                          <button
+                            type="button"
+                            onClick={handleSubmitOrder}
+                            disabled={isSubmittingOrder}
+                            className="w-full rounded-xl !bg-[#efede3] !text-[#302f2c] px-4 py-3 text-[10px] font-montserrat font-bold uppercase tracking-widest transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed shadow-xl"
+                          >
+                            {isSubmittingOrder ? "Đang ghi nhận..." : "Xác nhận đã gửi đơn"}
+                          </button>
+                        )}
                       </>
                     )}
                     {submitError && (

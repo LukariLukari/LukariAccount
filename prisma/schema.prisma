@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 generator client {
   provider = "prisma-client-js"
 }
@@ -48,6 +47,9 @@ model User {
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
+  wallet        Wallet?
+  walletTransactions WalletTransaction[]
+  topUpRequests TopUpRequest[]
 }
 
 model Product {
@@ -74,6 +76,10 @@ model Product {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   orderItems    OrderItem[]
+
+  @@index([isHidden, createdAt])
+  @@index([isHidden, category])
+  @@index([isHidden, isBestSeller, createdAt])
 }
 
 model Coupon {
@@ -96,6 +102,7 @@ model Order {
   total          Float
   couponCode     String?
   customerNote   String?
+  paymentMethod  PaymentMethod @default(BANK_TRANSFER)
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   items          OrderItem[]
@@ -104,6 +111,53 @@ model Order {
 
   @@index([createdAt])
   @@index([status])
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([updatedAt])
+}
+
+model WalletTransaction {
+  id            String                @id @default(cuid())
+  userId        String
+  type          WalletTransactionType
+  amount        Float
+  balanceBefore Float
+  balanceAfter  Float
+  referenceType String?
+  referenceId   String?
+  note          String?
+  createdAt     DateTime              @default(now())
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([referenceType, referenceId])
+}
+
+model TopUpRequest {
+  id              String      @id @default(cuid())
+  userId          String
+  amount          Float
+  code            String      @unique
+  transferContent String
+  status          TopUpStatus @default(PENDING)
+  confirmedAt     DateTime?
+  cancelledAt     DateTime?
+  expiresAt        DateTime?
+  adminNote        String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
 }
 
 model OrderItem {
@@ -191,134 +245,22 @@ enum OrderStatus {
   FULFILLED
   CANCELLED
 }
-=======
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-generator client {
-  provider = "prisma-client-js"
+enum PaymentMethod {
+  BANK_TRANSFER
+  WALLET
 }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+enum WalletTransactionType {
+  TOP_UP
+  PURCHASE
+  REFUND
+  ADJUSTMENT
 }
 
-enum Role {
-  USER
-  ADMIN
+enum TopUpStatus {
+  PENDING
+  PAID
+  CANCELLED
+  EXPIRED
 }
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role      @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt @default(now())
-}
-
-model Product {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  name          String
-  description   String
-  price         Float
-  originalPrice Float?
-  billingCycle  String
-  rating        Float    @default(5.0)
-  downloads     String   @default("0+")
-  image         String
-  category      String
-  isBestSeller  Boolean  @default(false)
-  isFeatured    Boolean  @default(false)
-  plans         Json?    // Array of {label: string, price: number, cycle: string}
-  details       String?  // Detailed description (Long text/Markdown)
-  features      Json?    // Array of strings
-  instructions  Json?    // Array of steps
-  warranty      String?  // Warranty policy description
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model Coupon {
-  id              String   @id @default(cuid())
-  code            String   @unique
-  discountPercent Int
-  expiresAt       DateTime
-  usageLimit      Int      @default(100)
-  usageCount      Int      @default(0)
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model SiteSettings {
-  id        String   @id @default("main")
-  phone     String   @default("")
-  email     String   @default("")
-  address   String   @default("")
-  zaloLink  String   @default("")
-  facebookLink  String @default("")
-  tiktokLink    String @default("")
-  telegramLink  String @default("")
-  bankName      String @default("")
-  bankAccount   String @default("")
-  bankOwner     String @default("")
-  qrCodeUrl     String @default("")
-  resourceLinks Json?
-  updatedAt DateTime @updatedAt
-}
-
-model Banner {
-  id        String   @id @default(cuid())
-  title     String?
-  subtitle  String?
-  image     String
-  link      String?
-  active    Boolean  @default(true)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
->>>>>>> Stashed changes

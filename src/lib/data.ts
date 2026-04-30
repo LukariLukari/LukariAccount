@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 export interface Product {
   id: string;
   slug: string;
@@ -26,30 +25,3 @@ export interface Product {
 
 // Hardcoded products removed. Use Database.
 export const products: Product[] = []; 
-=======
-export interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number | null;
-  billingCycle: string;
-  rating: number;
-  downloads: string;
-  image: string;
-  category: string;
-  isBestSeller?: boolean;
-  isFeatured?: boolean;
-  plans?: any;
-  details?: string | null;
-  features?: any;
-  instructions?: any;
-  warranty?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// Hardcoded products removed. Use Database.
-export const products: Product[] = []; 
->>>>>>> Stashed changes

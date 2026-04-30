@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isRecord } from "@/lib/api-validation";
@@ -63,6 +62,14 @@ export async function POST(request: Request) {
       typeof body.couponCode === "string" ? body.couponCode.trim().toUpperCase() : "";
     const shouldCreateOrder = body.createOrder === true;
     const customerNote = typeof body.note === "string" ? body.note.trim() : "";
+    const paymentMethod = body.paymentMethod === "wallet" ? "WALLET" : "BANK_TRANSFER";
+
+    if (paymentMethod === "WALLET" && !session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: "Vui lòng đăng nhập để thanh toán bằng số dư" },
+        { status: 401 }
+      );
+    }
 
     const products = await prisma.product.findMany({
       where: {
@@ -153,9 +160,40 @@ export async function POST(request: Request) {
 
     if (shouldCreateOrder) {
       order = await prisma.$transaction(async (tx) => {
+        let walletPayment:
+          | {
+              balanceBefore: number;
+              balanceAfter: number;
+            }
+          | null = null;
+
+        if (paymentMethod === "WALLET") {
+          const walletRows = await tx.$queryRaw<Array<{ balance: number }>>`
+            INSERT INTO "Wallet" ("id", "userId", "balance", "createdAt", "updatedAt")
+            VALUES (${crypto.randomUUID()}, ${session!.user.id}, 0, NOW(), NOW())
+            ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = "Wallet"."updatedAt"
+            RETURNING "balance"
+          `;
+          const wallet = walletRows[0];
+
+          if (wallet.balance < total) {
+            throw new Error("INSUFFICIENT_BALANCE");
+          }
+
+          const balanceBefore = wallet.balance;
+          const balanceAfter = balanceBefore - total;
+          await tx.$executeRaw`
+            UPDATE "Wallet"
+            SET "balance" = ${balanceAfter}, "updatedAt" = NOW()
+            WHERE "userId" = ${session!.user.id}
+          `;
+          walletPayment = { balanceBefore, balanceAfter };
+        }
+
         const createdOrder = await tx.order.create({
           data: {
             orderCode: makeOrderCode(),
+            status: paymentMethod === "WALLET" ? "PAID" : "PENDING",
             subtotal,
             discountAmount,
             total,
@@ -180,6 +218,40 @@ export async function POST(request: Request) {
           },
         });
 
+        if (walletPayment) {
+          await tx.$executeRaw`
+            UPDATE "Order"
+            SET "paymentMethod" = 'WALLET'::"PaymentMethod"
+            WHERE "id" = ${createdOrder.id}
+          `;
+          await tx.$executeRaw`
+            INSERT INTO "WalletTransaction" (
+              "id",
+              "userId",
+              "type",
+              "amount",
+              "balanceBefore",
+              "balanceAfter",
+              "referenceType",
+              "referenceId",
+              "note",
+              "createdAt"
+            )
+            VALUES (
+              ${crypto.randomUUID()},
+              ${session!.user.id},
+              'PURCHASE'::"WalletTransactionType",
+              ${-total},
+              ${walletPayment.balanceBefore},
+              ${walletPayment.balanceAfter},
+              'Order',
+              ${createdOrder.id},
+              ${`Thanh toán đơn ${createdOrder.orderCode}`},
+              NOW()
+            )
+          `;
+        }
+
         if (appliedCoupon) {
           await tx.coupon.update({
             where: { code: appliedCoupon.code },
@@ -202,25 +274,12 @@ export async function POST(request: Request) {
       message: "Checkout summary created successfully",
     });
   } catch (error) {
+    if (error instanceof Error && error.message === "INSUFFICIENT_BALANCE") {
+      return NextResponse.json(
+        { success: false, error: "Số dư không đủ để thanh toán đơn hàng" },
+        { status: 400 }
+      );
+    }
     return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
   }
 }
-=======
-import { NextResponse } from "next/server";
-
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { productId } = body;
-    
-    // Simulate Stripe checkout session creation
-    return NextResponse.json({ 
-      success: true, 
-      url: `/checkout/success?session_id=mock_session_${Date.now()}&product_id=${productId}`,
-      message: "Checkout session created successfully"
-    });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
-  }
-}
->>>>>>> Stashed changes
