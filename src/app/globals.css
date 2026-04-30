@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 @import "tailwindcss";
 
 @theme {
@@ -156,3 +157,62 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+=======
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", sans-serif;
+  --font-display: "Montserrat", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-akina: "Montserrat", sans-serif; /* Fallback alias */
+  
+  --radius: 2rem;
+  
+  --color-asphalt: #302f2c;
+  --color-paper: #efede3;
+  
+  --color-background: var(--color-asphalt);
+  --color-foreground: var(--color-paper);
+  
+  /* Primary & CTA: High Contrast Paper on Asphalt */
+  --color-primary: var(--color-paper);
+  --color-primary-foreground: var(--color-asphalt);
+  
+  --color-border: #efede320;
+}
+
+@layer base {
+  :root {
+    --asphalt: #302f2c;
+    --paper: #efede3;
+    --background: var(--asphalt);
+    --foreground: var(--paper);
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
+
+  button, input, optgroup, select, textarea {
+    padding: 0;
+    font-size: 100%;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom scrollbar hiding for clean UI */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+>>>>>>> Stashed changes
