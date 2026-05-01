@@ -20,21 +20,9 @@ export async function PATCH(
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      const topUpRows = await tx.$queryRaw<
-        Array<{
-          id: string;
-          userId: string;
-          amount: number;
-          code: string;
-          status: string;
-        }>
-      >`
-        SELECT "id", "userId", "amount", "code", "status"::text AS "status"
-        FROM "TopUpRequest"
-        WHERE "id" = ${id}
-        LIMIT 1
-      `;
-      const topUpRequest = topUpRows[0];
+      const topUpRequest = await tx.topUpRequest.findUnique({
+        where: { id },
+      });
 
       if (!topUpRequest) {
         throw new Error("NOT_FOUND");
@@ -45,109 +33,74 @@ export async function PATCH(
       }
 
       if (action === "cancel") {
-        const rows = await tx.$queryRaw<Array<Record<string, unknown>>>`
-          UPDATE "TopUpRequest"
-          SET
-            "status" = 'CANCELLED'::"TopUpStatus",
-            "cancelledAt" = NOW(),
-            "adminNote" = ${adminNote},
-            "updatedAt" = NOW()
-          WHERE "id" = ${id}
-          RETURNING
-            "id",
-            "userId",
-            "amount",
-            "code",
-            "transferContent",
-            "status"::text AS "status",
-            "confirmedAt",
-            "cancelledAt",
-            "expiresAt",
-            "adminNote",
-            "createdAt",
-            "updatedAt"
-        `;
-        return rows[0];
+        return await tx.topUpRequest.update({
+          where: { id },
+          data: {
+            status: "CANCELLED",
+            cancelledAt: new Date(),
+            adminNote,
+          },
+        });
       }
 
-      const walletRows = await tx.$queryRaw<Array<{ balance: number }>>`
-        INSERT INTO "Wallet" ("id", "userId", "balance", "createdAt", "updatedAt")
-        VALUES (${crypto.randomUUID()}, ${topUpRequest.userId}, 0, NOW(), NOW())
-        ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = "Wallet"."updatedAt"
-        RETURNING "balance"
-      `;
-      const wallet = walletRows[0];
-      const balanceBefore = wallet.balance;
-      const balanceAfter = balanceBefore + topUpRequest.amount;
+      // Xử lý xác nhận nạp tiền
+      const userId = topUpRequest.userId;
+      const amount = topUpRequest.amount;
 
-      await tx.$executeRaw`
-        UPDATE "Wallet"
-        SET "balance" = ${balanceAfter}, "updatedAt" = NOW()
-        WHERE "userId" = ${topUpRequest.userId}
-      `;
+      // Đảm bảo ví tồn tại (sử dụng upsert để nguyên tử)
+      const wallet = await tx.wallet.upsert({
+        where: { userId },
+        create: {
+          userId,
+          balance: amount,
+        },
+        update: {
+          balance: { increment: amount },
+        },
+      });
 
-      const paidRows = await tx.$queryRaw<Array<Record<string, unknown>>>`
-        UPDATE "TopUpRequest"
-        SET
-          "status" = 'PAID'::"TopUpStatus",
-          "confirmedAt" = NOW(),
-          "adminNote" = ${adminNote},
-          "updatedAt" = NOW()
-        WHERE "id" = ${id}
-        RETURNING
-          "id",
-          "userId",
-          "amount",
-          "code",
-          "transferContent",
-          "status"::text AS "status",
-          "confirmedAt",
-          "cancelledAt",
-          "expiresAt",
-          "adminNote",
-          "createdAt",
-          "updatedAt"
-      `;
-      const paidTopUpRequest = paidRows[0];
+      const balanceAfter = wallet.balance;
+      const balanceBefore = balanceAfter - amount;
 
-      await tx.$executeRaw`
-        INSERT INTO "WalletTransaction" (
-          "id",
-          "userId",
-          "type",
-          "amount",
-          "balanceBefore",
-          "balanceAfter",
-          "referenceType",
-          "referenceId",
-          "note",
-          "createdAt"
-        )
-        VALUES (
-          ${crypto.randomUUID()},
-          ${topUpRequest.userId},
-          'TOP_UP'::"WalletTransactionType",
-          ${topUpRequest.amount},
-          ${balanceBefore},
-          ${balanceAfter},
-          'TopUpRequest',
-          ${topUpRequest.id},
-          ${adminNote || `Nạp tiền ${topUpRequest.code}`},
-          NOW()
-        )
-      `;
+      // Cập nhật trạng thái yêu cầu nạp
+      const updatedTopUpRequest = await tx.topUpRequest.update({
+        where: { id },
+        data: {
+          status: "PAID",
+          confirmedAt: new Date(),
+          adminNote,
+        },
+      });
 
-      return paidTopUpRequest;
+      // Ghi nhận giao dịch ví
+      await tx.walletTransaction.create({
+        data: {
+          userId,
+          type: "TOP_UP",
+          amount,
+          balanceBefore,
+          balanceAfter,
+          referenceType: "TopUpRequest",
+          referenceId: id,
+          note: adminNote || `Nạp tiền ${topUpRequest.code}`,
+        },
+      });
+
+      return updatedTopUpRequest;
     });
 
     return NextResponse.json({ topUpRequest: result });
   } catch (error) {
+    console.error("Admin topup update error:", error);
     if (error instanceof Error && error.message === "NOT_FOUND") {
       return NextResponse.json({ error: "Top up request not found" }, { status: 404 });
     }
     if (error instanceof Error && error.message === "ALREADY_HANDLED") {
       return NextResponse.json({ error: "Yêu cầu nạp đã được xử lý" }, { status: 400 });
     }
-    return NextResponse.json({ error: "Failed to update top up request" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to update top up request" },
+      { status: 500 }
+    );
   }
 }

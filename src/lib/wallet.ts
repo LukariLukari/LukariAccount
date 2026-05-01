@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { generateId } from "@/lib/utils";
 
 export const MIN_TOP_UP_AMOUNT = 10000;
 export const MAX_TOP_UP_AMOUNT = 50000000;
@@ -73,15 +74,12 @@ export async function ensureWallet(userId: string) {
     throw new WalletUserNotFoundError(userId);
   }
 
-  const id =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `wallet_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  const id = generateId();
 
   const rows = await prisma.$queryRaw<WalletRecord[]>`
     INSERT INTO "Wallet" ("id", "userId", "balance", "createdAt", "updatedAt")
     VALUES (${id}, ${userId}, 0, NOW(), NOW())
-    ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = "Wallet"."updatedAt"
+    ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = NOW()
     RETURNING "id", "userId", "balance", "createdAt", "updatedAt"
   `;
 

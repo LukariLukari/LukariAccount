@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     const body = await request.json();
     if (!isRecord(body)) {
-      return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Dữ liệu yêu cầu không hợp lệ" }, { status: 400 });
     }
 
     const items = Array.isArray(body.items)
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         : [];
 
     if (items.length === 0) {
-      return NextResponse.json({ success: false, error: "Cart is empty" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Giỏ hàng trống" }, { status: 400 });
     }
 
     const normalizedItems = items
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       .filter((item) => item.productId);
 
     if (normalizedItems.length === 0) {
-      return NextResponse.json({ success: false, error: "No valid checkout items" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Không có sản phẩm hợp lệ để thanh toán" }, { status: 400 });
     }
 
     const couponCode =
@@ -83,29 +83,32 @@ export async function POST(request: Request) {
     const productById = new Map(products.map((product) => [product.id, product]));
     const checkedItems = normalizedItems.map((item) => {
       const product = productById.get(item.productId);
-      const allowedPrices = [product?.price, ...getPlanPrices(product?.plans)].filter(
+      if (!product) return null;
+
+      const allowedPrices = [product.price, ...getPlanPrices(product.plans)].filter(
         (price): price is number => typeof price === "number"
       );
+      
       const unitPrice =
         Number.isFinite(item.unitPrice) && allowedPrices.some((price) => price === item.unitPrice)
           ? item.unitPrice
-          : product?.price;
-      const productName = item.planLabel ? `${product?.name} (${item.planLabel})` : product?.name;
-      return product
-        ? {
-            id: product.id,
-            slug: product.slug,
-            name: productName || product.name,
-            price: unitPrice || product.price,
-            quantity: item.quantity,
-            total: (unitPrice || product.price) * item.quantity,
-          }
-        : null;
+          : product.price;
+          
+      const productName = item.planLabel ? `${product.name} (${item.planLabel})` : product.name;
+      
+      return {
+        id: product.id,
+        slug: product.slug,
+        name: productName,
+        price: unitPrice,
+        quantity: item.quantity,
+        total: unitPrice * item.quantity,
+      };
     });
 
     if (checkedItems.some((item) => !item)) {
       return NextResponse.json(
-        { success: false, error: "Some products are unavailable" },
+        { success: false, error: "Một số sản phẩm không còn khả dụng" },
         { status: 400 }
       );
     }
@@ -132,15 +135,15 @@ export async function POST(request: Request) {
       });
 
       if (!coupon || !coupon.isActive) {
-        return NextResponse.json({ success: false, error: "Coupon is not active" }, { status: 400 });
+        return NextResponse.json({ success: false, error: "Mã giảm giá không hoạt động" }, { status: 400 });
       }
 
       if (coupon.expiresAt.getTime() < Date.now()) {
-        return NextResponse.json({ success: false, error: "Coupon has expired" }, { status: 400 });
+        return NextResponse.json({ success: false, error: "Mã giảm giá đã hết hạn" }, { status: 400 });
       }
 
       if (coupon.usageCount >= coupon.usageLimit) {
-        return NextResponse.json({ success: false, error: "Coupon usage limit reached" }, { status: 400 });
+        return NextResponse.json({ success: false, error: "Mã giảm giá đã hết lượt sử dụng" }, { status: 400 });
       }
 
       appliedCoupon = {
@@ -161,115 +164,107 @@ export async function POST(request: Request) {
 
     if (shouldCreateOrder) {
       order = await prisma.$transaction(async (tx) => {
-        let walletPayment:
-          | {
-              balanceBefore: number;
-              balanceAfter: number;
-            }
-          | null = null;
-
         if (paymentMethod === "WALLET") {
-          const existingUser = await tx.user.findUnique({
-            where: { id: session!.user.id },
-            select: { id: true },
+          const userId = session!.user.id;
+          const wallet = await tx.wallet.findUnique({
+            where: { userId },
           });
 
-          if (!existingUser) {
-            throw new WalletUserNotFoundError(session!.user.id);
-          }
-
-          const walletRows = await tx.$queryRaw<Array<{ balance: number }>>`
-            INSERT INTO "Wallet" ("id", "userId", "balance", "createdAt", "updatedAt")
-            VALUES (${crypto.randomUUID()}, ${session!.user.id}, 0, NOW(), NOW())
-            ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = "Wallet"."updatedAt"
-            RETURNING "balance"
-          `;
-          const wallet = walletRows[0];
-
-          if (wallet.balance < total) {
+          if (!wallet || wallet.balance < total) {
             throw new Error("INSUFFICIENT_BALANCE");
           }
 
+          await tx.wallet.update({
+            where: { userId },
+            data: {
+              balance: { decrement: total },
+            },
+          });
+
           const balanceBefore = wallet.balance;
           const balanceAfter = balanceBefore - total;
-          await tx.$executeRaw`
-            UPDATE "Wallet"
-            SET "balance" = ${balanceAfter}, "updatedAt" = NOW()
-            WHERE "userId" = ${session!.user.id}
-          `;
-          walletPayment = { balanceBefore, balanceAfter };
-        }
 
-        const createdOrder = await tx.order.create({
-          data: {
-            orderCode: makeOrderCode(),
-            status: paymentMethod === "WALLET" ? "PAID" : "PENDING",
-            subtotal,
-            discountAmount,
-            total,
-            couponCode: appliedCoupon?.code,
-            customerNote,
-            userId: session?.user?.id || null,
-            items: {
-              create: validItems.map((item) => ({
-                productId: item.id,
-                productName: item.name,
-                productSlug: item.slug,
-                unitPrice: item.price,
-                quantity: item.quantity,
-                total: item.total,
-              })),
+          const createdOrder = await tx.order.create({
+            data: {
+              orderCode: makeOrderCode(),
+              status: "PAID",
+              paymentMethod: "WALLET",
+              subtotal,
+              discountAmount,
+              total,
+              couponCode: appliedCoupon?.code,
+              customerNote,
+              userId,
+              items: {
+                create: validItems.map((item) => ({
+                  productId: item.id,
+                  productName: item.name,
+                  productSlug: item.slug,
+                  unitPrice: item.price,
+                  quantity: item.quantity,
+                  total: item.total,
+                })),
+              },
             },
-          },
-          select: {
-            id: true,
-            orderCode: true,
-            status: true,
-          },
-        });
-
-        if (walletPayment) {
-          await tx.$executeRaw`
-            UPDATE "Order"
-            SET "paymentMethod" = 'WALLET'::"PaymentMethod"
-            WHERE "id" = ${createdOrder.id}
-          `;
-          await tx.$executeRaw`
-            INSERT INTO "WalletTransaction" (
-              "id",
-              "userId",
-              "type",
-              "amount",
-              "balanceBefore",
-              "balanceAfter",
-              "referenceType",
-              "referenceId",
-              "note",
-              "createdAt"
-            )
-            VALUES (
-              ${crypto.randomUUID()},
-              ${session!.user.id},
-              'PURCHASE'::"WalletTransactionType",
-              ${-total},
-              ${walletPayment.balanceBefore},
-              ${walletPayment.balanceAfter},
-              'Order',
-              ${createdOrder.id},
-              ${`Thanh toán đơn ${createdOrder.orderCode}`},
-              NOW()
-            )
-          `;
-        }
-
-        if (appliedCoupon) {
-          await tx.coupon.update({
-            where: { code: appliedCoupon.code },
-            data: { usageCount: { increment: 1 } },
+            select: { id: true, orderCode: true, status: true },
           });
-        }
 
-        return createdOrder;
+          await tx.walletTransaction.create({
+            data: {
+              userId,
+              type: "PURCHASE",
+              amount: -total,
+              balanceBefore,
+              balanceAfter,
+              referenceType: "Order",
+              referenceId: createdOrder.id,
+              note: `Thanh toán đơn ${createdOrder.orderCode}`,
+            },
+          });
+
+          if (appliedCoupon) {
+            await tx.coupon.update({
+              where: { code: appliedCoupon.code },
+              data: { usageCount: { increment: 1 } },
+            });
+          }
+
+          return createdOrder;
+        } else {
+          const createdOrder = await tx.order.create({
+            data: {
+              orderCode: makeOrderCode(),
+              status: "PENDING",
+              paymentMethod: "BANK_TRANSFER",
+              subtotal,
+              discountAmount,
+              total,
+              couponCode: appliedCoupon?.code,
+              customerNote,
+              userId: session?.user?.id || null,
+              items: {
+                create: validItems.map((item) => ({
+                  productId: item.id,
+                  productName: item.name,
+                  productSlug: item.slug,
+                  unitPrice: item.price,
+                  quantity: item.quantity,
+                  total: item.total,
+                })),
+              },
+            },
+            select: { id: true, orderCode: true, status: true },
+          });
+
+          if (appliedCoupon) {
+            await tx.coupon.update({
+              where: { code: appliedCoupon.code },
+              data: { usageCount: { increment: 1 } },
+            });
+          }
+
+          return createdOrder;
+        }
       });
     }
 
@@ -284,6 +279,7 @@ export async function POST(request: Request) {
       message: "Checkout summary created successfully",
     });
   } catch (error) {
+    console.error("Checkout error:", error);
     if (error instanceof WalletUserNotFoundError) {
       return NextResponse.json(
         { success: false, error: "Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại." },
@@ -296,6 +292,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    return NextResponse.json({ success: false, error: "Invalid request" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : "Đã có lỗi xảy ra trong quá trình thanh toán" },
+      { status: 400 }
+    );
   }
 }

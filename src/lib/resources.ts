@@ -1,3 +1,5 @@
+import { generateId } from "@/lib/utils";
+
 export interface FreeResource {
   id: string;
   order: number;
@@ -26,7 +28,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 export function createEmptyResource(): FreeResource {
   return {
-    id: crypto.randomUUID(),
+    id: generateId(),
     order: 0,
     category: "Khác",
     title: "",

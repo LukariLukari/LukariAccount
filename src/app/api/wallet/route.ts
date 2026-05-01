@@ -60,44 +60,16 @@ export async function POST(req: Request) {
     const transferContent = getTopUpTransferContent(code);
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
-    const rows = await prisma.$queryRaw`
-      INSERT INTO "TopUpRequest" (
-        "id",
-        "userId",
-        "amount",
-        "code",
-        "transferContent",
-        "status",
-        "expiresAt",
-        "createdAt",
-        "updatedAt"
-      )
-      VALUES (
-        ${crypto.randomUUID()},
-        ${session.user.id},
-        ${amount},
-        ${code},
-        ${transferContent},
-        'PENDING'::"TopUpStatus",
-        ${expiresAt},
-        NOW(),
-        NOW()
-      )
-      RETURNING
-        "id",
-        "userId",
-        "amount",
-        "code",
-        "transferContent",
-        "status"::text AS "status",
-        "confirmedAt",
-        "cancelledAt",
-        "expiresAt",
-        "adminNote",
-        "createdAt",
-        "updatedAt"
-    `;
-    const [topUpRequest] = rows as Array<Record<string, unknown>>;
+    const topUpRequest = await prisma.topUpRequest.create({
+      data: {
+        userId: session.user.id,
+        amount,
+        code,
+        transferContent,
+        status: "PENDING",
+        expiresAt,
+      },
+    });
 
     return NextResponse.json({ topUpRequest }, { status: 201 });
   } catch (error) {
