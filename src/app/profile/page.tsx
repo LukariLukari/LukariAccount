@@ -6,8 +6,14 @@ import { User, Package, Clock, CheckCircle, AlertCircle, CreditCard, ExternalLin
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
-import { ensureWallet, getTopUpRequests, getWalletTransactions } from "@/lib/wallet";
+import {
+  ensureWallet,
+  getTopUpRequests,
+  getWalletTransactions,
+  WalletUserNotFoundError,
+} from "@/lib/wallet";
 import WalletPanel from "@/components/WalletPanel";
+import SessionRecovery from "@/components/SessionRecovery";
 
 export const metadata = {
   title: "Thông tin cá nhân | LukariAccount",
@@ -28,7 +34,21 @@ export default async function ProfilePage() {
     redirect("/auth/login?callbackUrl=/profile");
   }
 
-  const wallet = await ensureWallet(session.user.id);
+  let wallet;
+  try {
+    wallet = await ensureWallet(session.user.id);
+  } catch (error) {
+    if (error instanceof WalletUserNotFoundError) {
+      return (
+        <SessionRecovery
+          callbackUrl="/auth/login?callbackUrl=/profile"
+          message="Phiên đăng nhập của bạn đã cũ hoặc tài khoản không còn khả dụng. Mình đang đưa bạn về trang đăng nhập."
+        />
+      );
+    }
+    throw error;
+  }
+
   const [user, orders, walletTransactions, topUpRequests] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
@@ -44,7 +64,12 @@ export default async function ProfilePage() {
   ]);
 
   if (!user) {
-    redirect("/auth/login");
+    return (
+      <SessionRecovery
+        callbackUrl="/auth/login?callbackUrl=/profile"
+        message="Không tìm thấy dữ liệu tài khoản hiện tại. Mình đang đưa bạn về trang đăng nhập."
+      />
+    );
   }
 
   return (

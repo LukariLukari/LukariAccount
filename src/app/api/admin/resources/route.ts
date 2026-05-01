@@ -11,6 +11,10 @@ async function ensureAdmin() {
   return session?.user?.role === "ADMIN";
 }
 
+function normalizeMatchValue(value: string) {
+  return value.trim().toLowerCase();
+}
+
 export async function GET() {
   try {
     if (!(await ensureAdmin())) {
@@ -48,30 +52,88 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const resources = reindexResources(normalizeResources(body));
+    const normalizedResources = reindexResources(normalizeResources(body));
+    let persistedResources = normalizedResources;
 
     try {
       await prisma.$transaction(async (tx) => {
-        await tx.resource.deleteMany();
+        const existingResources = await tx.resource.findMany({
+          select: { id: true, title: true, driveUrl: true },
+        });
 
-        if (resources.length > 0) {
-          await tx.resource.createMany({
-            data: resources.map((resource) => ({
+        const byId = new Map(existingResources.map((resource) => [resource.id, resource]));
+        const byDriveUrl = new Map(
+          existingResources
+            .filter((resource) => resource.driveUrl.trim().length > 0)
+            .map((resource) => [normalizeMatchValue(resource.driveUrl), resource])
+        );
+        const byTitle = new Map(
+          existingResources
+            .filter((resource) => resource.title.trim().length > 0)
+            .map((resource) => [normalizeMatchValue(resource.title), resource])
+        );
+
+        const resources = normalizedResources.map((resource) => {
+          const exact = byId.get(resource.id);
+          if (exact) return resource;
+
+          const driveMatch =
+            resource.driveUrl.trim().length > 0
+              ? byDriveUrl.get(normalizeMatchValue(resource.driveUrl))
+              : null;
+          if (driveMatch) {
+            return { ...resource, id: driveMatch.id };
+          }
+
+          const titleMatch =
+            resource.title.trim().length > 0
+              ? byTitle.get(normalizeMatchValue(resource.title))
+              : null;
+          if (titleMatch) {
+            return { ...resource, id: titleMatch.id };
+          }
+
+          return resource;
+        });
+        persistedResources = resources;
+
+        for (const resource of resources) {
+          await tx.resource.upsert({
+            where: { id: resource.id },
+            update: {
+              title: resource.title,
+              description: resource.description,
+              detailDescription: resource.detailDescription,
+              images: resource.images,
+              driveUrl: resource.driveUrl,
+              isPaid: resource.isPaid,
+              price: resource.price,
+              order: resource.order,
+              category: resource.category,
+            },
+            create: {
               id: resource.id,
               title: resource.title,
               description: resource.description,
               detailDescription: resource.detailDescription,
               images: resource.images,
               driveUrl: resource.driveUrl,
+              isPaid: resource.isPaid,
+              price: resource.price,
               order: resource.order,
               category: resource.category,
-            })),
+            },
           });
         }
+
+        const nextIds = resources.map((resource) => resource.id);
+        await tx.resource.deleteMany({
+          where: { id: { notIn: nextIds } },
+        });
       });
     } catch (resourceError) {
       console.warn("Resource table unavailable, persisting resources in site settings fallback.", resourceError);
-      const resourceLinks = resources as unknown as Prisma.InputJsonValue;
+      const resourceLinks = normalizedResources as unknown as Prisma.InputJsonValue;
       await prisma.siteSettings.upsert({
         where: { id: "main" },
         update: { resourceLinks },
@@ -80,9 +142,11 @@ export async function PUT(req: Request) {
     }
 
     revalidatePath("/resources");
+    revalidatePath("/resources/free");
+    revalidatePath("/resources/paid");
     revalidatePath("/admin/resources");
 
-    return NextResponse.json(resources);
+    return NextResponse.json(persistedResources);
   } catch (error) {
     console.error("Update resources error:", error);
     return NextResponse.json({ error: "Failed to update resources" }, { status: 500 });

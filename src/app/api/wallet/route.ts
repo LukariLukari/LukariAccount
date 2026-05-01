@@ -11,6 +11,7 @@ import {
   getWalletTransactions,
   makeTopUpCode,
   normalizeTopUpAmount,
+  WalletUserNotFoundError,
 } from "@/lib/wallet";
 
 export async function GET() {
@@ -27,7 +28,10 @@ export async function GET() {
     ]);
 
     return NextResponse.json({ wallet, transactions, topUpRequests });
-  } catch {
+  } catch (error) {
+    if (error instanceof WalletUserNotFoundError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.json({ error: "Failed to fetch wallet" }, { status: 500 });
   }
 }
@@ -96,7 +100,10 @@ export async function POST(req: Request) {
     const [topUpRequest] = rows as Array<Record<string, unknown>>;
 
     return NextResponse.json({ topUpRequest }, { status: 201 });
-  } catch {
+  } catch (error) {
+    if (error instanceof WalletUserNotFoundError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.json({ error: "Failed to create top up request" }, { status: 500 });
   }
 }

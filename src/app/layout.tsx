@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Outfit, Syne, Montserrat } from "next/font/google";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
@@ -54,6 +55,36 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className={`${outfit.variable} ${syne.variable} ${montserrat.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <Script id="strip-bis-skin-checked" strategy="beforeInteractive">
+          {`
+            (() => {
+              const stripAttr = () => {
+                document.querySelectorAll('[bis_skin_checked]').forEach((node) => {
+                  node.removeAttribute('bis_skin_checked');
+                });
+              };
+
+              stripAttr();
+
+              const observer = new MutationObserver(() => {
+                stripAttr();
+              });
+
+              observer.observe(document.documentElement, {
+                attributes: true,
+                childList: true,
+                subtree: true,
+              });
+
+              window.addEventListener('load', () => {
+                stripAttr();
+                observer.disconnect();
+              }, { once: true });
+            })();
+          `}
+        </Script>
+      </head>
       <body className="min-h-full flex flex-col overflow-x-hidden font-sans bg-background text-foreground" suppressHydrationWarning>
         <AuthContext>
           <CartProvider>

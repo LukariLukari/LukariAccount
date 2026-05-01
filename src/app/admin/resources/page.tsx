@@ -124,7 +124,7 @@ export default function AdminResourcesPage() {
       });
   }, [bulkDriveLinks]);
 
-  const updateResource = (id: string, field: keyof FreeResource, value: string) => {
+  const updateResource = <K extends keyof FreeResource>(id: string, field: K, value: FreeResource[K]) => {
     setResources((prev) =>
       prev.map((resource) =>
         resource.id === id ? { ...resource, [field]: value } : resource
@@ -164,6 +164,8 @@ export default function AdminResourcesPage() {
         description: "Tài nguyên miễn phí tải qua Google Drive.",
         detailDescription: "Tài nguyên miễn phí tải qua Google Drive.",
         driveUrl: item.driveUrl,
+        isPaid: false,
+        price: 0,
       };
     });
 
@@ -780,6 +782,33 @@ export default function AdminResourcesPage() {
                             value={resource.detailDescription}
                             onChange={(e) => updateResource(resource.id, "detailDescription", e.target.value)}
                             placeholder="Mô tả rõ tài nguyên gồm những gì, phù hợp với ai, dùng vào việc gì..."
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)] gap-3">
+                          <label className="flex items-center gap-2 rounded-xl border border-paper/10 bg-asphalt/50 px-4 py-3">
+                            <input
+                              type="checkbox"
+                              checked={resource.isPaid}
+                              onChange={(e) => {
+                                const isPaid = e.target.checked;
+                                updateResource(resource.id, "isPaid", isPaid);
+                                if (!isPaid) updateResource(resource.id, "price", 0);
+                              }}
+                            />
+                            <span className="text-[11px] font-bold text-paper">Tài nguyên tính phí</span>
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={1000}
+                            disabled={!resource.isPaid}
+                            className={inputClass}
+                            value={resource.price}
+                            onChange={(e) =>
+                              updateResource(resource.id, "price", Math.max(0, Number(e.target.value) || 0))
+                            }
+                            placeholder="Giá bán bằng số dư ví"
                           />
                         </div>
                       </div>

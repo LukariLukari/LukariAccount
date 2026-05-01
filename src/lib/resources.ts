@@ -7,6 +7,8 @@ export interface FreeResource {
   detailDescription: string;
   images: string[];
   driveUrl: string;
+  isPaid: boolean;
+  price: number;
 }
 
 export const RESOURCE_CATEGORIES = [
@@ -32,6 +34,8 @@ export function createEmptyResource(): FreeResource {
     detailDescription: "",
     images: [],
     driveUrl: "",
+    isPaid: false,
+    price: 0,
   };
 }
 
@@ -75,6 +79,8 @@ export function normalizeResources(input: unknown): FreeResource[] {
         typeof item.id === "string" && item.id.trim().length > 0
           ? item.id
           : `resource-${index}`;
+      const isPaid = item.isPaid === true || Number(item.price) > 0;
+      const price = Math.max(0, Number(item.price) || 0);
       const normalizedImages = images.length > 0 ? images : fallbackImage ? [fallbackImage] : [];
 
       if (!title && !description && !driveUrl && normalizedImages.length === 0) {
@@ -90,6 +96,8 @@ export function normalizeResources(input: unknown): FreeResource[] {
         detailDescription,
         images: normalizedImages,
         driveUrl,
+        isPaid,
+        price,
       };
     })
     .filter((item): item is FreeResource => item !== null);

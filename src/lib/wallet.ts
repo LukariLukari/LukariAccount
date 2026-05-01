@@ -56,7 +56,23 @@ export interface TopUpRequestRecord {
   updatedAt: Date;
 }
 
+export class WalletUserNotFoundError extends Error {
+  constructor(userId: string) {
+    super(`WALLET_USER_NOT_FOUND:${userId}`);
+    this.name = "WalletUserNotFoundError";
+  }
+}
+
 export async function ensureWallet(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+
+  if (!user) {
+    throw new WalletUserNotFoundError(userId);
+  }
+
   const id =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()

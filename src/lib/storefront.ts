@@ -151,6 +151,14 @@ export const getResources = cache(async () => {
   return normalizeResources(settings.resourceLinks);
 });
 
+export const getResourcesByMode = cache(async (mode: "free" | "paid") => {
+  const resources = await getResources();
+  if (mode === "paid") {
+    return resources.filter((item) => item.isPaid && item.price > 0);
+  }
+  return resources.filter((item) => !item.isPaid || item.price <= 0);
+});
+
 export function getBaseUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://lukari-account.vercel.app";
 }

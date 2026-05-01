@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isRecord } from "@/lib/api-validation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { WalletUserNotFoundError } from "@/lib/wallet";
 
 function makeOrderCode() {
   const date = new Date();
@@ -168,6 +169,15 @@ export async function POST(request: Request) {
           | null = null;
 
         if (paymentMethod === "WALLET") {
+          const existingUser = await tx.user.findUnique({
+            where: { id: session!.user.id },
+            select: { id: true },
+          });
+
+          if (!existingUser) {
+            throw new WalletUserNotFoundError(session!.user.id);
+          }
+
           const walletRows = await tx.$queryRaw<Array<{ balance: number }>>`
             INSERT INTO "Wallet" ("id", "userId", "balance", "createdAt", "updatedAt")
             VALUES (${crypto.randomUUID()}, ${session!.user.id}, 0, NOW(), NOW())
@@ -274,6 +284,12 @@ export async function POST(request: Request) {
       message: "Checkout summary created successfully",
     });
   } catch (error) {
+    if (error instanceof WalletUserNotFoundError) {
+      return NextResponse.json(
+        { success: false, error: "Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại." },
+        { status: 401 }
+      );
+    }
     if (error instanceof Error && error.message === "INSUFFICIENT_BALANCE") {
       return NextResponse.json(
         { success: false, error: "Số dư không đủ để thanh toán đơn hàng" },

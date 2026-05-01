@@ -50,6 +50,7 @@ model User {
   wallet        Wallet?
   walletTransactions WalletTransaction[]
   topUpRequests TopUpRequest[]
+  resourcePurchases ResourcePurchase[]
 }
 
 model Product {
@@ -214,12 +215,28 @@ model Resource {
   detailDescription String
   images            Json
   driveUrl          String
+  isPaid            Boolean  @default(false)
+  price             Float    @default(0)
   order             Int      @default(0)
   category          String   @default("Khác")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  purchases         ResourcePurchase[]
 
   @@index([order])
+}
+
+model ResourcePurchase {
+  id         String   @id @default(cuid())
+  userId     String
+  resourceId String
+  amount     Float
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId])
+  @@index([userId, createdAt])
 }
 
 model Banner {
