@@ -145,6 +145,21 @@ export default function HomeClient({
         </section>
       </div>
 
+      {/* Mobile Horizontal Categories */}
+      <div className="mt-8 md:hidden">
+        <div className="flex overflow-x-auto scrollbar-hide gap-3 pb-2 snap-x">
+          {categories.map((tag) => (
+            <Link 
+              key={tag} 
+              href={tag === 'all' ? '/' : `/categories/${tag}`}
+              className="whitespace-nowrap px-6 py-3 rounded-2xl bg-paper/5 border border-paper/10 text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/40 hover:text-paper hover:bg-paper/10 transition-all snap-start"
+            >
+              {tag}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {!searchQuery && (
         <section className="mt-8 overflow-hidden rounded-[1.75rem] border border-[#FF8C00]/20 bg-[#FF8C00]/10 p-5 shadow-[0_22px_60px_rgba(255,140,0,0.08)] md:mt-10 md:p-6">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -201,23 +216,23 @@ export default function HomeClient({
 
       {/* Product Grid Section */}
       <div className="w-full mt-12 md:mt-16">
-        <div className="mb-6 md:mb-8 flex items-center justify-between border-b border-paper/10 pb-4 px-1">
+        <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-paper/10 pb-4 px-1 gap-4">
           <h2 className="text-lg md:text-2xl font-montserrat font-bold text-paper uppercase tracking-tight">
             {searchQuery ? `Kết quả cho "${searchQuery}"` : "Tất cả sản phẩm"}
           </h2>
-          <div className="flex items-center gap-4">
-            <div className="relative hidden sm:block">
+          <div className="flex items-center gap-3 md:gap-4 justify-between md:justify-end">
+            <div className="relative flex-1 md:flex-none md:min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-paper/20" />
               <input 
                 type="text"
-                placeholder="Tìm sản phẩm..."
+                placeholder="Tìm..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-paper/5 border border-paper/10 rounded-full py-2 pl-9 pr-4 text-[9px] font-bold uppercase tracking-widest outline-none focus:border-paper/30 transition-all"
+                className="w-full bg-paper/5 border border-paper/10 rounded-full py-2.5 pl-9 pr-4 text-[9px] font-bold uppercase tracking-widest outline-none focus:border-paper/30 transition-all"
               />
             </div>
-            <span className="text-[9px] md:text-sm font-bold border border-paper/20 px-3 md:px-4 py-1 rounded-full text-paper/60 uppercase tracking-widest">
-              {filteredProducts.length} sản phẩm
+            <span className="shrink-0 text-[8px] md:text-xs font-bold border border-paper/20 px-3 md:px-4 py-2 rounded-full text-paper/60 uppercase tracking-widest">
+              {filteredProducts.length} SP
             </span>
           </div>
         </div>

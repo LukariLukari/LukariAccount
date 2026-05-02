@@ -104,9 +104,9 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-montserrat selection:bg-paper selection:text-asphalt">
-      <main className="flex-1 min-h-screen pt-8 pb-24">
+      <main className="flex-1 min-h-screen pt-28 pb-24 md:pt-32">
         <div className="max-w-7xl mx-auto px-4 md:px-6 w-full">
-          <h1 className="text-3xl md:text-4xl font-montserrat font-bold mb-8 md:mb-12 tracking-tighter text-paper uppercase">Giỏ hàng của bạn</h1>
+          <h1 className="text-2xl md:text-4xl font-montserrat font-bold mb-8 md:mb-12 tracking-tighter text-paper uppercase">Giỏ hàng</h1>
 
           {cart.length === 0 ? (
             <div 
@@ -126,10 +126,10 @@ export default function CartPage() {
           ) : (
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
               {/* Cart Items */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-4 md:space-y-6">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex flex-col sm:flex-row items-center gap-5 md:gap-6 p-4 md:p-6 bg-paper/5 border border-paper/10 rounded-[1.75rem] md:rounded-[2.5rem] shadow-xl backdrop-blur-xl">
-                    <div className="w-24 h-24 shrink-0 bg-asphalt rounded-2xl flex items-center justify-center overflow-hidden border border-paper/10">
+                  <div key={item.id} className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 p-4 md:p-6 bg-paper/5 border border-paper/10 rounded-2xl md:rounded-[2.5rem] shadow-xl backdrop-blur-xl">
+                    <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 bg-asphalt rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden border border-paper/10">
                       {item.image ? (
                         <div className="relative w-full h-full">
                           <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover" />
@@ -139,9 +139,9 @@ export default function CartPage() {
                       )}
                     </div>
                     
-                    <div className="flex-1 text-center sm:text-left">
-                      <h3 className="font-montserrat font-bold text-xl mb-1 text-paper uppercase">{item.name}</h3>
-                      <p className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">{item.category}</p>
+                    <div className="flex-1 text-center sm:text-left min-w-0">
+                      <h3 className="font-montserrat font-bold text-base md:text-xl mb-1 text-paper uppercase truncate">{item.name}</h3>
+                      <p className="text-[9px] md:text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">{item.category}</p>
                     </div>
 
                     <div className="flex items-center gap-4 bg-paper/10 rounded-full p-1 border border-paper/10 text-paper">

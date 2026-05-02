@@ -135,75 +135,96 @@ export default function AdminProductTemplatesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 pb-24">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-[#FF8C00]">Product content</p>
-          <h1 className="text-3xl font-bold uppercase tracking-tight lg:text-4xl">Template sản phẩm</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-paper/45">
-            Quản lý mẫu mô tả, bảo hành, tính năng và cách thức mua. Khi sửa sản phẩm, admin chỉ cần bấm template để điền nhanh rồi chỉnh lại theo sản phẩm.
+    <div className="mx-auto max-w-7xl space-y-6 pb-32 md:space-y-8 md:pb-24">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-1 md:space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#FF8C00]">Product content</p>
+          <h1 className="text-2xl font-bold uppercase tracking-tight md:text-3xl lg:text-4xl">Template sản phẩm</h1>
+          <p className="max-w-2xl text-xs leading-relaxed text-paper/45 md:text-sm">
+            Quản lý mẫu mô tả, bảo hành, tính năng và cách thức mua. Giúp điền nhanh thông tin khi chỉnh sửa sản phẩm.
           </p>
         </div>
+        
+        {/* Save button for desktop/tablet */}
+        <div className="hidden lg:block">
+          <button
+            type="button"
+            onClick={saveTemplates}
+            disabled={isSaving}
+            className="flex items-center justify-center gap-3 rounded-2xl !bg-[#efede3] px-8 py-4 text-[11px] font-bold uppercase tracking-widest !text-[#302f2c] shadow-2xl transition hover:scale-[1.02] disabled:opacity-50"
+          >
+            <Save className="h-4 w-4 !text-[#302f2c]" />
+            {isSaving ? "Đang lưu..." : "Lưu tất cả template"}
+          </button>
+        </div>
+      </div>
+
+      {/* Sticky Mobile/Tablet Save Bar */}
+      <div className="fixed bottom-6 left-6 right-6 z-[60] lg:hidden">
         <button
           type="button"
           onClick={saveTemplates}
           disabled={isSaving}
-          className="flex items-center justify-center gap-3 rounded-2xl !bg-[#efede3] px-8 py-4 text-[11px] font-bold uppercase tracking-widest !text-[#302f2c] shadow-2xl transition hover:scale-[1.02] disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-3 rounded-2xl !bg-[#efede3] py-4 text-[11px] font-bold uppercase tracking-widest !text-[#302f2c] shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition active:scale-95 disabled:opacity-50"
         >
           <Save className="h-4 w-4 !text-[#302f2c]" />
-          {isSaving ? "Đang lưu..." : "Lưu template"}
+          {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
       </div>
 
       {message && (
-        <div className="rounded-2xl border border-paper/10 bg-paper/5 px-5 py-4 text-sm font-bold text-paper/70">
+        <div className="rounded-2xl border border-[#FF8C00]/20 bg-[#FF8C00]/5 px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-[#FF8C00]">
           {message}
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <aside className="rounded-[2rem] border border-paper/10 bg-paper/5 p-4 shadow-2xl">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-paper/35">Danh sách</p>
-            <button
-              type="button"
-              onClick={addTemplate}
-              className="rounded-full bg-paper/10 p-2 text-paper/60 transition hover:bg-paper hover:text-asphalt"
-              title="Thêm template"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="space-y-2">
-            {templates.map((template, index) => (
-              <div
-                key={template.id}
-                className={`flex items-center gap-2 rounded-2xl border p-2 transition ${
-                  selectedIndex === index
-                    ? "border-paper/20 bg-paper text-asphalt"
-                    : "border-paper/5 bg-asphalt/30 text-paper/55"
-                }`}
+        <aside className="sticky top-28 z-40 lg:top-0">
+          <div className="rounded-[2rem] border border-paper/10 bg-paper/5 p-4 shadow-2xl backdrop-blur-xl">
+            <div className="mb-4 flex items-center justify-between px-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-paper/35">Danh sách</p>
+              <button
+                type="button"
+                onClick={addTemplate}
+                className="rounded-full bg-[#FF8C00]/10 p-2 text-[#FF8C00] transition hover:bg-[#FF8C00] hover:text-asphalt"
+                title="Thêm template"
               >
-                <button
-                  type="button"
-                  onClick={() => setSelectedIndex(index)}
-                  className="min-w-0 flex-1 px-3 py-2 text-left"
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            
+            {/* Horizontal Scroll on Mobile/Tablet */}
+            <div className="flex overflow-x-auto pb-2 scrollbar-hide lg:block lg:space-y-2 lg:pb-0">
+              {templates.map((template, index) => (
+                <div
+                  key={template.id}
+                  className={`flex shrink-0 items-center gap-2 rounded-2xl border p-1.5 transition md:p-2 lg:flex ${
+                    selectedIndex === index
+                      ? "border-paper/20 bg-paper text-asphalt shadow-xl"
+                      : "border-transparent bg-paper/5 text-paper/55 hover:bg-paper/10"
+                  } mr-3 lg:mr-0 lg:w-full`}
                 >
-                  <p className="truncate text-[11px] font-bold uppercase tracking-widest">{template.name}</p>
-                  <p className={`mt-1 text-[8px] font-bold uppercase tracking-widest ${selectedIndex === index ? "text-asphalt/45" : "text-paper/25"}`}>
-                    {template.features.length} tính năng · {template.instructions.length} bước
-                  </p>
-                </button>
-                <div className="flex shrink-0">
-                  <button type="button" onClick={() => moveTemplate(index, "up")} disabled={index === 0} className="rounded-lg p-1.5 opacity-50 transition hover:bg-black/10 hover:opacity-100 disabled:opacity-15">
-                    <ArrowUp className="h-3.5 w-3.5" />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedIndex(index)}
+                    className="min-w-0 flex-1 px-3 py-1.5 text-left md:py-2"
+                  >
+                    <p className="truncate text-[10px] font-bold uppercase tracking-widest md:text-[11px]">{template.name}</p>
+                    <p className={`mt-0.5 text-[8px] font-bold uppercase tracking-widest ${selectedIndex === index ? "text-asphalt/45" : "text-paper/25"}`}>
+                      {template.features.length} features
+                    </p>
                   </button>
-                  <button type="button" onClick={() => moveTemplate(index, "down")} disabled={index === templates.length - 1} className="rounded-lg p-1.5 opacity-50 transition hover:bg-black/10 hover:opacity-100 disabled:opacity-15">
-                    <ArrowDown className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="flex shrink-0">
+                    <button type="button" onClick={() => moveTemplate(index, "up")} disabled={index === 0} className="rounded-lg p-1.5 opacity-50 transition hover:bg-black/5 disabled:opacity-0">
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button type="button" onClick={() => moveTemplate(index, "down")} disabled={index === templates.length - 1} className="rounded-lg p-1.5 opacity-50 transition hover:bg-black/5 disabled:opacity-0">
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </aside>
 

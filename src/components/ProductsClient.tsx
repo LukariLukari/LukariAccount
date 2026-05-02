@@ -75,7 +75,7 @@ export default function ProductsClient({ initialProducts, initialQuery = "" }: P
 
   return (
     <main className="min-h-screen bg-asphalt text-paper">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-10 py-8 md:py-16">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-10 pt-28 pb-16 md:pt-32 md:pb-20">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/20 mb-4 flex items-center gap-3">
             <a href="/" className="hover:text-paper transition-colors">
@@ -84,7 +84,7 @@ export default function ProductsClient({ initialProducts, initialQuery = "" }: P
             <span className="opacity-30">/</span>
             <span className="text-paper/60">Products</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-montserrat font-bold text-paper uppercase tracking-tight">
             Tất cả sản phẩm
           </h1>
           <div className="h-1 w-12 bg-[#FF8C00] mt-3 rounded-full" />
@@ -106,10 +106,11 @@ export default function ProductsClient({ initialProducts, initialQuery = "" }: P
             <div className="relative group shrink-0">
               <button className="flex items-center gap-2 px-5 py-3.5 bg-paper/5 border border-paper/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-paper/60 hover:text-paper hover:border-paper/20 transition-all">
                 <ArrowUpDown className="w-3.5 h-3.5" />
-                {sortOptions.find((s) => s.value === sortBy)?.label}
+                <span className="hidden sm:inline">{sortOptions.find((s) => s.value === sortBy)?.label}</span>
+                <span className="sm:hidden">Sắp xếp</span>
                 <ChevronDown className="w-3 h-3" />
               </button>
-              <div className="absolute top-full mt-2 right-0 bg-[#1a1917] border border-paper/10 rounded-xl shadow-2xl overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all min-w-[190px]">
+              <div className="absolute top-full mt-2 right-0 bg-[#1a1917] border border-paper/10 rounded-xl shadow-2xl overflow-hidden z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all min-w-[190px]">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}

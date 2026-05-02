@@ -22,7 +22,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <div className="pt-32 flex-1">{children}</div>
+      <div className="flex-1">{children}</div>
       <Footer />
     </>
   );

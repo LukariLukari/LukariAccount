@@ -48,14 +48,14 @@ export default function AdminSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 flex flex-col gap-2">
+      <nav className="flex-1 flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-2 mb-4">
         {adminMenuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group ${
+              className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group shrink-0 ${
                 isActive 
                   ? "ui-on-paper bg-paper shadow-xl" 
                   : "text-paper/40 hover:text-paper hover:bg-paper/5"

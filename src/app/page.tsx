@@ -23,7 +23,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
-      <main className="pt-20 md:pt-32 pb-24">
+      <main className="pt-28 md:pt-32 pb-24">
         <div className="max-w-[1440px] mx-auto px-4 md:px-10">
           <HomeClient initialProducts={products} banners={banners} categories={categories} />
         </div>

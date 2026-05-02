@@ -129,7 +129,7 @@ export default function Navbar() {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
                 setIsMobileSearchOpen(false);
               }}
-              className="md:hidden p-2 text-paper/40 hover:text-paper hover:bg-paper/5 transition-all rounded-full"
+              className="lg:hidden p-2 text-paper/40 hover:text-paper hover:bg-paper/5 transition-all rounded-full"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -169,7 +169,7 @@ export default function Navbar() {
               initial={{ opacity: 0, scale: 0.95, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              className="absolute top-20 left-0 right-0 z-50 md:hidden overflow-hidden"
+              className="absolute top-20 left-0 right-0 z-50 lg:hidden overflow-y-auto custom-scrollbar max-h-[calc(100vh-120px)]"
             >
               <div className="bg-[#1a1a1a] border border-paper/10 rounded-[2.5rem] shadow-2xl p-8 space-y-8">
                 <div className="space-y-4">
