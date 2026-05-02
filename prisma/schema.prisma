@@ -60,6 +60,9 @@ model Product {
   description   String
   price         Float
   originalPrice Float?
+  flashSalePrice Float?
+  flashSaleStartsAt DateTime?
+  flashSaleEndsAt DateTime?
   billingCycle  String
   rating        Float     @default(5.0)
   downloads     String    @default("0+")

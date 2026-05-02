@@ -1,0 +1,3 @@
+ALTER TABLE "Product" ADD COLUMN "flashSalePrice" DOUBLE PRECISION;
+ALTER TABLE "Product" ADD COLUMN "flashSaleStartsAt" TIMESTAMP(3);
+ALTER TABLE "Product" ADD COLUMN "flashSaleEndsAt" TIMESTAMP(3);

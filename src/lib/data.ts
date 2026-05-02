@@ -5,6 +5,9 @@ export interface Product {
   description: string;
   price: number;
   originalPrice?: number | null;
+  flashSalePrice?: number | null;
+  flashSaleStartsAt?: string | Date | null;
+  flashSaleEndsAt?: string | Date | null;
   billingCycle: string;
   rating: number;
   downloads: string;

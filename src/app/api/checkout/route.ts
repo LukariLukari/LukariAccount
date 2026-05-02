@@ -4,6 +4,7 @@ import { isRecord } from "@/lib/api-validation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { WalletUserNotFoundError } from "@/lib/wallet";
+import { getEffectiveProductPrice } from "@/lib/product-pricing";
 
 function makeOrderCode() {
   const date = new Date();
@@ -85,14 +86,15 @@ export async function POST(request: Request) {
       const product = productById.get(item.productId);
       if (!product) return null;
 
-      const allowedPrices = [product.price, ...getPlanPrices(product.plans)].filter(
+      const effectiveProductPrice = getEffectiveProductPrice(product);
+      const allowedPrices = [effectiveProductPrice, ...getPlanPrices(product.plans)].filter(
         (price): price is number => typeof price === "number"
       );
       
       const unitPrice =
         Number.isFinite(item.unitPrice) && allowedPrices.some((price) => price === item.unitPrice)
           ? item.unitPrice
-          : product.price;
+          : effectiveProductPrice;
           
       const productName = item.planLabel ? `${product.name} (${item.planLabel})` : product.name;
       

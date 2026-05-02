@@ -3,10 +3,11 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Search, ArrowLeft, Wallet, Zap } from "lucide-react";
+import { ArrowRight, Search, ArrowLeft, Zap } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Product } from "@/lib/data";
+import { isFlashSaleActive } from "@/lib/product-pricing";
 
 interface Banner {
   image: string;
@@ -26,6 +27,10 @@ export default function HomeClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const categories = useMemo(() => ["all", ...initialCategories], [initialCategories]);
+  const flashSaleProducts = useMemo(
+    () => initialProducts.filter((product) => isFlashSaleActive(product)),
+    [initialProducts]
+  );
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase();
@@ -160,32 +165,36 @@ export default function HomeClient({
         </div>
       </div>
 
-      {!searchQuery && (
-        <section className="mt-8 overflow-hidden rounded-[1.75rem] border border-[#FF8C00]/20 bg-[#FF8C00]/10 p-5 shadow-[0_22px_60px_rgba(255,140,0,0.08)] md:mt-10 md:p-6">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FF8C00] text-asphalt shadow-xl">
-                <Wallet className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="mb-1 text-[10px] font-montserrat font-bold uppercase tracking-[0.24em] text-[#FFB45C]">
-                  Ví Lukari
-                </p>
-                <h2 className="text-lg font-montserrat font-bold uppercase tracking-tight text-paper md:text-2xl">
-                  Nạp tiền trước, mua hàng nhanh hơn
-                </h2>
-                <p className="mt-2 max-w-2xl text-xs font-bold leading-relaxed text-paper/45 md:text-sm">
-                  Chủ động số dư trong tài khoản để thanh toán sản phẩm ngay khi cần, không phải gửi xác nhận chuyển khoản từng đơn.
-                </p>
-              </div>
+      {!searchQuery && flashSaleProducts.length > 0 && (
+        <section className="relative mt-10 overflow-hidden rounded-[2rem] border border-[#FFB45C]/25 bg-[#FF8C00]/[0.075] p-4 shadow-[0_24px_80px_rgba(255,140,0,0.13)] backdrop-blur-xl md:mt-12 md:p-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,180,92,0.18),transparent_34%),linear-gradient(135deg,rgba(255,140,0,0.12),rgba(255,140,0,0.025)_42%,rgba(255,180,92,0.09))]" />
+          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[#FFB45C]/45 to-transparent" />
+          <div className="relative z-10 mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#FFB45C]/20 bg-[#FF8C00]/15 px-3 py-1 text-[9px] font-black uppercase tracking-[0.24em] text-[#FFB45C] shadow-[0_10px_28px_rgba(255,140,0,0.12)]">
+                <Zap className="h-3.5 w-3.5 fill-[#FFB45C] text-[#FFB45C]" />
+                Flash sale
+              </span>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-paper md:text-4xl">
+                Đang cháy giá
+              </h2>
             </div>
             <Link
-              href="/profile"
-              className="ui-btn ui-btn-primary self-start rounded-full px-6 py-3 md:self-center"
+              href="/products"
+              className="inline-flex self-start rounded-full border border-[#FF8C00]/25 bg-paper/90 px-5 py-3 text-[10px] font-black uppercase tracking-widest !text-[#302f2c] shadow-xl transition hover:scale-[1.02] sm:self-auto"
             >
-              <Zap className="h-4 w-4" />
-              Nạp tiền ngay
+              Xem tất cả
             </Link>
+          </div>
+
+          <div className="relative z-10 -mx-1 overflow-x-auto px-1 pb-2 scrollbar-hide">
+            <div className="flex gap-4 md:gap-6">
+              {flashSaleProducts.map((product, idx) => (
+                <div key={product.id} className="min-w-[190px] sm:min-w-[280px] md:min-w-[320px]">
+                  <ProductCard product={product} index={idx} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

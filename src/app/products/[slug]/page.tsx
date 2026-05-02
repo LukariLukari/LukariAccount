@@ -2,8 +2,24 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "@/components/ProductDetailClient";
 import { getBaseUrl, getProductBySlug, getRelatedProducts } from "@/lib/storefront";
+import { getEffectiveProductPrice } from "@/lib/product-pricing";
+import type { Product } from "@/lib/data";
 
 export const revalidate = 300;
+
+function serializeProduct(product: Product): Product {
+  return {
+    ...product,
+    flashSaleStartsAt:
+      product.flashSaleStartsAt instanceof Date
+        ? product.flashSaleStartsAt.toISOString()
+        : product.flashSaleStartsAt,
+    flashSaleEndsAt:
+      product.flashSaleEndsAt instanceof Date ? product.flashSaleEndsAt.toISOString() : product.flashSaleEndsAt,
+    createdAt: product.createdAt instanceof Date ? product.createdAt.toISOString() : product.createdAt,
+    updatedAt: product.updatedAt instanceof Date ? product.updatedAt.toISOString() : product.updatedAt,
+  };
+}
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
@@ -57,6 +73,7 @@ export default async function ProductDetailPage(
   }
 
   const relatedProducts = await getRelatedProducts(product.id, product.category, 4);
+  const offerPrice = getEffectiveProductPrice(product);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -67,7 +84,7 @@ export default async function ProductDetailPage(
     category: product.category,
     offers: {
       "@type": "Offer",
-      price: product.price,
+      price: offerPrice,
       priceCurrency: "VND",
       availability: product.isSoldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       url: `${getBaseUrl()}/products/${product.slug}`,
@@ -80,7 +97,10 @@ export default async function ProductDetailPage(
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductDetailClient product={product} relatedProducts={relatedProducts} />
+      <ProductDetailClient
+        product={serializeProduct(product as Product)}
+        relatedProducts={relatedProducts.map((item) => serializeProduct(item as Product))}
+      />
     </>
   );
 }

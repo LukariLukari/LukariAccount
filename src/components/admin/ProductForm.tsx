@@ -183,7 +183,7 @@ export default function ProductForm({ initialData, productId }: ProductFormProps
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          ...formData, 
+          ...formData,
           plans, 
           features: {
             items: features.map((feature) => feature.trim()).filter(Boolean),

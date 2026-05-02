@@ -22,6 +22,12 @@ export const metadata: Metadata = {
 function serializeProduct(product: Product): Product {
   return {
     ...product,
+    flashSaleStartsAt:
+      product.flashSaleStartsAt instanceof Date
+        ? product.flashSaleStartsAt.toISOString()
+        : product.flashSaleStartsAt,
+    flashSaleEndsAt:
+      product.flashSaleEndsAt instanceof Date ? product.flashSaleEndsAt.toISOString() : product.flashSaleEndsAt,
     createdAt: product.createdAt instanceof Date ? product.createdAt.toISOString() : product.createdAt,
     updatedAt: product.updatedAt instanceof Date ? product.updatedAt.toISOString() : product.updatedAt,
   };

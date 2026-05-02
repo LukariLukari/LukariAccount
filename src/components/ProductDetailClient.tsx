@@ -20,6 +20,8 @@ import PaymentPopup from "@/components/PaymentPopup";
 import type { Product } from "@/lib/data";
 import RichText from "@/components/RichText";
 import ProductCard from "@/components/ProductCard";
+import { getDisplayOriginalPrice, getEffectiveProductPrice, isFlashSaleActive } from "@/lib/product-pricing";
+import FlashSaleCountdown from "@/components/FlashSaleCountdown";
 
 interface Plan {
   type?: string;
@@ -42,14 +44,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function getProductPlans(product: Product): Plan[] {
+  const effectivePrice = getEffectiveProductPrice(product);
   if (product.plans && Array.isArray(product.plans) && product.plans.length > 0) {
-    return product.plans as Plan[];
+    return (product.plans as Plan[]).map((plan) => ({
+      ...plan,
+      price: plan.price === product.price ? effectivePrice : plan.price,
+    }));
   }
 
   return [
-    { type: "Mặc định", label: "1 Tháng", price: product.price, cycle: "tháng" },
-    { type: "Mặc định", label: "6 Tháng", price: Math.floor(product.price * 5.2), cycle: "6 tháng" },
-    { type: "Mặc định", label: "1 Năm", price: Math.floor(product.price * 9.5), cycle: "năm" },
+    { type: "Mặc định", label: "1 Tháng", price: effectivePrice, cycle: "tháng" },
+    { type: "Mặc định", label: "6 Tháng", price: Math.floor(effectivePrice * 5.2), cycle: "6 tháng" },
+    { type: "Mặc định", label: "1 Năm", price: Math.floor(effectivePrice * 9.5), cycle: "năm" },
   ];
 }
 
@@ -115,7 +121,9 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
 
   const filteredPlans = plans.filter((plan) => (plan.type || "Mặc định") === activeType);
   const selectedPlan = filteredPlans[activePlanIdx] || filteredPlans[0] || plans[0];
-  const basePlanPrice = filteredPlans[0]?.price || product.price;
+  const hasFlashSale = isFlashSaleActive(product);
+  const displayOriginalPrice = getDisplayOriginalPrice(product);
+  const basePlanPrice = filteredPlans[0]?.price || getEffectiveProductPrice(product);
   const totalPrice = selectedPlan.price * quantity;
   const selectedPlanSavings =
     basePlanPrice > 0 && selectedPlan.price < basePlanPrice * quantity
@@ -250,6 +258,12 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                     <span className="inline-block px-3 py-1 bg-paper text-asphalt text-[9px] font-montserrat font-bold uppercase tracking-[0.2em] rounded-full">
                       {product.isSoldOut ? "Tạm hết" : product.category}
                     </span>
+                    {hasFlashSale && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-red-400/25 bg-red-400/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-red-200">
+                        <Zap className="h-3 w-3" />
+                        Flash sale
+                      </span>
+                    )}
                     {product.isBestSeller && (
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF8C00]/25 bg-[#FF8C00]/10 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#FFB45C]">
                         <Sparkles className="h-3 w-3" />
@@ -276,6 +290,12 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   </p>
 
 
+
+                  {hasFlashSale && !product.isSoldOut && (
+                    <div className="mb-4">
+                      <FlashSaleCountdown product={product} />
+                    </div>
+                  )}
 
                   <div className="mb-4 space-y-3">
                     {types.length > 1 && (
@@ -337,10 +357,9 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
                   <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] gap-3 sm:gap-4 xl:items-end">
                     <div className="flex flex-col gap-1">
                       {activePlanIdx === 0 &&
-                        product.originalPrice &&
-                        product.originalPrice > product.price && (
+                        displayOriginalPrice && (
                           <span className="text-sm font-montserrat font-medium text-paper/30 line-through decoration-red-500/50">
-                            {formatPrice(product.originalPrice)}₫
+                            {formatPrice(displayOriginalPrice)}₫
                           </span>
                         )}
                       <div className="text-[1.75rem] lg:text-[2rem] font-montserrat font-bold text-paper flex items-baseline gap-2">

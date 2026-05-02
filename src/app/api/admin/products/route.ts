@@ -4,6 +4,15 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { isRecord, readBoolean, readNumber, readRequiredString } from "@/lib/api-validation";
 import { Prisma } from "@prisma/client";
 
+function readOptionalDate(input: Record<string, unknown>, key: string) {
+  const value = input[key];
+  if (value === null || value === "") return null;
+  if (typeof value !== "string" && !(value instanceof Date)) return undefined;
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(date.getTime()) ? date : undefined;
+}
+
 export async function GET() {
   try {
     const unauthorized = await requireAdmin();
@@ -47,6 +56,9 @@ export async function POST(req: Request) {
         description,
         price,
         originalPrice: body.originalPrice ? readNumber(body, "originalPrice") : null,
+        flashSalePrice: body.flashSalePrice ? readNumber(body, "flashSalePrice") : null,
+        flashSaleStartsAt: readOptionalDate(body, "flashSaleStartsAt"),
+        flashSaleEndsAt: readOptionalDate(body, "flashSaleEndsAt"),
         billingCycle: readRequiredString(body, "billingCycle") || "tháng",
         image,
         category,

@@ -5,6 +5,7 @@ import { Product } from "@/lib/data";
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, ChevronDown, X, ArrowUpDown } from "lucide-react";
+import { getEffectiveProductPrice } from "@/lib/product-pricing";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name-asc";
 
@@ -51,10 +52,10 @@ export default function ProductsClient({ initialProducts, initialQuery = "" }: P
 
     switch (sortBy) {
       case "price-asc":
-        result.sort((a, b) => a.price - b.price);
+        result.sort((a, b) => getEffectiveProductPrice(a) - getEffectiveProductPrice(b));
         break;
       case "price-desc":
-        result.sort((a, b) => b.price - a.price);
+        result.sort((a, b) => getEffectiveProductPrice(b) - getEffectiveProductPrice(a));
         break;
       case "name-asc":
         result.sort((a, b) => a.name.localeCompare(b.name));

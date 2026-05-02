@@ -8,6 +8,8 @@ import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 
 import { formatPrice } from "@/lib/utils";
+import { getDisplayOriginalPrice, getEffectiveProductPrice, isFlashSaleActive } from "@/lib/product-pricing";
+import FlashSaleCountdown from "@/components/FlashSaleCountdown";
 
 interface ProductCardProps {
   product: Product;
@@ -21,12 +23,15 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   const cartItem = cart.find(item => item.id === product.id);
   const isInCart = !!cartItem;
+  const effectivePrice = getEffectiveProductPrice(product);
+  const displayOriginalPrice = getDisplayOriginalPrice(product);
+  const hasFlashSale = isFlashSaleActive(product);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (product.isSoldOut) return;
-    addToCart(product);
+    addToCart({ ...product, price: effectivePrice });
   };
 
   const handleUpdateQuantity = (e: React.MouseEvent, newQty: number) => {
@@ -48,7 +53,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       onTouchStart={prefetchProduct}
       className="block h-full group"
     >
-      <div className="bg-paper/5 backdrop-blur-md rounded-2xl md:rounded-[1.25rem] flex flex-col h-[180px] sm:h-[230px] relative overflow-hidden transition-all duration-300 shadow-[0_10px_30px_rgba(239,237,227,0.1)] hover:shadow-[0_20px_40px_rgba(239,237,227,0.2)] hover:scale-[1.02] active:scale-[0.98] border border-paper/10">
+      <div
+        className={`backdrop-blur-md rounded-2xl md:rounded-[1.25rem] flex flex-col h-[180px] sm:h-[230px] relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border ${
+          hasFlashSale && !product.isSoldOut
+            ? "bg-paper/5 border-paper/10 shadow-none"
+            : "bg-paper/5 border-paper/10 shadow-[0_10px_30px_rgba(239,237,227,0.1)] hover:shadow-[0_20px_40px_rgba(239,237,227,0.2)]"
+        }`}
+      >
         
         {/* Full Card Background Image */}
         <div className="absolute inset-0 w-full h-full">
@@ -68,13 +79,21 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
-
         {/* Top Overlays - Category */}
         <div className="absolute top-2 md:top-3 left-3 md:left-4 z-20">
-          <span className="px-1.5 md:px-2 py-0.5 rounded-full bg-paper/10 backdrop-blur-md text-[6px] md:text-[7px] font-akina font-bold uppercase tracking-[0.2em] text-paper border border-paper/10 drop-shadow-md">
-            {product.isSoldOut ? "Sold out" : product.category}
+          <span className={`px-1.5 md:px-2 py-0.5 rounded-full backdrop-blur-md text-[6px] md:text-[7px] font-akina font-bold uppercase tracking-[0.2em] border drop-shadow-md ${
+            hasFlashSale && !product.isSoldOut
+              ? "bg-[#FF8C00] text-asphalt border-[#FFB45C]"
+              : "bg-paper/10 text-paper border-paper/10"
+          }`}>
+            {product.isSoldOut ? "Sold out" : hasFlashSale ? "Flash sale" : product.category}
           </span>
         </div>
+        {hasFlashSale && !product.isSoldOut && (
+          <div className="absolute left-3 top-8 z-20 md:left-4 md:top-11">
+            <FlashSaleCountdown product={product} compact />
+          </div>
+        )}
         {product.isSoldOut && (
           <div className="absolute inset-0 z-10 bg-asphalt/35 backdrop-blur-[1px] pointer-events-none" />
         )}
@@ -83,20 +102,24 @@ export default function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {/* Content Section - Clear Overlay with Text Shadows */}
-        <div className="absolute inset-x-0 -bottom-[1px] p-3 md:p-4 pt-8 md:pt-10 z-10 bg-gradient-to-t from-asphalt via-asphalt/40 to-transparent">
+        <div className={`absolute inset-x-0 -bottom-[1px] p-3 md:p-4 pt-8 md:pt-10 z-10 ${
+          hasFlashSale && !product.isSoldOut
+            ? "bg-gradient-to-t from-asphalt via-asphalt/45 to-transparent"
+            : "bg-gradient-to-t from-asphalt via-asphalt/40 to-transparent"
+        }`}>
           <div className="flex justify-between items-end gap-1.5 md:gap-2">
             <div className="flex flex-col flex-1 min-w-0">
               <h3 className="text-[10px] sm:text-base font-montserrat font-bold leading-tight text-paper tracking-tight mb-0.5 truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase">
                 {product.name}
               </h3>
               <div className="flex flex-col">
-                {product.originalPrice && product.originalPrice > product.price && (
+                {displayOriginalPrice && (
                   <span className="text-[7px] sm:text-[10px] font-montserrat font-medium text-paper/40 line-through decoration-red-500/50 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                    {formatPrice(product.originalPrice)}₫
+                    {formatPrice(displayOriginalPrice)}₫
                   </span>
                 )}
                 <span className="text-xs sm:text-lg font-montserrat font-bold text-[#FF8C00] drop-shadow-[0_2px_4px_rgba(255,140,0,0.3)]">
-                  {formatPrice(product.price)}₫
+                  {formatPrice(effectivePrice)}₫
                 </span>
               </div>
             </div>

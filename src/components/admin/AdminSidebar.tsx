@@ -9,6 +9,7 @@ import {
   Users, 
   Settings, 
   Wallet,
+  Zap,
   ArrowLeft,
   LogOut,
   LayoutGrid,
@@ -21,6 +22,7 @@ import { signOut } from "next-auth/react";
 export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Tổng quan", href: "/admin" },
   { icon: ShoppingBag, label: "Sản phẩm", href: "/admin/products" },
+  { icon: Zap, label: "Flash sale", href: "/admin/flash-sale" },
   { icon: TicketPercent, label: "Đơn hàng", href: "/admin/orders" },
   { icon: Wallet, label: "Nạp tiền", href: "/admin/topups" },
   { icon: LayoutGrid, label: "Loại sản phẩm", href: "/admin/categories" },

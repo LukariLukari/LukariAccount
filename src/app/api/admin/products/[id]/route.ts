@@ -3,6 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
 import { isRecord, readBoolean, readNumber, readRequiredString } from "@/lib/api-validation";
 
+function readOptionalDate(input: Record<string, unknown>, key: string) {
+  const value = input[key];
+  if (value === null || value === "") return null;
+  if (typeof value !== "string" && !(value instanceof Date)) return undefined;
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isFinite(date.getTime()) ? date : undefined;
+}
+
 async function ensureProductVisibilityColumns() {
   await prisma.$executeRawUnsafe(
     'ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "isHidden" BOOLEAN NOT NULL DEFAULT false'
@@ -56,6 +65,9 @@ export async function PUT(
     if (body.description !== undefined) updateData.description = readRequiredString(body, "description");
     if (body.price !== undefined) updateData.price = readNumber(body, "price");
     if (body.originalPrice !== undefined) updateData.originalPrice = body.originalPrice ? readNumber(body, "originalPrice") : null;
+    if (body.flashSalePrice !== undefined) updateData.flashSalePrice = body.flashSalePrice ? readNumber(body, "flashSalePrice") : null;
+    if (body.flashSaleStartsAt !== undefined) updateData.flashSaleStartsAt = readOptionalDate(body, "flashSaleStartsAt");
+    if (body.flashSaleEndsAt !== undefined) updateData.flashSaleEndsAt = readOptionalDate(body, "flashSaleEndsAt");
     if (body.billingCycle !== undefined) updateData.billingCycle = readRequiredString(body, "billingCycle");
     if (body.image !== undefined) updateData.image = readRequiredString(body, "image");
     if (body.category !== undefined) updateData.category = readRequiredString(body, "category");
