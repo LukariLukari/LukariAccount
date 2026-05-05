@@ -73,7 +73,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-asphalt text-paper font-montserrat pt-24 md:pt-32 pb-20">
+    <div className="min-h-screen bg-asphalt text-paper font-montserrat pb-20">
       <div className="max-w-5xl mx-auto px-4 md:px-6">
         <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tight mb-8">
           Tài khoản của bạn

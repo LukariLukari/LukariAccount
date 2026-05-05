@@ -225,8 +225,22 @@ model Resource {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   purchases         ResourcePurchase[]
+  codes             ResourceCode[]
 
   @@index([order])
+}
+
+model ResourceCode {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  maxUses    Int      @default(1)
+  usageCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime?
+
+  @@index([code])
 }
 
 model ResourcePurchase {

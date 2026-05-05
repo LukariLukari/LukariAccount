@@ -76,7 +76,7 @@ export default function ProductsClient({ initialProducts, initialQuery = "" }: P
 
   return (
     <main className="min-h-screen bg-asphalt text-paper">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-10 pt-28 pb-16 md:pt-32 md:pb-20">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-10 pb-16 md:pb-20">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <div className="text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/20 mb-4 flex items-center gap-3">
             <a href="/" className="hover:text-paper transition-colors">

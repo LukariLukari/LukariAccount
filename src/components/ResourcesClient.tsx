@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ExternalLink, Eye, Wallet, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Eye, TicketPercent, Wallet, X } from "lucide-react";
 import type { FreeResource } from "@/lib/resources";
 import { formatPrice } from "@/lib/utils";
 
@@ -24,6 +24,10 @@ export default function ResourcesClient({ resources, mode = "free" }: ResourcesC
   const [showTopUpPopup, setShowTopUpPopup] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [error, setError] = useState("");
+  const [showRedeemPopup, setShowRedeemPopup] = useState(false);
+  const [redeemCode, setRedeemCode] = useState("");
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [redeemMessage, setRedeemMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     fetch("/api/resources/access")
@@ -109,6 +113,49 @@ export default function ResourcesClient({ resources, mode = "free" }: ResourcesC
       setError(purchaseError instanceof Error ? purchaseError.message : "Không thể thanh toán tài nguyên");
     } finally {
       setIsPurchasing(false);
+    }
+  };
+
+  const handleRedeemCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!redeemCode) return;
+
+    setIsRedeeming(true);
+    setRedeemMessage(null);
+
+    try {
+      const res = await fetch("/api/resources/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: redeemCode }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Lỗi kích hoạt mã");
+      }
+
+      setRedeemMessage({ type: "success", text: data.message });
+      // Refresh purchased IDs
+      fetch("/api/resources/access")
+        .then((res) => res.json())
+        .then((data) => {
+          setPurchasedIds(Array.isArray(data?.purchasedResourceIds) ? data.purchasedResourceIds : []);
+        });
+
+      if (data.driveUrl) {
+        setTimeout(() => {
+          window.open(data.driveUrl, "_blank", "noopener,noreferrer");
+          setShowRedeemPopup(false);
+          setRedeemCode("");
+          setRedeemMessage(null);
+        }, 1500);
+      }
+    } catch (err: any) {
+      setRedeemMessage({ type: "error", text: err.message });
+    } finally {
+      setIsRedeeming(false);
     }
   };
 
@@ -205,23 +252,38 @@ export default function ResourcesClient({ resources, mode = "free" }: ResourcesC
           </p>
         </div>
 
-        <div className="inline-flex rounded-full border border-paper/10 bg-paper/[0.04] p-1">
-          <Link
-            href="/resources/free"
-            className={`rounded-full px-4 py-2 font-montserrat text-[10px] font-bold uppercase tracking-[0.08em] transition-all ${
-              mode === "free" ? "bg-paper text-asphalt" : "text-paper/55 hover:text-paper"
-            }`}
+        <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-full border border-paper/10 bg-paper/[0.04] p-1">
+            <Link
+              href="/resources/free"
+              className={`rounded-full px-4 py-2 font-montserrat text-[10px] font-bold uppercase tracking-[0.08em] transition-all ${
+                mode === "free" ? "bg-paper text-asphalt" : "text-paper/55 hover:text-paper"
+              }`}
+            >
+              Miễn phí
+            </Link>
+            <Link
+              href="/resources/paid"
+              className={`rounded-full px-4 py-2 font-montserrat text-[10px] font-bold uppercase tracking-[0.08em] transition-all ${
+                mode === "paid" ? "bg-[#FF8C00] text-asphalt" : "text-paper/55 hover:text-paper"
+              }`}
+            >
+              Trả phí
+            </Link>
+          </div>
+          <button
+            onClick={() => {
+              if (!isAuthenticated) {
+                window.location.href = "/auth/login?callbackUrl=/resources";
+                return;
+              }
+              setShowRedeemPopup(true);
+            }}
+            className="ui-btn ui-btn-secondary rounded-full px-4 py-2 font-montserrat text-[10px] font-bold uppercase tracking-[0.08em]"
           >
-            Miễn phí
-          </Link>
-          <Link
-            href="/resources/paid"
-            className={`rounded-full px-4 py-2 font-montserrat text-[10px] font-bold uppercase tracking-[0.08em] transition-all ${
-              mode === "paid" ? "bg-[#FF8C00] text-asphalt" : "text-paper/55 hover:text-paper"
-            }`}
-          >
-            Trả phí
-          </Link>
+            <TicketPercent className="h-4 w-4" />
+            <span className="hidden sm:inline">Nhập mã</span>
+          </button>
         </div>
       </div>
 
@@ -489,6 +551,72 @@ export default function ResourcesClient({ resources, mode = "free" }: ResourcesC
                   </div>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        ) : null}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showRedeemPopup ? (
+          <div className="fixed inset-0 z-[370] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/70"
+              onClick={() => {
+                if (!isRedeeming) setShowRedeemPopup(false);
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              className="relative z-10 w-full max-w-sm rounded-3xl border border-paper/10 bg-asphalt p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-montserrat text-lg font-black uppercase text-paper">Nhập mã mở khóa</h3>
+                <button
+                  onClick={() => setShowRedeemPopup(false)}
+                  className="p-2 text-paper/40 hover:text-paper transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleRedeemCode} className="space-y-4">
+                <div>
+                  <p className="mb-2 text-[10px] font-montserrat font-bold uppercase tracking-widest text-paper/30">
+                    Mã code tài nguyên
+                  </p>
+                  <input
+                    autoFocus
+                    type="text"
+                    value={redeemCode}
+                    onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
+                    placeholder="VD: RESOURCE2024"
+                    className="w-full rounded-xl border border-paper/10 bg-paper/5 px-4 py-3 font-montserrat text-sm font-bold uppercase tracking-widest text-paper outline-none focus:border-[#FF8C00]/50 transition-all placeholder:text-paper/10"
+                    required
+                  />
+                </div>
+
+                {redeemMessage && (
+                  <div
+                    className={`rounded-xl p-3 text-xs font-bold ${
+                      redeemMessage.type === "success" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
+                    }`}
+                  >
+                    {redeemMessage.text}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isRedeeming || !redeemCode}
+                  className="ui-btn ui-btn-primary w-full py-3.5 font-montserrat text-[10px] font-bold uppercase tracking-[0.15em] disabled:opacity-50"
+                >
+                  {isRedeeming ? "Đang xử lý..." : "Kích hoạt mã ngay"}
+                </button>
+              </form>
             </motion.div>
           </div>
         ) : null}

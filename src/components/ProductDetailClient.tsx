@@ -202,7 +202,7 @@ export default function ProductDetailClient({ product, relatedProducts = [] }: P
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-sans selection:bg-paper selection:text-asphalt">
-      <main className="w-full max-w-[1180px] mx-auto px-3 sm:px-5 lg:px-6 pt-4 pb-28 lg:py-5 overflow-x-hidden">
+      <main className="w-full max-w-[1180px] mx-auto px-3 sm:px-5 lg:px-6 pb-28 lg:py-5 overflow-x-hidden">
         <Link
           href="/products"
           className="inline-flex items-center gap-2 text-xs font-montserrat font-bold uppercase tracking-[0.2em] opacity-30 hover:opacity-100 transition-opacity mb-4 group"

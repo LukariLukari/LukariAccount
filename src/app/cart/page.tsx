@@ -104,7 +104,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-asphalt text-paper font-montserrat selection:bg-paper selection:text-asphalt">
-      <main className="flex-1 min-h-screen pt-28 pb-24 md:pt-32">
+      <main className="flex-1 min-h-screen pb-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6 w-full">
           <h1 className="text-2xl md:text-4xl font-montserrat font-bold mb-8 md:mb-12 tracking-tighter text-paper uppercase">Giỏ hàng</h1>
 

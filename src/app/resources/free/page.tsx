@@ -12,7 +12,7 @@ export default async function FreeResourcesPage() {
   const resources = await getResourcesByMode("free");
   return (
     <main className="min-h-screen bg-asphalt text-paper">
-      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 md:pt-32 md:pb-16">
+      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 pb-12 md:pb-16">
         <ResourcesClient resources={resources} mode="free" />
       </div>
     </main>

@@ -28,6 +28,7 @@ export const adminMenuItems = [
   { icon: LayoutGrid, label: "Loại sản phẩm", href: "/admin/categories" },
   { icon: ImageIcon, label: "Banner", href: "/admin/banners" },
   { icon: BookOpen, label: "Tài nguyên", href: "/admin/resources" },
+  { icon: TicketPercent, label: "Mã tài nguyên", href: "/admin/resources/codes" },
   { icon: FileText, label: "Template", href: "/admin/product-templates" },
   { icon: TicketPercent, label: "Mã giảm giá", href: "/admin/coupons" },
   { icon: Users, label: "Người dùng", href: "/admin/users" },
